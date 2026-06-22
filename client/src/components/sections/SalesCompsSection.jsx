@@ -1,5 +1,6 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import AiGenerateButton from '../AiGenerateButton.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -14,7 +15,10 @@ export default function SalesCompsSection({ value, onChange, omId }) {
   }
 
   function addComp() {
-    onChange([...comps, { id: makeId(), address: '', saleDate: '', salePrice: '', pricePerSF: '', capRate: '', photo: null }]);
+    onChange([
+      ...comps,
+      { id: makeId(), address: '', saleDate: '', salePrice: '', pricePerSF: '', capRate: '', squareFeet: '', notes: '', photo: null },
+    ]);
   }
 
   function removeComp(id) {
@@ -49,9 +53,22 @@ export default function SalesCompsSection({ value, onChange, omId }) {
               <input type="text" value={c.pricePerSF} onChange={(e) => update(c.id, 'pricePerSF', e.target.value)} placeholder="$210" />
             </div>
           </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Cap Rate</label>
+              <input type="text" value={c.capRate} onChange={(e) => update(c.id, 'capRate', e.target.value)} placeholder="6.2%" />
+            </div>
+            <div className="field">
+              <label>Square Feet</label>
+              <input type="text" value={c.squareFeet} onChange={(e) => update(c.id, 'squareFeet', e.target.value)} placeholder="20,000 SF" />
+            </div>
+          </div>
           <div className="field">
-            <label>Cap Rate</label>
-            <input type="text" value={c.capRate} onChange={(e) => update(c.id, 'capRate', e.target.value)} placeholder="6.2%" />
+            <div className="field-label-row">
+              <label>Notes</label>
+              <AiGenerateButton omId={omId} kind="salesCompAnalysis" extra={{ compId: c.id }} onResult={(result) => update(c.id, 'notes', result)} label="Generate Pricing Analysis" />
+            </div>
+            <textarea value={c.notes} onChange={(e) => update(c.id, 'notes', e.target.value)} placeholder="Anything notable about this comp — condition, buyer profile, financing terms…" />
           </div>
           <div className="field">
             <label>Photo</label>

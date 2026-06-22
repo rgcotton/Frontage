@@ -30,4 +30,11 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ format }),
     }),
+  generateAi: (id, kind, extra = {}) =>
+    request(`/api/oms/${id}/ai/${kind}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(extra),
+    }),
+  geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
 };

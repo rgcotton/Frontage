@@ -10,6 +10,8 @@ import MarketSection from '../components/sections/MarketSection.jsx';
 import FinancialsSection from '../components/sections/FinancialsSection.jsx';
 import SalesCompsSection from '../components/sections/SalesCompsSection.jsx';
 import RentCompsSection from '../components/sections/RentCompsSection.jsx';
+import LocationMapSection from '../components/sections/LocationMapSection.jsx';
+import OfferingProceduresSection from '../components/sections/OfferingProceduresSection.jsx';
 import TeamSection from '../components/sections/TeamSection.jsx';
 
 const SECTION_COMPONENTS = {
@@ -20,6 +22,8 @@ const SECTION_COMPONENTS = {
   financials: FinancialsSection,
   salesComps: SalesCompsSection,
   rentComps: RentCompsSection,
+  locationMap: LocationMapSection,
+  offeringProcedures: OfferingProceduresSection,
   team: TeamSection,
 };
 
@@ -82,7 +86,7 @@ export default function Editor() {
 
   return (
     <div className="editor-layout">
-      <Sidebar activeKey={activeSection} onSelect={setActiveSection} propertyName={om.cover.propertyName} />
+      <Sidebar activeKey={activeSection} onSelect={setActiveSection} propertyName={om.cover.propertyName} om={om} />
 
       <main className="editor-main">
         <div className="save-indicator" style={{ marginBottom: 16 }}>
@@ -90,7 +94,15 @@ export default function Editor() {
           {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Could not save — retrying' : 'All changes saved'}
         </div>
 
-        <ActiveComponent value={om[activeSection]} onChange={(val) => updateSection(activeSection, val)} omId={om.id} />
+        <div className="section-fade" key={activeSection}>
+          <ActiveComponent
+            value={om[activeSection]}
+            onChange={(val) => updateSection(activeSection, val)}
+            omId={om.id}
+            om={om}
+            onNavigateToSection={setActiveSection}
+          />
+        </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28 }}>
           <button

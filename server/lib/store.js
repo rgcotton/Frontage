@@ -24,6 +24,9 @@ export function emptyOm(id) {
       city: '',
       state: '',
       zip: '',
+      formattedAddress: '',
+      lat: null,
+      lng: null,
       propertyType: '',
       tagline: '',
       coverPhoto: null,
@@ -34,6 +37,7 @@ export function emptyOm(id) {
       squareFootage: '',
       lotSize: '',
       units: '',
+      occupancyPct: '',
       zoning: '',
       parking: '',
       description: '',
@@ -49,23 +53,70 @@ export function emptyOm(id) {
     market: {
       marketName: '',
       narrative: '',
-      demographics: '',
+      population: '',
+      medianIncome: '',
+      daytimePopulation: '',
+      trafficCount: '',
+      submarketVacancyRate: '',
+      askingRents: '',
+      absorptionTrends: '',
       images: [],
     },
     financials: {
-      askingPrice: '',
-      noi: '',
-      capRate: '',
       grossIncome: '',
       operatingExpenses: '',
       lineItems: [],
       rentRollFile: null,
+      rentRoll: [],
+      proForma: {
+        assumptions: {
+          rentGrowthPct: '',
+          expenseGrowthPct: '',
+          vacancyPct: '',
+          holdPeriodYears: '',
+          exitCapRate: '',
+        },
+        cashFlows: [],
+      },
     },
     salesComps: [],
     rentComps: [],
+    offeringProcedures: {
+      loiInstructions: '',
+      tourInstructions: '',
+      offerDeadline: '',
+      dataRoomLink: '',
+      dataRoomInstructions: '',
+    },
     team: [],
     files: [],
   };
+}
+
+// Backfills any fields missing from an older record (read from disk) against
+// the current emptyOm() shape, so the app never has to run a migration script.
+function mergeWithDefaults(om) {
+  const defaults = emptyOm(om.id);
+  const merged = { ...defaults, ...om };
+  for (const key of ['cover', 'overview', 'executiveSummary', 'market', 'offeringProcedures']) {
+    merged[key] = { ...defaults[key], ...(om[key] || {}) };
+  }
+  merged.financials = {
+    ...defaults.financials,
+    ...(om.financials || {}),
+    proForma: {
+      assumptions: { ...defaults.financials.proForma.assumptions, ...(om.financials?.proForma?.assumptions || {}) },
+      cashFlows: om.financials?.proForma?.cashFlows || [],
+    },
+  };
+  const salesCompDefaults = { address: '', saleDate: '', salePrice: '', pricePerSF: '', capRate: '', squareFeet: '', notes: '', photo: null };
+  const rentCompDefaults = { address: '', tenant: '', rentPerSF: '', leaseTerm: '', squareFeet: '', leaseType: '' };
+  const teamDefaults = { name: '', title: '', phone: '', email: '', bio: '', headshot: null };
+  merged.salesComps = (om.salesComps || []).map((c) => ({ ...salesCompDefaults, ...c }));
+  merged.rentComps = (om.rentComps || []).map((c) => ({ ...rentCompDefaults, ...c }));
+  merged.team = (om.team || []).map((m) => ({ ...teamDefaults, ...m }));
+  merged.files = om.files || [];
+  return merged;
 }
 
 export async function listOms() {
@@ -100,7 +151,7 @@ export async function getOm(id) {
   await ensureDataDir();
   try {
     const raw = await fs.readFile(omPath(id), 'utf-8');
-    return JSON.parse(raw);
+    return mergeWithDefaults(JSON.parse(raw));
   } catch (err) {
     if (err.code === 'ENOENT') return null;
     throw err;

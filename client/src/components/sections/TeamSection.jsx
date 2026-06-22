@@ -14,7 +14,7 @@ export default function TeamSection({ value, onChange, omId }) {
   }
 
   function addMember() {
-    onChange([...team, { id: makeId(), name: '', title: '', phone: '', email: '', bio: '', headshot: null, companyLogo: null }]);
+    onChange([...team, { id: makeId(), name: '', title: '', phone: '', email: '', bio: '', headshot: null }]);
   }
 
   function removeMember(id) {
@@ -24,7 +24,7 @@ export default function TeamSection({ value, onChange, omId }) {
   return (
     <div className="section-form">
       <h2>About the Team</h2>
-      <p className="section-hint">Broker contact information and bios for the back page.</p>
+      <p className="section-hint">Broker contact information and bios for the team page. The brokerage logo from the Cover Page is used automatically on the Team and Back Cover pages.</p>
 
       {team.map((m, i) => (
         <div className="repeat-card" key={m.id}>
@@ -55,17 +55,10 @@ export default function TeamSection({ value, onChange, omId }) {
             <label>Bio</label>
             <textarea value={m.bio} onChange={(e) => update(m.id, 'bio', e.target.value)} />
           </div>
-          <div className="field-row">
-            <div className="field">
-              <label>Headshot</label>
-              <FileUpload omId={omId} accept="image/*" onUploaded={(refs) => update(m.id, 'headshot', refs[0])} />
-              {m.headshot && <FilePreview files={[m.headshot]} onRemove={() => update(m.id, 'headshot', null)} />}
-            </div>
-            <div className="field">
-              <label>Company Logo</label>
-              <FileUpload omId={omId} accept="image/*" onUploaded={(refs) => update(m.id, 'companyLogo', refs[0])} />
-              {m.companyLogo && <FilePreview files={[m.companyLogo]} onRemove={() => update(m.id, 'companyLogo', null)} />}
-            </div>
+          <div className="field">
+            <label>Headshot</label>
+            <FileUpload omId={omId} accept="image/*" onUploaded={(refs) => update(m.id, 'headshot', refs[0])} />
+            {m.headshot && <FilePreview files={[m.headshot]} onRemove={() => update(m.id, 'headshot', null)} />}
           </div>
           <button type="button" className="btn-danger-text" onClick={() => removeMember(m.id)}>
             Remove team member

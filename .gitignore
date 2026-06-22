@@ -2,6 +2,9 @@ node_modules/
 .DS_Store
 *.log
 
+# secrets
+server/.env
+
 # build output
 client/dist/
 

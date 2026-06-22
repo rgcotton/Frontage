@@ -1,11 +1,45 @@
+import { useState } from 'react';
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import { api } from '../../api.js';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
 
 export default function CoverSection({ value, onChange, omId }) {
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState(null);
+  const [geocodeResult, setGeocodeResult] = useState(null);
+
   function set(field, val) {
     onChange({ ...value, [field]: val });
+  }
+
+  async function handleValidateAddress() {
+    setGeocoding(true);
+    setGeocodeError(null);
+    setGeocodeResult(null);
+    try {
+      const result = await api.geocodeAddress(omId);
+      setGeocodeResult(result);
+    } catch (err) {
+      setGeocodeError(err.message);
+    } finally {
+      setGeocoding(false);
+    }
+  }
+
+  function applyGeocodeResult() {
+    onChange({
+      ...value,
+      formattedAddress: geocodeResult.formattedAddress,
+      lat: geocodeResult.lat,
+      lng: geocodeResult.lng,
+      addressLine1: geocodeResult.addressLine1 || value.addressLine1,
+      city: geocodeResult.city || value.city,
+      state: geocodeResult.state || value.state,
+      zip: geocodeResult.zip || value.zip,
+    });
+    setGeocodeResult(null);
   }
 
   return (
@@ -56,6 +90,37 @@ export default function CoverSection({ value, onChange, omId }) {
         </div>
       </div>
 
+      <div className="field">
+        <button type="button" className="btn btn-ghost btn-sm" onClick={handleValidateAddress} disabled={geocoding}>
+          {geocoding ? 'Validating…' : '📍 Validate & Format Address'}
+        </button>
+        {geocodeError && (
+          <p className="field-hint" style={{ color: 'var(--danger)' }}>
+            {geocodeError}
+          </p>
+        )}
+        {geocodeResult && (
+          <div className="geocode-banner">
+            <div className="geocode-banner-text">
+              <strong>Suggested:</strong> {geocodeResult.formattedAddress}
+            </div>
+            <div className="geocode-banner-actions">
+              <button type="button" className="btn btn-primary btn-sm" onClick={applyGeocodeResult}>
+                Apply
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGeocodeResult(null)}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+        {value.formattedAddress && (
+          <p className="field-hint" style={{ marginTop: 8 }}>
+            Validated: {value.formattedAddress}
+          </p>
+        )}
+      </div>
+
       <hr className="divider" />
 
       <div className="field">
@@ -66,7 +131,7 @@ export default function CoverSection({ value, onChange, omId }) {
 
       <div className="field">
         <label>Broker / Brokerage Logo</label>
-        <FileUpload omId={omId} accept="image/*" hint="Appears on the cover page." onUploaded={(refs) => set('brokerLogo', refs[0])} />
+        <FileUpload omId={omId} accept="image/*" hint="Used automatically on the Cover, Team, and Back Cover pages." onUploaded={(refs) => set('brokerLogo', refs[0])} />
         {value.brokerLogo && <FilePreview files={[value.brokerLogo]} onRemove={() => set('brokerLogo', null)} />}
       </div>
     </div>

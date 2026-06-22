@@ -3,6 +3,8 @@ function makeId() {
   return `rcomp-${Date.now()}-${nextId++}`;
 }
 
+const LEASE_TYPES = ['NNN', 'Gross', 'Modified Gross'];
+
 export default function RentCompsSection({ value, onChange }) {
   const comps = value || [];
 
@@ -11,7 +13,7 @@ export default function RentCompsSection({ value, onChange }) {
   }
 
   function addComp() {
-    onChange([...comps, { id: makeId(), address: '', tenant: '', rentPerSF: '', leaseTerm: '', squareFeet: '' }]);
+    onChange([...comps, { id: makeId(), address: '', tenant: '', rentPerSF: '', leaseTerm: '', squareFeet: '', leaseType: '' }]);
   }
 
   function removeComp(id) {
@@ -41,7 +43,7 @@ export default function RentCompsSection({ value, onChange }) {
           <div className="field-row cols-3">
             <div className="field">
               <label>Rent / SF</label>
-              <input type="text" value={c.rentPerSF} onChange={(e) => update(c.id, 'rentPerSF', e.target.value)} placeholder="$28.50 NNN" />
+              <input type="text" value={c.rentPerSF} onChange={(e) => update(c.id, 'rentPerSF', e.target.value)} placeholder="$28.50" />
             </div>
             <div className="field">
               <label>Lease Term</label>
@@ -50,6 +52,19 @@ export default function RentCompsSection({ value, onChange }) {
             <div className="field">
               <label>Square Feet</label>
               <input type="text" value={c.squareFeet} onChange={(e) => update(c.id, 'squareFeet', e.target.value)} placeholder="2,400 SF" />
+            </div>
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Lease Type</label>
+              <select value={c.leaseType} onChange={(e) => update(c.id, 'leaseType', e.target.value)}>
+                <option value="">Select…</option>
+                {LEASE_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <button type="button" className="btn-danger-text" onClick={() => removeComp(c.id)}>

@@ -1,7 +1,8 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import AiGenerateButton from '../AiGenerateButton.jsx';
 
-export default function OverviewSection({ value, onChange, omId }) {
+export default function OverviewSection({ value, onChange, omId, om }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -13,6 +14,8 @@ export default function OverviewSection({ value, onChange, omId }) {
   function removePhoto(file) {
     set('photos', (value.photos || []).filter((f) => f.id !== file.id));
   }
+
+  const isMultifamily = om?.cover?.propertyType === 'Multifamily';
 
   return (
     <div className="section-form">
@@ -35,9 +38,15 @@ export default function OverviewSection({ value, onChange, omId }) {
       </div>
 
       <div className="field-row cols-3">
+        {isMultifamily && (
+          <div className="field">
+            <label>Units</label>
+            <input type="text" value={value.units} onChange={(e) => set('units', e.target.value)} />
+          </div>
+        )}
         <div className="field">
-          <label>Units</label>
-          <input type="text" value={value.units} onChange={(e) => set('units', e.target.value)} />
+          <label>Occupancy %</label>
+          <input type="text" value={value.occupancyPct} onChange={(e) => set('occupancyPct', e.target.value)} placeholder="94%" />
         </div>
         <div className="field">
           <label>Zoning</label>
@@ -50,7 +59,10 @@ export default function OverviewSection({ value, onChange, omId }) {
       </div>
 
       <div className="field">
-        <label>Description</label>
+        <div className="field-label-row">
+          <label>Description</label>
+          <AiGenerateButton omId={omId} kind="propertyDescription" onResult={(result) => set('description', result)} />
+        </div>
         <textarea value={value.description} onChange={(e) => set('description', e.target.value)} placeholder="Describe the property's condition, layout, and standout features…" />
       </div>
 

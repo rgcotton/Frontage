@@ -1,4 +1,6 @@
-export default function ExecutiveSummarySection({ value, onChange }) {
+import AiGenerateButton from '../AiGenerateButton.jsx';
+
+export default function ExecutiveSummarySection({ value, onChange, omId }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -38,13 +40,21 @@ export default function ExecutiveSummarySection({ value, onChange }) {
       </div>
 
       <div className="field">
-        <label>Summary Narrative</label>
+        <div className="field-label-row">
+          <label>Summary Narrative</label>
+          <AiGenerateButton omId={omId} kind="executiveSummaryNarrative" onResult={(result) => set('narrative', result)} />
+        </div>
         <textarea value={value.narrative} onChange={(e) => set('narrative', e.target.value)} placeholder="Summarize the investment opportunity in a few compelling paragraphs…" />
       </div>
 
       <hr className="divider" />
 
-      <div className="subsection-title">Investment Highlights</div>
+      <div className="field-label-row" style={{ marginBottom: 12 }}>
+        <div className="subsection-title" style={{ marginBottom: 0 }}>
+          Investment Highlights
+        </div>
+        <AiGenerateButton omId={omId} kind="investmentHighlights" onResult={(result) => set('highlights', result)} label="Generate Highlights" />
+      </div>
       <div className="list-rows">
         {(value.highlights || []).map((h, i) => (
           <div className="list-row" key={i}>

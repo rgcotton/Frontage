@@ -1,35 +1,12 @@
 import { useState } from 'react';
 import { api } from '../api.js';
+import { computeCompleteness, SECTION_LABELS } from '../lib/completeness.js';
 
 const FORMATS = [
   { value: 'pdf', label: 'PDF Document' },
   { value: 'pptx', label: 'PowerPoint Deck' },
   { value: 'web', label: 'Shareable Web Link' },
 ];
-
-function isSectionComplete(om) {
-  return {
-    cover: Boolean(om.cover.propertyName && om.cover.addressLine1),
-    overview: Boolean(om.overview.description),
-    executiveSummary: Boolean(om.executiveSummary.narrative),
-    market: Boolean(om.market.narrative),
-    financials: Boolean(om.financials.askingPrice),
-    salesComps: (om.salesComps || []).length > 0,
-    rentComps: (om.rentComps || []).length > 0,
-    team: (om.team || []).length > 0,
-  };
-}
-
-const LABELS = {
-  cover: 'Cover Page',
-  overview: 'Property Overview',
-  executiveSummary: 'Executive Summary',
-  market: 'Market Overview',
-  financials: 'Financials',
-  salesComps: 'Sales Comps',
-  rentComps: 'Rent Comps',
-  team: 'Team',
-};
 
 export default function OutputPanel({ om }) {
   const [format, setFormat] = useState('pdf');
@@ -51,7 +28,7 @@ export default function OutputPanel({ om }) {
     }
   }
 
-  const completion = isSectionComplete(om);
+  const completion = computeCompleteness(om);
   const shareFullUrl = result?.shareUrl ? `${window.location.origin}${result.shareUrl}` : null;
 
   return (
@@ -107,7 +84,7 @@ export default function OutputPanel({ om }) {
           {Object.entries(completion).map(([key, done]) => (
             <div className={`checklist-item ${done ? 'done' : ''}`} key={key}>
               <span className="check" />
-              {LABELS[key]}
+              {SECTION_LABELS[key]}
             </div>
           ))}
         </div>
