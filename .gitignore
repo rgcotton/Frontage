@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+*.log
+
+# build output
+client/dist/
+
+# generated/runtime data (kept locally, not committed)
+server/data/oms/*.json
+server/uploads/*/
+server/generated/*
+
+!server/data/oms/.gitkeep
+!server/uploads/.gitkeep
+!server/generated/.gitkeep

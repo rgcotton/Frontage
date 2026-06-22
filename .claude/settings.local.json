@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(pkill -f \"node index.js\")",
+      "Bash(rm -rf /Users/robertcotton/automated-om-builder/automated-om-builder/server/data/oms/*.json)",
+      "Bash(rm -rf /Users/robertcotton/automated-om-builder/automated-om-builder/server/uploads/* /Users/robertcotton/automated-om-builder/automated-om-builder/server/generated/*)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/api/health)",
+      "Bash(curl -s -X POST http://localhost:5173/api/oms)",
+      "Skill(run)",
+      "Bash(npm ls *)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(mkdir -p /tmp/om-pw-test)",
+      "Read(//tmp/**)",
+      "Bash(npm init *)",
+      "Bash(npx playwright *)",
+      "Bash(python3 -c ' *)",
+      "Bash(node test.mjs)",
+      "Bash(curl -s -o /tmp/om-pw-test/downloaded.pdf http://localhost:5173/generated/zCldJTDPWz-1782142297308.pdf)",
+      "Bash(pkill -f \"node --watch index.js\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(rm -rf server/data/oms/*.json server/uploads/* server/generated/*)",
+      "Bash(rm -rf /tmp/om-pw-test)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:4000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"client status: %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
