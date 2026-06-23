@@ -35,5 +35,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`OM Builder API listening on http://localhost:${PORT}`);
+  console.log(`PropDocs API listening on http://localhost:${PORT}`);
 });

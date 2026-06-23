@@ -8,9 +8,8 @@ function TopBar() {
     <div className="topbar">
       <Link to="/" className="brand">
         <span className="dot" />
-        OM Builder
+        PropDocs
       </Link>
-      <span className="subtitle">Offering Memorandum Generator</span>
       <div className="spacer" />
     </div>
   );
@@ -20,15 +19,7 @@ function App() {
   return (
     <div className="app">
       <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <TopBar />
-              <Home />
-            </>
-          }
-        />
+        <Route path="/" element={<Home />} />
         <Route
           path="/om/:id"
           element={
