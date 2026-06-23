@@ -1,6 +1,7 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput, PercentInput, SquareFeetInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
 function makeId(prefix) {
@@ -89,11 +90,11 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
       <div className="field-row">
         <div className="field">
           <label>Gross Income</label>
-          <input type="text" value={value.grossIncome} onChange={(e) => set('grossIncome', e.target.value)} placeholder="$480,000" />
+          <CurrencyInput value={value.grossIncome} onChange={(v) => set('grossIncome', v)} placeholder="$480,000" />
         </div>
         <div className="field">
           <label>Operating Expenses</label>
-          <input type="text" value={value.operatingExpenses} onChange={(e) => set('operatingExpenses', e.target.value)} placeholder="$155,000" />
+          <CurrencyInput value={value.operatingExpenses} onChange={(v) => set('operatingExpenses', v)} placeholder="$155,000" />
         </div>
       </div>
 
@@ -109,11 +110,11 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
             </div>
             <div className="field">
               <label>Income</label>
-              <input type="text" value={li.income} onChange={(e) => updateLineItem(li.id, 'income', e.target.value)} />
+              <CurrencyInput value={li.income} onChange={(v) => updateLineItem(li.id, 'income', v)} />
             </div>
             <div className="field">
               <label>Expense</label>
-              <input type="text" value={li.expense} onChange={(e) => updateLineItem(li.id, 'expense', e.target.value)} />
+              <CurrencyInput value={li.expense} onChange={(v) => updateLineItem(li.id, 'expense', v)} />
             </div>
           </div>
           <button type="button" className="btn-danger-text" onClick={() => removeLineItem(li.id)}>
@@ -141,7 +142,7 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
             </div>
             <div className="field">
               <label>SF</label>
-              <input type="text" value={r.sf} onChange={(e) => updateRentRollRow(r.id, 'sf', e.target.value)} />
+              <SquareFeetInput value={r.sf} onChange={(v) => updateRentRollRow(r.id, 'sf', v)} />
             </div>
           </div>
           <div className="field-row cols-3">
@@ -168,11 +169,11 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
           <div className="field-row">
             <div className="field">
               <label>Monthly Rent</label>
-              <input type="text" value={r.monthlyRent} onChange={(e) => updateRentRollRow(r.id, 'monthlyRent', e.target.value)} />
+              <CurrencyInput value={r.monthlyRent} onChange={(v) => updateRentRollRow(r.id, 'monthlyRent', v)} />
             </div>
             <div className="field">
               <label>Annual Rent</label>
-              <input type="text" value={r.annualRent} onChange={(e) => updateRentRollRow(r.id, 'annualRent', e.target.value)} />
+              <CurrencyInput value={r.annualRent} onChange={(v) => updateRentRollRow(r.id, 'annualRent', v)} />
             </div>
           </div>
           <button type="button" className="btn-danger-text" onClick={() => removeRentRollRow(r.id)}>
@@ -190,15 +191,15 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
       <div className="field-row cols-3">
         <div className="field">
           <label>Rent Growth</label>
-          <input type="text" value={value.proForma.assumptions.rentGrowthPct} onChange={(e) => setAssumption('rentGrowthPct', e.target.value)} placeholder="3%" />
+          <PercentInput value={value.proForma.assumptions.rentGrowthPct} onChange={(v) => setAssumption('rentGrowthPct', v)} placeholder="3%" />
         </div>
         <div className="field">
           <label>Expense Growth</label>
-          <input type="text" value={value.proForma.assumptions.expenseGrowthPct} onChange={(e) => setAssumption('expenseGrowthPct', e.target.value)} placeholder="2.5%" />
+          <PercentInput value={value.proForma.assumptions.expenseGrowthPct} onChange={(v) => setAssumption('expenseGrowthPct', v)} placeholder="2.5%" />
         </div>
         <div className="field">
           <label>Vacancy</label>
-          <input type="text" value={value.proForma.assumptions.vacancyPct} onChange={(e) => setAssumption('vacancyPct', e.target.value)} placeholder="5%" />
+          <PercentInput value={value.proForma.assumptions.vacancyPct} onChange={(v) => setAssumption('vacancyPct', v)} placeholder="5%" />
         </div>
       </div>
       <div className="field-row cols-3">
@@ -208,7 +209,7 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
         </div>
         <div className="field">
           <label>Exit Cap Rate</label>
-          <input type="text" value={value.proForma.assumptions.exitCapRate} onChange={(e) => setAssumption('exitCapRate', e.target.value)} placeholder="6.75%" />
+          <PercentInput value={value.proForma.assumptions.exitCapRate} onChange={(v) => setAssumption('exitCapRate', v)} placeholder="6.75%" />
         </div>
       </div>
 
@@ -222,25 +223,25 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
             </div>
             <div className="field">
               <label>Gross Income</label>
-              <input type="text" value={r.grossIncome} onChange={(e) => updateCashFlowRow(r.id, 'grossIncome', e.target.value)} />
+              <CurrencyInput value={r.grossIncome} onChange={(v) => updateCashFlowRow(r.id, 'grossIncome', v)} />
             </div>
             <div className="field">
               <label>Vacancy Loss</label>
-              <input type="text" value={r.vacancyLoss} onChange={(e) => updateCashFlowRow(r.id, 'vacancyLoss', e.target.value)} />
+              <CurrencyInput value={r.vacancyLoss} onChange={(v) => updateCashFlowRow(r.id, 'vacancyLoss', v)} />
             </div>
           </div>
           <div className="field-row cols-3">
             <div className="field">
               <label>Operating Expenses</label>
-              <input type="text" value={r.operatingExpenses} onChange={(e) => updateCashFlowRow(r.id, 'operatingExpenses', e.target.value)} />
+              <CurrencyInput value={r.operatingExpenses} onChange={(v) => updateCashFlowRow(r.id, 'operatingExpenses', v)} />
             </div>
             <div className="field">
               <label>NOI</label>
-              <input type="text" value={r.noi} onChange={(e) => updateCashFlowRow(r.id, 'noi', e.target.value)} />
+              <CurrencyInput value={r.noi} onChange={(v) => updateCashFlowRow(r.id, 'noi', v)} />
             </div>
             <div className="field">
               <label>Cash Flow</label>
-              <input type="text" value={r.cashFlow} onChange={(e) => updateCashFlowRow(r.id, 'cashFlow', e.target.value)} />
+              <CurrencyInput value={r.cashFlow} onChange={(v) => updateCashFlowRow(r.id, 'cashFlow', v)} />
             </div>
           </div>
           <button type="button" className="btn-danger-text" onClick={() => removeCashFlowRow(r.id)}>

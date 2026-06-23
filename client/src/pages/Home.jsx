@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import { getUser } from '../lib/user.js';
 import DocTypeSelectModal from '../components/DocTypeSelectModal.jsx';
 import DocCardMenu from '../components/DocCardMenu.jsx';
 import TextPromptModal from '../components/TextPromptModal.jsx';
@@ -26,6 +27,7 @@ export default function Home() {
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [renamingOm, setRenamingOm] = useState(null);
   const navigate = useNavigate();
+  const user = getUser();
 
   function loadAll() {
     return Promise.all([api.listOms(), api.listFolders()]).then(([omList, folderList]) => {
@@ -38,13 +40,16 @@ export default function Home() {
     loadAll().finally(() => setLoading(false));
   }, []);
 
-  async function handleSelectDocType(docType) {
+  async function handleCreateDocument(docType, sourceId) {
     setCreating(true);
     try {
       const om = await api.createOm(docType);
+      if (sourceId) {
+        await api.autofillOm(om.id, sourceId);
+      }
       navigate(`/om/${om.id}`);
     } catch (err) {
-      alert(`Could not create offering: ${err.message}`);
+      alert(`Could not create document: ${err.message}`);
       setCreating(false);
       setShowDocTypeModal(false);
     }
@@ -90,71 +95,87 @@ export default function Home() {
   const visibleOms = oms.filter((om) => (activeFolderId === null ? true : om.folderId === activeFolderId));
 
   return (
-    <div className="home-page">
-      <div className="home-header">
-        <div>
-          <h1>Your Documents</h1>
-          <p>Build a polished Offering Memorandum, One Pager, or Broker Opinion of Value in minutes — fill in the details, then export as PDF, PowerPoint, or a shareable link.</p>
+    <div className="dashboard">
+      <aside className="dashboard-sidebar">
+        <div className="dashboard-sidebar-brand">
+          <span className="dot" />
+          PropDocs
         </div>
-        <button className="btn btn-primary" onClick={() => setShowDocTypeModal(true)} disabled={creating}>
-          {creating ? 'Creating…' : '+ New Document'}
-        </button>
-      </div>
 
-      {!loading && (
-        <div className="folder-bar">
-          <button type="button" className={`folder-pill ${activeFolderId === null ? 'active' : ''}`} onClick={() => setActiveFolderId(null)}>
-            All Documents
+        <div className="dashboard-sidebar-label">Folders</div>
+        <nav className="dashboard-folder-nav">
+          <button type="button" className={`folder-nav-item ${activeFolderId === null ? 'active' : ''}`} onClick={() => setActiveFolderId(null)}>
+            <span className="folder-nav-icon">📄</span> All Documents
           </button>
           {folders.map((f) => (
             <button
               type="button"
               key={f.id}
-              className={`folder-pill ${activeFolderId === f.id ? 'active' : ''}`}
+              className={`folder-nav-item ${activeFolderId === f.id ? 'active' : ''}`}
               onClick={() => setActiveFolderId(f.id)}
             >
-              📁 {f.name}
+              <span className="folder-nav-icon">📁</span> {f.name}
             </button>
           ))}
-          <button type="button" className="folder-pill folder-pill-add" onClick={() => setShowNewFolderModal(true)}>
-            + New Folder
+        </nav>
+        <button type="button" className="folder-nav-add" onClick={() => setShowNewFolderModal(true)}>
+          + New Folder
+        </button>
+        {activeFolderId !== null && (
+          <button type="button" className="folder-nav-delete" onClick={handleDeleteFolder}>
+            Delete this folder
           </button>
-          {activeFolderId !== null && (
-            <button type="button" className="folder-bar-delete" onClick={handleDeleteFolder}>
-              Delete this folder
-            </button>
-          )}
-        </div>
-      )}
+        )}
+      </aside>
 
-      {loading ? (
-        <p>Loading…</p>
-      ) : visibleOms.length === 0 ? (
-        <div className="empty-state">
-          <p>{oms.length === 0 ? 'No documents yet. Create your first one to get started.' : 'No documents in this folder yet.'}</p>
-        </div>
-      ) : (
-        <div className="om-grid">
-          {visibleOms.map((om) => (
-            <div key={om.id} className="om-card" onClick={() => navigate(`/om/${om.id}`)}>
-              <DocCardMenu
-                folders={folders}
-                currentFolderId={om.folderId}
-                onRename={() => setRenamingOm(om)}
-                onDuplicate={() => handleDuplicate(om)}
-                onMoveToFolder={(folderId) => handleMoveToFolder(om, folderId)}
-                onDelete={() => handleDelete(om)}
-              />
-              <span className="om-card-doctype">{DOC_TYPE_LABELS[om.docType] || DOC_TYPE_LABELS.om}</span>
-              <h3>{om.propertyName || 'Untitled Property'}</h3>
-              <div className="meta">Last edited {formatDate(om.updatedAt)}</div>
+      <main className="dashboard-main">
+        <div className="dashboard-topline">{user && <span className="dashboard-user">👤 {user.name}</span>}</div>
+
+        <section className="dashboard-hero">
+          <div className="dashboard-hero-eyebrow">
+            <span className="dot" /> PropDocs
+          </div>
+          <h1>Professional CRE Documents in Minutes</h1>
+          <p>
+            Build Offering Memorandums, One Pagers, and Broker Opinions of Value — fill in the details once, then export as a polished PDF,
+            PowerPoint deck, or shareable link.
+          </p>
+          <button className="btn btn-gold" onClick={() => setShowDocTypeModal(true)} disabled={creating}>
+            {creating ? 'Creating…' : '+ New Document'}
+          </button>
+        </section>
+
+        <section className="dashboard-grid-section">
+          {loading ? (
+            <p className="dashboard-user">Loading…</p>
+          ) : visibleOms.length === 0 ? (
+            <div className="empty-state">
+              <p>{oms.length === 0 ? 'No documents yet. Create your first one to get started.' : 'No documents in this folder yet.'}</p>
             </div>
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="om-grid">
+              {visibleOms.map((om) => (
+                <div key={om.id} className="om-card" onClick={() => navigate(`/om/${om.id}`)}>
+                  <DocCardMenu
+                    folders={folders}
+                    currentFolderId={om.folderId}
+                    onRename={() => setRenamingOm(om)}
+                    onDuplicate={() => handleDuplicate(om)}
+                    onMoveToFolder={(folderId) => handleMoveToFolder(om, folderId)}
+                    onDelete={() => handleDelete(om)}
+                  />
+                  <span className="om-card-doctype">{DOC_TYPE_LABELS[om.docType] || DOC_TYPE_LABELS.om}</span>
+                  <h3>{om.propertyName || 'Untitled Property'}</h3>
+                  <div className="meta">Last edited {formatDate(om.updatedAt)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
 
       {showDocTypeModal && (
-        <DocTypeSelectModal onSelect={handleSelectDocType} onClose={() => setShowDocTypeModal(false)} creating={creating} />
+        <DocTypeSelectModal documents={oms} onComplete={handleCreateDocument} onClose={() => setShowDocTypeModal(false)} creating={creating} />
       )}
 
       {showNewFolderModal && (

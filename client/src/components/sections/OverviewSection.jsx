@@ -2,6 +2,7 @@ import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { SquareFeetInput, PercentInput, YearInput } from '../inputs/FormattedInputs.jsx';
 
 export default function OverviewSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
@@ -31,11 +32,11 @@ export default function OverviewSection({ value, onChange, omId, om, onUpdateOm 
       <div className="field-row cols-3">
         <div className="field">
           <label>Year Built</label>
-          <input type="text" value={value.yearBuilt} onChange={(e) => set('yearBuilt', e.target.value)} />
+          <YearInput value={value.yearBuilt} onChange={(v) => set('yearBuilt', v)} placeholder="2018" />
         </div>
         <div className="field">
           <label>Square Footage</label>
-          <input type="text" value={value.squareFootage} onChange={(e) => set('squareFootage', e.target.value)} placeholder="e.g. 24,500 SF" />
+          <SquareFeetInput value={value.squareFootage} onChange={(v) => set('squareFootage', v)} placeholder="e.g. 24,500 SF" />
         </div>
         <div className="field">
           <label>Lot Size</label>
@@ -52,7 +53,7 @@ export default function OverviewSection({ value, onChange, omId, om, onUpdateOm 
         )}
         <div className="field">
           <label>Occupancy %</label>
-          <input type="text" value={value.occupancyPct} onChange={(e) => set('occupancyPct', e.target.value)} placeholder="94%" />
+          <PercentInput value={value.occupancyPct} onChange={(v) => set('occupancyPct', v)} placeholder="94%" />
         </div>
         <div className="field">
           <label>Zoning</label>
@@ -67,7 +68,7 @@ export default function OverviewSection({ value, onChange, omId, om, onUpdateOm 
       <div className="field">
         <div className="field-label-row">
           <label>Description</label>
-          <AiGenerateButton omId={omId} kind="propertyDescription" onResult={(result) => set('description', result)} />
+          <AiGenerateButton omId={omId} kind="propertyDescription" om={om} onResult={(result) => set('description', result)} />
         </div>
         <textarea value={value.description} onChange={(e) => set('description', e.target.value)} placeholder="Describe the property's condition, layout, and standout features…" />
       </div>

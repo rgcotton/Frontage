@@ -15,6 +15,12 @@
   --shadow-sm: 0 1px 3px rgba(17, 32, 59, 0.08), 0 1px 2px rgba(17, 32, 59, 0.06);
   --shadow-md: 0 4px 12px rgba(17, 32, 59, 0.12);
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --dash-bg: #0f1b33;
+  --dash-sidebar-bg: #142544;
+  --dash-card-bg: #1b2d4f;
+  --dash-card-border: rgba(201, 162, 39, 0.18);
+  --dash-text: #f2f3f5;
+  --dash-text-muted: #a7aebd;
 }
 
 * {
@@ -106,48 +112,206 @@ select {
   font-size: 13px;
 }
 
-/* ---------- Home / list page ---------- */
+/* ---------- Dashboard ---------- */
 
-.home-page {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-}
-
-.home-header {
+.dashboard {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 28px;
-  gap: 16px;
-  flex-wrap: wrap;
+  min-height: 100vh;
+  background: var(--dash-bg);
 }
 
-.home-header p {
-  color: var(--gray-500);
-  margin: 6px 0 0;
+.dashboard-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--dash-sidebar-bg);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--white);
+  text-decoration: none;
+  padding: 0 8px;
+  margin-bottom: 28px;
+}
+
+.dashboard-sidebar-brand .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.dashboard-folder-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.folder-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 10px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-family: var(--font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.folder-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.folder-nav-item.active {
+  background: rgba(201, 162, 39, 0.16);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.folder-nav-icon {
+  flex-shrink: 0;
+}
+
+.folder-nav-add {
+  margin-top: 8px;
+  text-align: left;
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 9px 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.folder-nav-add:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.folder-nav-delete {
+  margin-top: auto;
+  background: none;
+  border: none;
+  color: #ff8a80;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px 40px 60px;
+}
+
+.dashboard-topline {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.dashboard-user {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+.dashboard-hero {
+  padding: 56px 0 40px;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.dashboard-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
   font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+
+.dashboard-hero-eyebrow .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+
+.dashboard-hero h1 {
+  color: var(--white);
+  font-size: 38px;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+
+.dashboard-hero p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.dashboard-grid-section {
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 .om-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 18px;
 }
 
 .om-card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  position: relative;
+  cursor: pointer;
+  background: var(--dash-card-bg);
+  border: 1px solid var(--dash-card-border);
   border-radius: var(--radius);
   padding: 18px;
-  text-decoration: none;
-  color: var(--charcoal);
-  display: block;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  color: var(--dash-text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .om-card:hover {
-  box-shadow: var(--shadow-md);
+  border-color: var(--gold);
   transform: translateY(-1px);
 }
 
@@ -157,8 +321,8 @@ select {
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--gold-dark);
-  background: rgba(201, 162, 39, 0.12);
+  color: var(--gold);
+  background: rgba(201, 162, 39, 0.16);
   padding: 3px 8px;
   border-radius: 4px;
   margin-bottom: 8px;
@@ -167,18 +331,19 @@ select {
 .om-card h3 {
   font-size: 16px;
   margin-bottom: 6px;
+  color: var(--white);
 }
 
 .om-card .meta {
   font-size: 12px;
-  color: var(--gray-500);
+  color: var(--dash-text-muted);
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: var(--gray-500);
-  border: 1.5px dashed var(--gray-300);
+  color: var(--dash-text-muted);
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
   border-radius: var(--radius);
 }
 
@@ -1489,6 +1654,11 @@ select {
   margin: 18px 0;
 }
 
+.doc-pick-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .doc-type-option {
   display: flex;
   flex-direction: column;
@@ -1524,11 +1694,6 @@ select {
 
 /* ---------- Document card menu ---------- */
 
-.om-card {
-  position: relative;
-  cursor: pointer;
-}
-
 .doc-card-menu {
   position: absolute;
   top: 12px;
@@ -1540,8 +1705,8 @@ select {
   height: 26px;
   border-radius: 6px;
   border: none;
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--charcoal);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
@@ -1551,7 +1716,7 @@ select {
 }
 
 .doc-card-menu-trigger:hover {
-  background: var(--gray-100);
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .doc-card-menu-dropdown {
@@ -1606,47 +1771,58 @@ select {
   color: var(--gray-500);
 }
 
-/* ---------- Folder bar ---------- */
+/* ---------- Signup screen ---------- */
 
-.folder-bar {
+.signup-screen {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--dash-bg) 0%, #0c1830 100%);
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.signup-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.signup-brand {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--navy);
+  margin-bottom: 18px;
 }
 
-.folder-pill {
-  background: var(--white);
-  border: 1.5px solid var(--gray-200);
-  border-radius: 999px;
-  padding: 7px 14px;
-  font-size: 13px;
-  color: var(--charcoal);
-  cursor: pointer;
-  font-family: var(--font);
+.signup-brand .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
 }
 
-.folder-pill:hover {
-  border-color: var(--navy);
+.signup-card h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
 }
 
-.folder-pill.active {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: var(--white);
-}
-
-.folder-pill-add {
-  border-style: dashed;
+.signup-card p {
   color: var(--gray-500);
+  font-size: 13.5px;
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
-.folder-bar-delete {
-  background: none;
-  border: none;
-  color: var(--danger);
-  font-size: 12.5px;
-  cursor: pointer;
-  padding: 6px 8px;
+.signup-card form {
+  text-align: left;
 }
+

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { api } from '../../api.js';
 
 const BACKGROUND_OPTIONS = [
   { value: 'white', label: 'White' },
@@ -12,10 +14,35 @@ const FONT_OPTIONS = [
   { value: 'bold', label: 'Bold' },
 ];
 
-export default function BrandingSection({ value, onChange, om, onUpdateOm }) {
+export default function BrandingSection({ value, onChange, omId, om, onUpdateOm }) {
+  const [analyzing, setAnalyzing] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
+  const [error, setError] = useState(null);
+
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
+
+  async function handleExtractColors() {
+    setError(null);
+    setSuggestion(null);
+    setAnalyzing(true);
+    try {
+      const result = await api.analyzeLogo(omId);
+      setSuggestion(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  function applySuggestion() {
+    onChange({ ...value, primaryColor: suggestion.primaryColor, accentColor: suggestion.accentColor });
+    setSuggestion(null);
+  }
+
+  const hasLogo = Boolean(om.cover?.brokerLogo);
 
   return (
     <div className="section-form">
@@ -26,6 +53,37 @@ export default function BrandingSection({ value, onChange, om, onUpdateOm }) {
         value={om.aiInstructions?.branding}
         onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, branding: text } })}
       />
+
+      {hasLogo && (
+        <div className="field">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={handleExtractColors} disabled={analyzing}>
+            {analyzing ? 'Extracting…' : '🎨 Extract Colors from Logo'}
+          </button>
+          {error && (
+            <p className="field-hint" style={{ color: 'var(--danger)' }}>
+              {error}
+            </p>
+          )}
+          {suggestion && (
+            <div className="geocode-banner">
+              <div className="geocode-banner-text">
+                <strong>Suggested:</strong>
+                <span className="color-swatch" style={{ background: suggestion.primaryColor }} title={suggestion.primaryColor} />
+                <span className="color-swatch" style={{ background: suggestion.accentColor }} title={suggestion.accentColor} />
+                {suggestion.primaryColor} / {suggestion.accentColor}
+              </div>
+              <div className="geocode-banner-actions">
+                <button type="button" className="btn btn-primary btn-sm" onClick={applySuggestion}>
+                  Apply
+                </button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSuggestion(null)}>
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="field-row">
         <div className="field">
@@ -43,6 +101,8 @@ export default function BrandingSection({ value, onChange, om, onUpdateOm }) {
           </div>
         </div>
       </div>
+
+      <p className="field-hint">Your logo will be used in the document regardless of color selection.</p>
 
       <div className="field-row">
         <div className="field">

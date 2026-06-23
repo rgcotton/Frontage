@@ -2,6 +2,7 @@ import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput, PercentInput } from '../inputs/FormattedInputs.jsx';
 
 export default function MarketSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
@@ -34,7 +35,7 @@ export default function MarketSection({ value, onChange, omId, om, onUpdateOm })
       <div className="field">
         <div className="field-label-row">
           <label>Market Narrative</label>
-          <AiGenerateButton omId={omId} kind="marketNarrative" onResult={(result) => set('narrative', result)} />
+          <AiGenerateButton omId={omId} kind="marketNarrative" om={om} onResult={(result) => set('narrative', result)} />
         </div>
         <textarea value={value.narrative} onChange={(e) => set('narrative', e.target.value)} placeholder="Describe market trends, demand drivers, and growth outlook…" />
       </div>
@@ -49,7 +50,7 @@ export default function MarketSection({ value, onChange, omId, om, onUpdateOm })
         </div>
         <div className="field">
           <label>Median Household Income</label>
-          <input type="text" value={value.medianIncome} onChange={(e) => set('medianIncome', e.target.value)} placeholder="$78,500" />
+          <CurrencyInput value={value.medianIncome} onChange={(v) => set('medianIncome', v)} placeholder="$78,500" />
         </div>
         <div className="field">
           <label>Daytime Population</label>
@@ -69,7 +70,7 @@ export default function MarketSection({ value, onChange, omId, om, onUpdateOm })
       <div className="field-row">
         <div className="field">
           <label>Submarket Vacancy Rate</label>
-          <input type="text" value={value.submarketVacancyRate} onChange={(e) => set('submarketVacancyRate', e.target.value)} placeholder="5.2%" />
+          <PercentInput value={value.submarketVacancyRate} onChange={(v) => set('submarketVacancyRate', v)} placeholder="5.2%" />
         </div>
         <div className="field">
           <label>Asking Rents</label>

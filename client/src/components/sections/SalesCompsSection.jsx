@@ -2,6 +2,7 @@ import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput, PercentInput, SquareFeetInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -52,27 +53,27 @@ export default function SalesCompsSection({ value, onChange, omId, om, onUpdateO
             </div>
             <div className="field">
               <label>Sale Price</label>
-              <input type="text" value={c.salePrice} onChange={(e) => update(c.id, 'salePrice', e.target.value)} placeholder="$4,200,000" />
+              <CurrencyInput value={c.salePrice} onChange={(v) => update(c.id, 'salePrice', v)} placeholder="$4,200,000" />
             </div>
             <div className="field">
               <label>Price / SF</label>
-              <input type="text" value={c.pricePerSF} onChange={(e) => update(c.id, 'pricePerSF', e.target.value)} placeholder="$210" />
+              <CurrencyInput value={c.pricePerSF} onChange={(v) => update(c.id, 'pricePerSF', v)} placeholder="$210" />
             </div>
           </div>
           <div className="field-row">
             <div className="field">
               <label>Cap Rate</label>
-              <input type="text" value={c.capRate} onChange={(e) => update(c.id, 'capRate', e.target.value)} placeholder="6.2%" />
+              <PercentInput value={c.capRate} onChange={(v) => update(c.id, 'capRate', v)} placeholder="6.2%" />
             </div>
             <div className="field">
               <label>Square Feet</label>
-              <input type="text" value={c.squareFeet} onChange={(e) => update(c.id, 'squareFeet', e.target.value)} placeholder="20,000 SF" />
+              <SquareFeetInput value={c.squareFeet} onChange={(v) => update(c.id, 'squareFeet', v)} placeholder="20,000 SF" />
             </div>
           </div>
           <div className="field">
             <div className="field-label-row">
               <label>Notes</label>
-              <AiGenerateButton omId={omId} kind="salesCompAnalysis" extra={{ compId: c.id }} onResult={(result) => update(c.id, 'notes', result)} label="Generate Pricing Analysis" />
+              <AiGenerateButton omId={omId} kind="salesCompAnalysis" extra={{ compId: c.id }} om={om} onResult={(result) => update(c.id, 'notes', result)} label="Generate Pricing Analysis" />
             </div>
             <textarea value={c.notes} onChange={(e) => update(c.id, 'notes', e.target.value)} placeholder="Anything notable about this comp — condition, buyer profile, financing terms…" />
           </div>

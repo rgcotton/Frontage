@@ -1,4 +1,5 @@
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput, SquareFeetInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -50,7 +51,7 @@ export default function RentCompsSection({ value, onChange, om, onUpdateOm }) {
           <div className="field-row cols-3">
             <div className="field">
               <label>Rent / SF</label>
-              <input type="text" value={c.rentPerSF} onChange={(e) => update(c.id, 'rentPerSF', e.target.value)} placeholder="$28.50" />
+              <CurrencyInput value={c.rentPerSF} onChange={(v) => update(c.id, 'rentPerSF', v)} placeholder="$28.50" />
             </div>
             <div className="field">
               <label>Lease Term</label>
@@ -58,7 +59,7 @@ export default function RentCompsSection({ value, onChange, om, onUpdateOm }) {
             </div>
             <div className="field">
               <label>Square Feet</label>
-              <input type="text" value={c.squareFeet} onChange={(e) => update(c.id, 'squareFeet', e.target.value)} placeholder="2,400 SF" />
+              <SquareFeetInput value={c.squareFeet} onChange={(v) => update(c.id, 'squareFeet', v)} placeholder="2,400 SF" />
             </div>
           </div>
           <div className="field-row">

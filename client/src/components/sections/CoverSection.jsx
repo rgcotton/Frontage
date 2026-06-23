@@ -10,32 +10,9 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState(null);
   const [geocodeResult, setGeocodeResult] = useState(null);
-  const [analyzingLogo, setAnalyzingLogo] = useState(false);
-  const [logoSuggestion, setLogoSuggestion] = useState(null);
-  const [logoError, setLogoError] = useState(null);
 
   function set(field, val) {
     onChange({ ...value, [field]: val });
-  }
-
-  async function handleLogoUploaded(refs) {
-    set('brokerLogo', refs[0]);
-    setLogoError(null);
-    setLogoSuggestion(null);
-    setAnalyzingLogo(true);
-    try {
-      const suggestion = await api.analyzeLogo(omId);
-      setLogoSuggestion(suggestion);
-    } catch (err) {
-      setLogoError(err.message);
-    } finally {
-      setAnalyzingLogo(false);
-    }
-  }
-
-  function applyLogoSuggestion() {
-    onUpdateOm?.({ branding: { ...om.branding, primaryColor: logoSuggestion.primaryColor, accentColor: logoSuggestion.accentColor } });
-    setLogoSuggestion(null);
   }
 
   async function handleValidateAddress() {
@@ -160,32 +137,9 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
 
       <div className="field">
         <label>Broker / Brokerage Logo</label>
-        <FileUpload omId={omId} accept="image/*" hint="Used automatically on the Cover, Team, and Back Cover pages." onUploaded={handleLogoUploaded} />
+        <FileUpload omId={omId} accept="image/*" hint="Used automatically on the Cover, Team, and Back Cover pages." onUploaded={(refs) => set('brokerLogo', refs[0])} />
         {value.brokerLogo && <FilePreview files={[value.brokerLogo]} onRemove={() => set('brokerLogo', null)} />}
-        {analyzingLogo && <p className="field-hint">Analyzing logo colors…</p>}
-        {logoError && (
-          <p className="field-hint" style={{ color: 'var(--danger)' }}>
-            {logoError}
-          </p>
-        )}
-        {logoSuggestion && (
-          <div className="geocode-banner">
-            <div className="geocode-banner-text">
-              <strong>Suggested branding:</strong>
-              <span className="color-swatch" style={{ background: logoSuggestion.primaryColor }} title={logoSuggestion.primaryColor} />
-              <span className="color-swatch" style={{ background: logoSuggestion.accentColor }} title={logoSuggestion.accentColor} />
-              {logoSuggestion.primaryColor} / {logoSuggestion.accentColor}
-            </div>
-            <div className="geocode-banner-actions">
-              <button type="button" className="btn btn-primary btn-sm" onClick={applyLogoSuggestion}>
-                Apply to Branding
-              </button>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLogoSuggestion(null)}>
-                Dismiss
-              </button>
-            </div>
-          </div>
-        )}
+        <p className="field-hint">Want PDF colors to match this logo? Use "Extract Colors from Logo" on the Branding section.</p>
       </div>
 
       <hr className="divider" />

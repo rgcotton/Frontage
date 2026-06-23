@@ -1,5 +1,6 @@
 import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput, PercentInput } from '../inputs/FormattedInputs.jsx';
 
 export default function ExecutiveSummarySection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
@@ -33,22 +34,22 @@ export default function ExecutiveSummarySection({ value, onChange, omId, om, onU
       <div className="field-row cols-3">
         <div className="field">
           <label>Offering Price</label>
-          <input type="text" value={value.offeringPrice} onChange={(e) => set('offeringPrice', e.target.value)} placeholder="$5,000,000" />
+          <CurrencyInput value={value.offeringPrice} onChange={(v) => set('offeringPrice', v)} placeholder="$5,000,000" />
         </div>
         <div className="field">
           <label>Cap Rate</label>
-          <input type="text" value={value.capRate} onChange={(e) => set('capRate', e.target.value)} placeholder="6.5%" />
+          <PercentInput value={value.capRate} onChange={(v) => set('capRate', v)} placeholder="6.5%" />
         </div>
         <div className="field">
           <label>NOI</label>
-          <input type="text" value={value.noi} onChange={(e) => set('noi', e.target.value)} placeholder="$325,000" />
+          <CurrencyInput value={value.noi} onChange={(v) => set('noi', v)} placeholder="$325,000" />
         </div>
       </div>
 
       <div className="field">
         <div className="field-label-row">
           <label>Summary Narrative</label>
-          <AiGenerateButton omId={omId} kind="executiveSummaryNarrative" onResult={(result) => set('narrative', result)} />
+          <AiGenerateButton omId={omId} kind="executiveSummaryNarrative" om={om} onResult={(result) => set('narrative', result)} />
         </div>
         <textarea value={value.narrative} onChange={(e) => set('narrative', e.target.value)} placeholder="Summarize the investment opportunity in a few compelling paragraphs…" />
       </div>
@@ -59,7 +60,7 @@ export default function ExecutiveSummarySection({ value, onChange, omId, om, onU
         <div className="subsection-title" style={{ marginBottom: 0 }}>
           Investment Highlights
         </div>
-        <AiGenerateButton omId={omId} kind="investmentHighlights" onResult={(result) => set('highlights', result)} label="Generate Highlights" />
+        <AiGenerateButton omId={omId} kind="investmentHighlights" om={om} onResult={(result) => set('highlights', result)} label="Generate Highlights" />
       </div>
       <div className="list-rows">
         {(value.highlights || []).map((h, i) => (

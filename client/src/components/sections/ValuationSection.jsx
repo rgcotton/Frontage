@@ -1,5 +1,6 @@
 import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { CurrencyInput } from '../inputs/FormattedInputs.jsx';
 
 const APPROACHES = ['Sales Comparison', 'Income Capitalization', 'Cost Approach'];
 
@@ -33,7 +34,7 @@ export default function ValuationSection({ value, onChange, omId, om, onUpdateOm
       <div className="field">
         <div className="field-label-row">
           <label>Methodology Narrative</label>
-          <AiGenerateButton omId={omId} kind="valuationMethodologyNarrative" onResult={(result) => set('methodologyNarrative', result)} />
+          <AiGenerateButton omId={omId} kind="valuationMethodologyNarrative" om={om} onResult={(result) => set('methodologyNarrative', result)} />
         </div>
         <textarea
           value={value.methodologyNarrative}
@@ -45,7 +46,7 @@ export default function ValuationSection({ value, onChange, omId, om, onUpdateOm
       <div className="field-row cols-3">
         <div className="field">
           <label>Concluded Value</label>
-          <input type="text" value={value.concludedValue} onChange={(e) => set('concludedValue', e.target.value)} placeholder="$4,750,000" />
+          <CurrencyInput value={value.concludedValue} onChange={(v) => set('concludedValue', v)} placeholder="$4,750,000" />
         </div>
         <div className="field">
           <label>Effective Date</label>

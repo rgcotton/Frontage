@@ -17,6 +17,9 @@ export function computeCompleteness(om) {
     team: (om.team || []).length > 0,
     valuation: Boolean(om.valuation?.methodologyNarrative || om.valuation?.concludedValue),
     recommendation: Boolean(om.recommendation?.narrative),
+    propertyInfo: Boolean(om.cover.propertyName && om.cover.addressLine1),
+    dealHighlights: Boolean(om.executiveSummary.offeringPrice && (om.executiveSummary.highlights || []).length > 0),
+    brokerInfo: Boolean((om.team || [])[0]?.name),
   };
 }
 

@@ -25,6 +25,12 @@ export const api = {
     }),
   deleteOm: (id) => request(`/api/oms/${id}`, { method: 'DELETE' }),
   duplicateOm: (id) => request(`/api/oms/${id}/duplicate`, { method: 'POST' }),
+  autofillOm: (id, sourceId) =>
+    request(`/api/oms/${id}/autofill`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sourceId }),
+    }),
   renameOm: (id, propertyName) =>
     request(`/api/oms/${id}/rename`, {
       method: 'PUT',

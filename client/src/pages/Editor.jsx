@@ -17,6 +17,9 @@ import TeamSection from '../components/sections/TeamSection.jsx';
 import BrandingSection from '../components/sections/BrandingSection.jsx';
 import ValuationSection from '../components/sections/ValuationSection.jsx';
 import RecommendationSection from '../components/sections/RecommendationSection.jsx';
+import PropertyInfoSection from '../components/sections/PropertyInfoSection.jsx';
+import DealHighlightsSection from '../components/sections/DealHighlightsSection.jsx';
+import BrokerInfoSection from '../components/sections/BrokerInfoSection.jsx';
 
 const SECTION_COMPONENTS = {
   cover: CoverSection,
@@ -32,13 +35,16 @@ const SECTION_COMPONENTS = {
   team: TeamSection,
   valuation: ValuationSection,
   recommendation: RecommendationSection,
+  propertyInfo: PropertyInfoSection,
+  dealHighlights: DealHighlightsSection,
+  brokerInfo: BrokerInfoSection,
 };
 
 export default function Editor() {
   const { id } = useParams();
   const [om, setOm] = useState(null);
   const [loadError, setLoadError] = useState(null);
-  const [activeSection, setActiveSection] = useState('cover');
+  const [activeSection, setActiveSection] = useState(null);
   const [saveStatus, setSaveStatus] = useState('idle');
   const omRef = useRef(null);
   const saveTimer = useRef(null);
@@ -49,6 +55,7 @@ export default function Editor() {
       .then((data) => {
         setOm(data);
         omRef.current = data;
+        setActiveSection(getSectionsForDocType(data.docType || 'om')[0].key);
       })
       .catch((err) => setLoadError(err.message));
   }, [id]);
@@ -93,7 +100,7 @@ export default function Editor() {
   if (loadError) {
     return <div className="center-page">Could not load this offering memorandum: {loadError}</div>;
   }
-  if (!om) {
+  if (!om || !activeSection) {
     return <div className="center-page">Loading…</div>;
   }
 

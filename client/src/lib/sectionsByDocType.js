@@ -12,6 +12,9 @@ export const ALL_SECTION_LABELS = {
   team: 'About the Team',
   valuation: 'Valuation',
   recommendation: 'Recommendation',
+  propertyInfo: 'Property Info',
+  dealHighlights: 'Deal Highlights',
+  brokerInfo: 'Broker Info',
 };
 
 const KEYS_BY_DOC_TYPE = {
@@ -28,7 +31,7 @@ const KEYS_BY_DOC_TYPE = {
     'offeringProcedures',
     'team',
   ],
-  onePager: ['cover', 'branding', 'overview', 'executiveSummary', 'team'],
+  onePager: ['propertyInfo', 'dealHighlights', 'brokerInfo'],
   bov: ['cover', 'branding', 'overview', 'valuation', 'salesComps', 'recommendation', 'team'],
 };
 

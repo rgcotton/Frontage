@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
-import { UPLOAD_ROOT } from './upload.js';
+import { UPLOAD_ROOT, resolveDiskPath } from './upload.js';
 
 const DATA_DIR = path.join(process.cwd(), 'data', 'oms');
 
@@ -258,4 +258,63 @@ export async function renameOm(id, propertyName) {
   const existing = await getOm(id);
   if (!existing) return null;
   return updateOm(id, { cover: { ...existing.cover, propertyName } });
+}
+
+// Physically copies a single uploaded file from one OM's upload directory to another's
+// and returns a FileRef pointing at the new location. Best-effort: if the source file is
+// missing, the original ref is returned unchanged rather than throwing.
+async function copyFileRefIfPresent(fileRef, sourceId, targetId) {
+  if (!fileRef || !fileRef.filename) return fileRef;
+  try {
+    const sourcePath = resolveDiskPath(sourceId, fileRef);
+    const targetDir = path.join(UPLOAD_ROOT, targetId);
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.copyFile(sourcePath, path.join(targetDir, fileRef.filename));
+    return { ...fileRef, url: `/uploads/${targetId}/${fileRef.filename}` };
+  } catch {
+    return fileRef;
+  }
+}
+
+const AUTOFILL_COVER_KEYS = ['propertyName', 'addressLine1', 'city', 'state', 'zip', 'propertyType', 'brokerLogo', 'brokerageName', 'brokerageWebsite'];
+const AUTOFILL_OVERVIEW_KEYS = ['yearBuilt', 'squareFootage', 'lotSize', 'zoning', 'parking', 'occupancyPct'];
+const AUTOFILL_EXEC_KEYS = ['offeringPrice', 'capRate', 'noi'];
+const AUTOFILL_TEAM_KEYS = ['name', 'title', 'phone', 'email', 'headshot'];
+
+// Pre-populates a freshly created document with the broker/property identity fields
+// that are common across all document types, copied from an existing saved document.
+export async function autofillOm(targetId, sourceId) {
+  const target = await getOm(targetId);
+  const source = await getOm(sourceId);
+  if (!target || !source) return null;
+
+  const cover = { ...target.cover };
+  for (const key of AUTOFILL_COVER_KEYS) {
+    if (source.cover[key]) cover[key] = source.cover[key];
+  }
+  if (cover.brokerLogo) cover.brokerLogo = await copyFileRefIfPresent(cover.brokerLogo, sourceId, targetId);
+
+  const overview = { ...target.overview };
+  for (const key of AUTOFILL_OVERVIEW_KEYS) {
+    if (source.overview[key]) overview[key] = source.overview[key];
+  }
+
+  const executiveSummary = { ...target.executiveSummary };
+  for (const key of AUTOFILL_EXEC_KEYS) {
+    if (source.executiveSummary[key]) executiveSummary[key] = source.executiveSummary[key];
+  }
+
+  let team = target.team;
+  const sourceMember = (source.team || [])[0];
+  if (sourceMember) {
+    const base = target.team?.[0] || { id: nanoid(8), name: '', title: '', phone: '', email: '', bio: '', headshot: null };
+    const member = { ...base };
+    for (const key of AUTOFILL_TEAM_KEYS) {
+      if (sourceMember[key]) member[key] = sourceMember[key];
+    }
+    if (member.headshot) member.headshot = await copyFileRefIfPresent(member.headshot, sourceId, targetId);
+    team = [member, ...(target.team || []).slice(1)];
+  }
+
+  return updateOm(targetId, { cover, overview, executiveSummary, team });
 }

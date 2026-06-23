@@ -1,0 +1,106 @@
+import FileUpload from '../FileUpload.jsx';
+import FilePreview from '../FilePreview.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { YearInput, SquareFeetInput, PercentInput } from '../inputs/FormattedInputs.jsx';
+
+const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
+
+export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
+  const cover = om.cover || {};
+  const overview = om.overview || {};
+
+  function setCover(field, val) {
+    onUpdateOm({ cover: { ...om.cover, [field]: val } });
+  }
+
+  function setOverview(field, val) {
+    onUpdateOm({ overview: { ...om.overview, [field]: val } });
+  }
+
+  return (
+    <div className="section-form">
+      <h2>Property Info</h2>
+      <p className="section-hint">The address, type, photo, and key stats shown on the One Pager.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.cover}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, cover: text } })}
+      />
+
+      <div className="field">
+        <label>Property Name</label>
+        <input type="text" value={cover.propertyName} onChange={(e) => setCover('propertyName', e.target.value)} placeholder="e.g. Sunset Plaza Shopping Center" />
+      </div>
+
+      <div className="field">
+        <label>Tagline</label>
+        <input type="text" value={cover.tagline} onChange={(e) => setCover('tagline', e.target.value)} placeholder="e.g. Prime corner retail asset in a high-growth submarket" />
+      </div>
+
+      <div className="field-row">
+        <div className="field">
+          <label>Address Line 1</label>
+          <input type="text" value={cover.addressLine1} onChange={(e) => setCover('addressLine1', e.target.value)} />
+        </div>
+        <div className="field">
+          <label>Property Type</label>
+          <select value={cover.propertyType} onChange={(e) => setCover('propertyType', e.target.value)}>
+            <option value="">Select type…</option>
+            {PROPERTY_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="field-row cols-3">
+        <div className="field">
+          <label>City</label>
+          <input type="text" value={cover.city} onChange={(e) => setCover('city', e.target.value)} />
+        </div>
+        <div className="field">
+          <label>State</label>
+          <input type="text" value={cover.state} onChange={(e) => setCover('state', e.target.value)} />
+        </div>
+        <div className="field">
+          <label>ZIP</label>
+          <input type="text" value={cover.zip} onChange={(e) => setCover('zip', e.target.value)} />
+        </div>
+      </div>
+
+      <hr className="divider" />
+
+      <div className="field">
+        <label>Hero Photo</label>
+        <FileUpload omId={omId} accept="image/*" hint="JPG or PNG, used as the full-bleed hero image." onUploaded={(refs) => setCover('coverPhoto', refs[0])} />
+        {cover.coverPhoto && <FilePreview files={[cover.coverPhoto]} onRemove={() => setCover('coverPhoto', null)} />}
+      </div>
+
+      <hr className="divider" />
+
+      <div className="field-row cols-3">
+        <div className="field">
+          <label>Year Built</label>
+          <YearInput value={overview.yearBuilt} onChange={(v) => setOverview('yearBuilt', v)} placeholder="2018" />
+        </div>
+        <div className="field">
+          <label>Square Footage</label>
+          <SquareFeetInput value={overview.squareFootage} onChange={(v) => setOverview('squareFootage', v)} placeholder="e.g. 24,500 SF" />
+        </div>
+        <div className="field">
+          <label>Zoning</label>
+          <input type="text" value={overview.zoning} onChange={(e) => setOverview('zoning', e.target.value)} />
+        </div>
+      </div>
+
+      <div className="field-row">
+        <div className="field">
+          <label>Occupancy %</label>
+          <PercentInput value={overview.occupancyPct} onChange={(v) => setOverview('occupancyPct', v)} placeholder="94%" />
+        </div>
+      </div>
+    </div>
+  );
+}

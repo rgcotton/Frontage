@@ -21,7 +21,7 @@ export default function RecommendationSection({ value, onChange, omId, om, onUpd
       <div className="field">
         <div className="field-label-row">
           <label>Recommendation Narrative</label>
-          <AiGenerateButton omId={omId} kind="brokerRecommendationNarrative" onResult={(result) => set('narrative', result)} />
+          <AiGenerateButton omId={omId} kind="brokerRecommendationNarrative" om={om} onResult={(result) => set('narrative', result)} />
         </div>
         <textarea
           value={value.narrative}

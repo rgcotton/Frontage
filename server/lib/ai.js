@@ -167,9 +167,14 @@ const KIND_SECTION_MAP = {
   brokerRecommendationNarrative: 'recommendation',
 };
 
-function appendCustomInstructions(userPrompt, om, kind) {
+// `extra.liveAiInstructions`, when present, is the client's current (possibly
+// not-yet-autosaved) aiInstructions object. The autosave PUT is debounced, so a
+// broker who types instructions and immediately clicks "Generate" can otherwise
+// hit the server before the persisted `om` reflects what they just typed.
+function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
   const sectionKey = KIND_SECTION_MAP[kind];
-  const instructions = sectionKey && om.aiInstructions?.[sectionKey];
+  if (!sectionKey) return userPrompt;
+  const instructions = extra.liveAiInstructions ? extra.liveAiInstructions[sectionKey] : om.aiInstructions?.[sectionKey];
   if (!instructions || !instructions.trim()) return userPrompt;
   return `${userPrompt}\n\nBroker's custom instructions for this section, follow these closely: ${instructions.trim()}`;
 }
@@ -190,7 +195,7 @@ export async function generateAiContent(kind, om, extra = {}) {
   }
 
   const { system, user: baseUser } = builder(om, extra);
-  const user = appendCustomInstructions(baseUser, om, kind);
+  const user = appendCustomInstructions(baseUser, om, kind, extra);
 
   let response;
   try {

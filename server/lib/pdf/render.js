@@ -117,6 +117,10 @@ export async function generatePdf(om, outputPath, ctxOverrides = {}) {
   const browser = await getBrowser();
   const page = await browser.newPage();
   try {
+    // Match the viewport to the print page at a 2x device scale so raster images
+    // (hero photos, headshots, logos) sample at higher resolution instead of being
+    // downscaled to a 1x layout box before Chromium rasterizes the PDF.
+    await page.setViewport({ width: 816, height: 1056, deviceScaleFactor: 2 });
     await page.setContent(documentHtml, { waitUntil: 'load' });
     await page.pdf({
       path: outputPath,

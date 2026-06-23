@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Editor from './pages/Editor.jsx';
 import SharePage from './pages/SharePage.jsx';
+import SignupScreen from './components/SignupScreen.jsx';
+import { getUser } from './lib/user.js';
 
 function TopBar() {
   return (
@@ -16,17 +19,23 @@ function TopBar() {
 }
 
 function App() {
+  const [user, setUser] = useState(() => getUser());
+
   return (
     <div className="app">
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={user ? <Home /> : <SignupScreen onComplete={setUser} />} />
         <Route
           path="/om/:id"
           element={
-            <>
-              <TopBar />
-              <Editor />
-            </>
+            user ? (
+              <>
+                <TopBar />
+                <Editor />
+              </>
+            ) : (
+              <SignupScreen onComplete={setUser} />
+            )
           }
         />
         <Route path="/share/:id" element={<SharePage />} />

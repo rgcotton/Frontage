@@ -1,6 +1,7 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import { PhoneInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -50,7 +51,7 @@ export default function TeamSection({ value, onChange, omId, om, onUpdateOm }) {
           <div className="field-row">
             <div className="field">
               <label>Phone</label>
-              <input type="tel" value={m.phone} onChange={(e) => update(m.id, 'phone', e.target.value)} />
+              <PhoneInput value={m.phone} onChange={(v) => update(m.id, 'phone', v)} placeholder="(555) 123-4567" />
             </div>
             <div className="field">
               <label>Email</label>
