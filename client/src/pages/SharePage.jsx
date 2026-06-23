@@ -9,7 +9,7 @@ export default function SharePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.getOm(id).then(setOm).catch((err) => setError(err.message));
+    api.getSharedOm(id).then(setOm).catch((err) => setError(err.message));
   }, [id]);
 
   if (error) return <div className="center-page">This offering memorandum could not be found.</div>;

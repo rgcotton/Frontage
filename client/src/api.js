@@ -1,5 +1,14 @@
-async function request(path, options) {
-  const res = await fetch(path, options);
+import { getUser } from './lib/user.js';
+
+// Lightweight identity, not real authentication: every request tells the server who's
+// asking (or omits the header entirely for the signed-out workspace), and the server
+// trusts it. This is the one place that wiring lives, so swapping in real sessions
+// later only means changing this function.
+async function request(path, options = {}) {
+  const user = getUser();
+  const headers = { ...(options.headers || {}) };
+  if (user?.email) headers['X-User-Email'] = user.email;
+  const res = await fetch(path, { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Request failed: ${res.status}`);
@@ -17,6 +26,7 @@ export const api = {
       body: JSON.stringify({ docType }),
     }),
   getOm: (id) => request(`/api/oms/${id}`),
+  getSharedOm: (id) => request(`/api/oms/${id}/shared`),
   updateOm: (id, partial) =>
     request(`/api/oms/${id}`, {
       method: 'PUT',

@@ -9,6 +9,16 @@ function addressLink(address) {
   return url ? `<a class="pdf-link" href="${url}">${text}</a>` : text;
 }
 
+function fieldRows(rows) {
+  const present = rows.filter(([, value]) => Boolean(value));
+  return present
+    .map(
+      ([label, value, formatFn = esc], i) =>
+        `<div class="field-row"${i === present.length - 1 ? ' style="border-bottom:none;"' : ''}><span class="l">${label}</span><span class="v">${formatFn(value)}</span></div>`
+    )
+    .join('');
+}
+
 const COMPS_PER_PAGE = 4;
 
 export function buildPages(om, ctx) {
@@ -35,11 +45,13 @@ export function buildPages(om, ctx) {
         ${photoUri ? `<img class="photo" src="${photoUri}" />` : `<div class="photo-placeholder"></div>`}
         <div class="body">
           <div class="addr">${addressLink(c.address)}</div>
-          <div class="field-row"><span class="l">Sale Date</span><span class="v">${formatMonthYear(c.saleDate)}</span></div>
-          <div class="field-row"><span class="l">Sale Price</span><span class="v">${formatCurrency(c.salePrice)}</span></div>
-          <div class="field-row"><span class="l">Price / SF</span><span class="v">${formatCurrency(c.pricePerSF)}</span></div>
-          <div class="field-row"><span class="l">Cap Rate</span><span class="v">${formatPercent(c.capRate)}</span></div>
-          <div class="field-row" style="border-bottom:none;"><span class="l">Square Feet</span><span class="v">${c.squareFeet ? `${formatNumber(c.squareFeet)} SF` : '—'}</span></div>
+          ${fieldRows([
+            ['Sale Date', c.saleDate, formatMonthYear],
+            ['Sale Price', c.salePrice, formatCurrency],
+            ['Price / SF', c.pricePerSF, formatCurrency],
+            ['Cap Rate', c.capRate, formatPercent],
+            ['Square Feet', c.squareFeet, (v) => `${formatNumber(v)} SF`],
+          ])}
           ${c.notes ? `<div class="notes">${esc(c.notes)}</div>` : ''}
         </div>
       </div>`;

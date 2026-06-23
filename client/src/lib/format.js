@@ -20,6 +20,10 @@ export function formatNumber(value) {
   return num.toLocaleString('en-US');
 }
 
+export function filterStats(rows) {
+  return rows.filter(([, raw]) => Boolean(raw)).map(([label, raw, formatFn]) => [label, formatFn(raw)]);
+}
+
 export function formatMonthYear(isoDate) {
   if (!isoDate) return '—';
   const d = new Date(`${isoDate}T00:00:00`);

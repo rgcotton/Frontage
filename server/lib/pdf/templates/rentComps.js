@@ -1,11 +1,21 @@
 import { pageShell, headerBar } from './layout.js';
-import { escOrDash, formatNumber } from '../helpers/format.js';
+import { esc, escOrDash, formatNumber } from '../helpers/format.js';
 import { googleMapsSearchUrl } from '../../maps.js';
 
 function addressLink(address) {
   const text = escOrDash(address);
   const url = address ? googleMapsSearchUrl(address) : null;
   return url ? `<a class="pdf-link" href="${url}">${text}</a>` : text;
+}
+
+function fieldRows(rows) {
+  const present = rows.filter(([, value]) => Boolean(value));
+  return present
+    .map(
+      ([label, value, formatFn = esc], i) =>
+        `<div class="field-row"${i === present.length - 1 ? ' style="border-bottom:none;"' : ''}><span class="l">${label}</span><span class="v">${formatFn(value)}</span></div>`
+    )
+    .join('');
 }
 
 const COMPS_PER_PAGE = 4;
@@ -32,11 +42,13 @@ export function buildPages(om, ctx) {
         (c) => `<div class="comp-card">
       <div class="body" style="padding-top:14px;">
         <div class="addr">${addressLink(c.address)}</div>
-        <div class="field-row"><span class="l">Tenant</span><span class="v">${escOrDash(c.tenant)}</span></div>
-        <div class="field-row"><span class="l">Rent / SF</span><span class="v">${escOrDash(c.rentPerSF)}</span></div>
-        <div class="field-row"><span class="l">Lease Term</span><span class="v">${escOrDash(c.leaseTerm)}</span></div>
-        <div class="field-row"><span class="l">Square Feet</span><span class="v">${c.squareFeet ? `${formatNumber(c.squareFeet)} SF` : '—'}</span></div>
-        <div class="field-row" style="border-bottom:none;"><span class="l">Lease Type</span><span class="v">${escOrDash(c.leaseType)}</span></div>
+        ${fieldRows([
+          ['Tenant', c.tenant],
+          ['Rent / SF', c.rentPerSF],
+          ['Lease Term', c.leaseTerm],
+          ['Square Feet', c.squareFeet, (v) => `${formatNumber(v)} SF`],
+          ['Lease Type', c.leaseType],
+        ])}
       </div>
     </div>`
       )

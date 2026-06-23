@@ -14,7 +14,7 @@ export function buildPages(om, ctx) {
         ? `<div class="stat-grid" style="--cols:1; margin-bottom:18px;"><div class="stat-box"><div class="label">Recommended Action</div><div class="value">${escOrDash(r.recommendedAction)}</div></div></div>`
         : ''
     }
-    <div class="narrative">${esc(r.narrative) || 'No recommendation provided.'}</div>
+    ${r.narrative ? `<div class="narrative">${esc(r.narrative)}</div>` : ''}
   `;
   return [pageShell(inner)];
 }

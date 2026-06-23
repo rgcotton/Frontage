@@ -1,8 +1,13 @@
-import { formatCurrency, formatPercent } from '../../../lib/format.js';
+import { formatCurrency, formatPercent, filterStats } from '../../../lib/format.js';
 
 export default function ExecutiveSummaryPage({ om }) {
   const { executiveSummary } = om;
   const highlights = (executiveSummary.highlights || []).filter(Boolean);
+  const stats = filterStats([
+    ['Offering Price', executiveSummary.offeringPrice, formatCurrency],
+    ['Cap Rate', executiveSummary.capRate, formatPercent],
+    ['NOI', executiveSummary.noi, formatCurrency],
+  ]);
 
   return (
     <div className="fp-page">
@@ -10,21 +15,15 @@ export default function ExecutiveSummaryPage({ om }) {
       <div className="fp-gold-rule" />
       <div className="fp-two-col">
         <div className="fp-col-stats">
-          <div className="fp-big-stat">
-            <span className="l">Offering Price</span>
-            <span className="v">{formatCurrency(executiveSummary.offeringPrice)}</span>
-          </div>
-          <div className="fp-big-stat">
-            <span className="l">Cap Rate</span>
-            <span className="v">{formatPercent(executiveSummary.capRate)}</span>
-          </div>
-          <div className="fp-big-stat">
-            <span className="l">NOI</span>
-            <span className="v">{formatCurrency(executiveSummary.noi)}</span>
-          </div>
+          {stats.map(([label, value]) => (
+            <div className="fp-big-stat" key={label}>
+              <span className="l">{label}</span>
+              <span className="v">{value}</span>
+            </div>
+          ))}
         </div>
         <div className="fp-col-body">
-          <p className="fp-narrative">{executiveSummary.narrative || 'No summary provided.'}</p>
+          {executiveSummary.narrative && <p className="fp-narrative">{executiveSummary.narrative}</p>}
           {highlights.length > 0 && (
             <>
               <div className="fp-subhead">Investment Highlights</div>

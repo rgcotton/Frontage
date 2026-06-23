@@ -1,20 +1,21 @@
 import { pageShell, headerBar } from './layout.js';
-import { esc, formatNumber, formatPercent } from '../helpers/format.js';
+import { esc, formatNumber, formatPercent, filterStats } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
 export function buildPages(om, ctx) {
   const { overview, cover } = om;
   const isMultifamily = cover.propertyType === 'Multifamily';
 
-  const stats = [
-    ['Year Built', overview.yearBuilt || '—'],
-    ['Square Footage', overview.squareFootage ? `${formatNumber(overview.squareFootage)} SF` : '—'],
-    ['Lot Size', overview.lotSize || '—'],
-    ['Occupancy', overview.occupancyPct ? formatPercent(overview.occupancyPct) : '—'],
-    ['Zoning', overview.zoning || '—'],
-    ['Parking', overview.parking || '—'],
+  const rawStats = [
+    ['Year Built', overview.yearBuilt, String],
+    ['Square Footage', overview.squareFootage, (v) => `${formatNumber(v)} SF`],
+    ['Lot Size', overview.lotSize, String],
+    ['Occupancy', overview.occupancyPct, formatPercent],
+    ['Zoning', overview.zoning, String],
+    ['Parking', overview.parking, String],
   ];
-  if (isMultifamily) stats.splice(3, 0, ['Units', overview.units || '—']);
+  if (isMultifamily) rawStats.splice(3, 0, ['Units', overview.units, String]);
+  const stats = filterStats(rawStats);
   const cols = stats.length % 3 === 0 ? 3 : 4;
 
   const photos = (overview.photos || [])
@@ -33,11 +34,19 @@ export function buildPages(om, ctx) {
     <div class="section-title">Property Overview</div>
     <div class="gold-rule"></div>
     ${photoGridHtml}
-    <div class="stat-grid" style="--cols:${cols}; margin-bottom:16px;">
+    ${
+      stats.length
+        ? `<div class="stat-grid" style="--cols:${cols}; margin-bottom:16px;">
       ${stats.map(([label, value]) => `<div class="stat-box"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div></div>`).join('')}
-    </div>
-    <div class="subhead" style="margin-top:0;">Description</div>
-    <div class="narrative" style="flex:1; overflow:hidden;">${esc(overview.description) || 'No description provided.'}</div>
+    </div>`
+        : ''
+    }
+    ${
+      overview.description
+        ? `<div class="subhead" style="margin-top:0;">Description</div>
+    <div class="narrative" style="flex:1; overflow:hidden;">${esc(overview.description)}</div>`
+        : ''
+    }
   `;
   return [pageShell(inner)];
 }

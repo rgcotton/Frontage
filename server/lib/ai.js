@@ -171,21 +171,44 @@ const KIND_SECTION_MAP = {
 // not-yet-autosaved) aiInstructions object. The autosave PUT is debounced, so a
 // broker who types instructions and immediately clicks "Generate" can otherwise
 // hit the server before the persisted `om` reflects what they just typed.
-function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
-  const sectionKey = KIND_SECTION_MAP[kind];
-  if (!sectionKey) return userPrompt;
-  const instructions = extra.liveAiInstructions ? extra.liveAiInstructions[sectionKey] : om.aiInstructions?.[sectionKey];
-  if (!instructions || !instructions.trim()) return userPrompt;
-  return `${userPrompt}\n\nBroker's custom instructions for this section, follow these closely: ${instructions.trim()}`;
+function readInstructions(om, extra, key) {
+  const source = extra.liveAiInstructions || om.aiInstructions || {};
+  const value = source[key];
+  return value && value.trim() ? value.trim() : null;
 }
 
-export async function generateAiContent(kind, om, extra = {}) {
+// The "cover" box (shown as the top-level Property Info instructions on the
+// One Pager, and as the Cover Page instructions on the OM/BOV) applies to every
+// AI generation call for the document, not just a single section.
+function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
+  const sectionKey = KIND_SECTION_MAP[kind];
+  const parts = [];
+  if (sectionKey) {
+    const sectionInstructions = readInstructions(om, extra, sectionKey);
+    if (sectionInstructions) parts.push(`For this section specifically: ${sectionInstructions}`);
+  }
+  if (sectionKey !== 'cover') {
+    const topLevelInstructions = readInstructions(om, extra, 'cover');
+    if (topLevelInstructions) parts.push(`For the document overall: ${topLevelInstructions}`);
+  }
+  if (!parts.length) return userPrompt;
+  return `${userPrompt}\n\nBroker's custom instructions, follow these closely:\n${parts.join('\n')}`;
+}
+
+export function buildPrompt(kind, om, extra = {}) {
   const builder = PROMPT_BUILDERS[kind];
   if (!builder) {
     const err = new Error(`Unknown AI generation kind: ${kind}`);
     err.status = 400;
     throw err;
   }
+  const { system, user: baseUser } = builder(om, extra);
+  const user = appendCustomInstructions(baseUser, om, kind, extra);
+  return { system, user };
+}
+
+export async function generateAiContent(kind, om, extra = {}) {
+  const { system, user } = buildPrompt(kind, om, extra);
 
   const anthropic = getClient();
   if (!anthropic) {
@@ -193,9 +216,6 @@ export async function generateAiContent(kind, om, extra = {}) {
     err.status = 503;
     throw err;
   }
-
-  const { system, user: baseUser } = builder(om, extra);
-  const user = appendCustomInstructions(baseUser, om, kind, extra);
 
   let response;
   try {

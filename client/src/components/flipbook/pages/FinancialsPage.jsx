@@ -1,4 +1,4 @@
-import { formatCurrency, formatPercent } from '../../../lib/format.js';
+import { formatCurrency, formatPercent, filterStats } from '../../../lib/format.js';
 
 function num(value) {
   return Number(String(value ?? '').replace(/[^0-9.-]/g, '')) || 0;
@@ -13,63 +13,65 @@ export default function FinancialsPage({ om }) {
   const cashFlows = financials.proForma?.cashFlows || [];
   const a = financials.proForma?.assumptions || {};
   const hasAssumptions = Object.values(a).some(Boolean);
+  const summaryStats = filterStats([
+    ['Asking Price', executiveSummary.offeringPrice, formatCurrency],
+    ['NOI', executiveSummary.noi, formatCurrency],
+    ['Cap Rate', executiveSummary.capRate, formatPercent],
+    ['Gross Income', financials.grossIncome, formatCurrency],
+    ['Operating Expenses', financials.operatingExpenses, formatCurrency],
+  ]);
+  const assumptionStats = filterStats([
+    ['Rent Growth', a.rentGrowthPct, formatPercent],
+    ['Expense Growth', a.expenseGrowthPct, formatPercent],
+    ['Vacancy', a.vacancyPct, formatPercent],
+    ['Hold Period', a.holdPeriodYears, (v) => `${v} yrs`],
+    ['Exit Cap Rate', a.exitCapRate, formatPercent],
+  ]);
 
   return (
     <div className="fp-page">
       <div className="fp-title">Financials</div>
       <div className="fp-gold-rule" />
-      <div className="stat-grid" style={{ marginBottom: 16 }}>
-        <div className="stat-box">
-          <div className="label">Asking Price</div>
-          <div className="value">{formatCurrency(executiveSummary.offeringPrice)}</div>
+      {summaryStats.length > 0 && (
+        <div className="stat-grid" style={{ marginBottom: 16 }}>
+          {summaryStats.map(([label, value]) => (
+            <div className="stat-box" key={label}>
+              <div className="label">{label}</div>
+              <div className="value">{value}</div>
+            </div>
+          ))}
         </div>
-        <div className="stat-box">
-          <div className="label">NOI</div>
-          <div className="value">{formatCurrency(executiveSummary.noi)}</div>
-        </div>
-        <div className="stat-box">
-          <div className="label">Cap Rate</div>
-          <div className="value">{formatPercent(executiveSummary.capRate)}</div>
-        </div>
-        <div className="stat-box">
-          <div className="label">Gross Income</div>
-          <div className="value">{formatCurrency(financials.grossIncome)}</div>
-        </div>
-        <div className="stat-box">
-          <div className="label">Operating Expenses</div>
-          <div className="value">{formatCurrency(financials.operatingExpenses)}</div>
-        </div>
-      </div>
+      )}
 
-      <div className="fp-subhead" style={{ marginTop: 0 }}>
-        Trailing 12-Month Income &amp; Expenses (T12)
-      </div>
-      {lineItems.length > 0 ? (
-        <table className="brochure-table">
-          <thead>
-            <tr>
-              <th>Line Item</th>
-              <th>Income</th>
-              <th>Expense</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lineItems.map((li) => (
-              <tr key={li.id}>
-                <td>{li.label}</td>
-                <td>{formatCurrency(li.income)}</td>
-                <td>{formatCurrency(li.expense)}</td>
+      {lineItems.length > 0 && (
+        <>
+          <div className="fp-subhead" style={{ marginTop: 0 }}>
+            Trailing 12-Month Income &amp; Expenses (T12)
+          </div>
+          <table className="brochure-table">
+            <thead>
+              <tr>
+                <th>Line Item</th>
+                <th>Income</th>
+                <th>Expense</th>
               </tr>
-            ))}
-            <tr style={{ fontWeight: 700 }}>
-              <td>Total</td>
-              <td>{formatCurrency(totalIncome)}</td>
-              <td>{formatCurrency(totalExpense)}</td>
-            </tr>
-          </tbody>
-        </table>
-      ) : (
-        <p className="fp-narrative">No T12 line items provided.</p>
+            </thead>
+            <tbody>
+              {lineItems.map((li) => (
+                <tr key={li.id}>
+                  <td>{li.label}</td>
+                  <td>{formatCurrency(li.income)}</td>
+                  <td>{formatCurrency(li.expense)}</td>
+                </tr>
+              ))}
+              <tr style={{ fontWeight: 700 }}>
+                <td>Total</td>
+                <td>{formatCurrency(totalIncome)}</td>
+                <td>{formatCurrency(totalExpense)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </>
       )}
 
       {rentRoll.length > 0 && (
@@ -105,38 +107,18 @@ export default function FinancialsPage({ om }) {
       {(cashFlows.length > 0 || hasAssumptions) && (
         <>
           <div className="fp-subhead">Pro Forma</div>
-          <div className="stat-grid" style={{ marginBottom: 12 }}>
-            <div className="stat-box">
-              <div className="label">Rent Growth</div>
-              <div className="value" style={{ fontSize: 13 }}>
-                {a.rentGrowthPct ? formatPercent(a.rentGrowthPct) : '—'}
-              </div>
+          {assumptionStats.length > 0 && (
+            <div className="stat-grid" style={{ marginBottom: 12 }}>
+              {assumptionStats.map(([label, value]) => (
+                <div className="stat-box" key={label}>
+                  <div className="label">{label}</div>
+                  <div className="value" style={{ fontSize: 13 }}>
+                    {value}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="stat-box">
-              <div className="label">Expense Growth</div>
-              <div className="value" style={{ fontSize: 13 }}>
-                {a.expenseGrowthPct ? formatPercent(a.expenseGrowthPct) : '—'}
-              </div>
-            </div>
-            <div className="stat-box">
-              <div className="label">Vacancy</div>
-              <div className="value" style={{ fontSize: 13 }}>
-                {a.vacancyPct ? formatPercent(a.vacancyPct) : '—'}
-              </div>
-            </div>
-            <div className="stat-box">
-              <div className="label">Hold Period</div>
-              <div className="value" style={{ fontSize: 13 }}>
-                {a.holdPeriodYears ? `${a.holdPeriodYears} yrs` : '—'}
-              </div>
-            </div>
-            <div className="stat-box">
-              <div className="label">Exit Cap Rate</div>
-              <div className="value" style={{ fontSize: 13 }}>
-                {a.exitCapRate ? formatPercent(a.exitCapRate) : '—'}
-              </div>
-            </div>
-          </div>
+          )}
           {cashFlows.length > 0 && (
             <table className="brochure-table">
               <thead>

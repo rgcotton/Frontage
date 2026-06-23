@@ -248,6 +248,52 @@ select {
   border-radius: 999px;
 }
 
+.account-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.account-menu-trigger {
+  border: none;
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+.account-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.account-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  min-width: 140px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.account-menu-dropdown button {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--charcoal);
+  font-family: var(--font);
+}
+
+.account-menu-dropdown button:hover {
+  background: var(--gray-50);
+}
+
 .dashboard-hero {
   padding: 56px 0 40px;
   text-align: center;
@@ -307,12 +353,12 @@ select {
   border-radius: var(--radius);
   padding: 18px;
   color: var(--dash-text);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .om-card:hover {
   border-color: var(--gold);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .om-card-doctype {
@@ -1769,60 +1815,5 @@ select {
   padding: 8px 10px;
   font-size: 12.5px;
   color: var(--gray-500);
-}
-
-/* ---------- Signup screen ---------- */
-
-.signup-screen {
-  min-height: 100vh;
-  background: linear-gradient(160deg, var(--dash-bg) 0%, #0c1830 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.signup-card {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 40px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  text-align: center;
-}
-
-.signup-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--navy);
-  margin-bottom: 18px;
-}
-
-.signup-brand .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--gold);
-  display: inline-block;
-}
-
-.signup-card h1 {
-  font-size: 22px;
-  margin-bottom: 8px;
-}
-
-.signup-card p {
-  color: var(--gray-500);
-  font-size: 13.5px;
-  margin-bottom: 24px;
-  line-height: 1.5;
-}
-
-.signup-card form {
-  text-align: left;
 }
 

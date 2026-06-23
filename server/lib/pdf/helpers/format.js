@@ -37,6 +37,10 @@ export function escOrDash(str) {
   return v === '' ? '—' : v;
 }
 
+export function filterStats(rows) {
+  return rows.filter(([, raw]) => Boolean(raw)).map(([label, raw, formatFn]) => [label, formatFn(raw)]);
+}
+
 export function normalizeUrl(input) {
   if (!input) return '';
   const trimmed = String(input).trim();

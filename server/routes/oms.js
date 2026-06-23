@@ -7,63 +7,93 @@ import { generatePdf } from '../lib/pdf/render.js';
 import { generatePptx } from '../lib/pptxGenerator.js';
 import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
 import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer } from '../lib/maps.js';
+import { getOwnerEmail } from '../lib/auth.js';
 
 const router = express.Router();
 const GENERATED_DIR = path.join(process.cwd(), 'generated');
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
 
+// Fetches a document and confirms it belongs to the requesting owner (identified by
+// the X-User-Email header, or null for the signed-out workspace). Sends 404 itself
+// and returns null when missing or not owned, so callers can `if (!om) return;`.
+async function getOwnedOm(req, res) {
+  const om = await getOm(req.params.id);
+  if (!om || om.ownerEmail !== getOwnerEmail(req)) {
+    res.status(404).json({ error: 'Not found' });
+    return null;
+  }
+  return om;
+}
+
 router.get('/', async (req, res) => {
-  res.json(await listOms());
+  res.json(await listOms(getOwnerEmail(req)));
 });
 
 router.post('/', async (req, res) => {
-  const om = await createOm(req.body?.docType);
+  const om = await createOm(req.body?.docType, getOwnerEmail(req));
   res.status(201).json(om);
 });
 
 router.get('/:id', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  res.json(om);
+});
+
+// Public, unauthenticated view used by the shareable web link (SharePage / Flipbook).
+// Anyone with the link can view; the unguessable id is the only access control, same
+// as the existing /uploads and /generated static file serving.
+router.get('/:id/shared', async (req, res) => {
   const om = await getOm(req.params.id);
   if (!om) return res.status(404).json({ error: 'Not found' });
   res.json(om);
 });
 
 router.put('/:id', async (req, res) => {
+  const existing = await getOwnedOm(req, res);
+  if (!existing) return;
   const om = await updateOm(req.params.id, req.body);
-  if (!om) return res.status(404).json({ error: 'Not found' });
   res.json(om);
 });
 
 router.delete('/:id', async (req, res) => {
-  const ok = await deleteOm(req.params.id);
-  if (!ok) return res.status(404).json({ error: 'Not found' });
+  const existing = await getOwnedOm(req, res);
+  if (!existing) return;
+  await deleteOm(req.params.id);
   res.status(204).end();
 });
 
 router.post('/:id/autofill', async (req, res) => {
   const sourceId = req.body?.sourceId;
   if (!sourceId) return res.status(400).json({ error: 'sourceId is required' });
+  const target = await getOwnedOm(req, res);
+  if (!target) return;
+  const ownerEmail = getOwnerEmail(req);
+  const source = await getOm(sourceId);
+  if (!source || source.ownerEmail !== ownerEmail) return res.status(404).json({ error: 'Not found' });
   const om = await autofillOm(req.params.id, sourceId);
-  if (!om) return res.status(404).json({ error: 'Not found' });
   res.json(om);
 });
 
 router.post('/:id/duplicate', async (req, res) => {
+  const existing = await getOwnedOm(req, res);
+  if (!existing) return;
   const copy = await duplicateOm(req.params.id);
-  if (!copy) return res.status(404).json({ error: 'Not found' });
   res.status(201).json(copy);
 });
 
 router.put('/:id/rename', async (req, res) => {
   const propertyName = String(req.body?.propertyName || '').trim();
   if (!propertyName) return res.status(400).json({ error: 'propertyName is required' });
+  const existing = await getOwnedOm(req, res);
+  if (!existing) return;
   const om = await renameOm(req.params.id, propertyName);
-  if (!om) return res.status(404).json({ error: 'Not found' });
   res.json(om);
 });
 
 router.post('/:id/upload', upload.array('files', 20), async (req, res) => {
-  const om = await getOm(req.params.id);
-  if (!om) return res.status(404).json({ error: 'Not found' });
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
   const refs = (req.files || []).map((f) => toFileRef(req, f));
   const updatedFiles = [...(om.files || []), ...refs];
   await updateOm(req.params.id, { files: updatedFiles });
@@ -71,8 +101,8 @@ router.post('/:id/upload', upload.array('files', 20), async (req, res) => {
 });
 
 router.post('/:id/generate', async (req, res) => {
-  const om = await getOm(req.params.id);
-  if (!om) return res.status(404).json({ error: 'Not found' });
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
   const format = (req.body?.format || 'pdf').toLowerCase();
 
   try {
@@ -99,8 +129,8 @@ router.post('/:id/generate', async (req, res) => {
 });
 
 router.post('/:id/ai/analyze-logo', async (req, res) => {
-  const om = await getOm(req.params.id);
-  if (!om) return res.status(404).json({ error: 'Not found' });
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
   const logo = om.cover.brokerLogo;
   if (!logo || !logo.mimetype?.startsWith('image/')) {
     return res.status(400).json({ error: 'Upload a brokerage logo first.' });
@@ -116,8 +146,8 @@ router.post('/:id/ai/analyze-logo', async (req, res) => {
 });
 
 router.post('/:id/ai/:kind', async (req, res) => {
-  const om = await getOm(req.params.id);
-  if (!om) return res.status(404).json({ error: 'Not found' });
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
   const { kind } = req.params;
   if (!AI_KINDS.includes(kind)) return res.status(400).json({ error: `Unsupported AI kind: ${kind}` });
   try {
@@ -129,8 +159,8 @@ router.post('/:id/ai/:kind', async (req, res) => {
 });
 
 router.post('/:id/geocode', async (req, res) => {
-  const om = await getOm(req.params.id);
-  if (!om) return res.status(404).json({ error: 'Not found' });
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
   try {
     const result = await geocodeAddress(buildAddressString(om.cover));
     res.json(result);
@@ -139,6 +169,8 @@ router.post('/:id/geocode', async (req, res) => {
   }
 });
 
+// Public, unauthenticated: only ever fetched as an <img src> from the shareable
+// Flipbook view, which can't attach the X-User-Email header.
 router.get('/:id/static-map.png', async (req, res) => {
   const om = await getOm(req.params.id);
   if (!om) return res.status(404).json({ error: 'Not found' });

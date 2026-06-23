@@ -1,4 +1,4 @@
-# PropDocs
+# Frontage
 
 A guided document builder for commercial real estate brokers. Sign in with just your name and email, pick a document type, fill in a section-by-section form — with AI-assisted drafting for the hardest-to-write parts — and export a pixel-perfect document as a **PDF**, a **PowerPoint deck**, or a mobile-friendly **shareable flipbook link**.
 

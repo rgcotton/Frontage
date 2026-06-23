@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'propdocs_user';
+const STORAGE_KEY = 'frontage_user';
 
 export function getUser() {
   try {
@@ -12,4 +12,8 @@ export function getUser() {
 export function saveUser(user) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   return user;
+}
+
+export function clearUser() {
+  localStorage.removeItem(STORAGE_KEY);
 }

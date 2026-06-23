@@ -6,6 +6,7 @@ import path from 'path';
 import multer from 'multer';
 import omsRouter from './routes/oms.js';
 import foldersRouter from './routes/folders.js';
+import { closeBrowser } from './lib/pdf/render.js';
 
 const PORT = process.env.PORT || 4000;
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -34,6 +35,27 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`PropDocs API listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Frontage API listening on http://localhost:${PORT}`);
 });
+
+// Puppeteer's shared browser (see lib/pdf/render.js) can keep the process alive
+// past a plain SIGTERM, which makes `node --watch` restarts hang indefinitely on
+// "Waiting for graceful termination...". Close it explicitly, with a hard
+// deadline so a restart/shutdown can never hang longer than this.
+let shuttingDown = false;
+function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  const forceExit = setTimeout(() => process.exit(1), 3000);
+  Promise.resolve(closeBrowser())
+    .catch(() => {})
+    .then(() => {
+      server.close(() => {
+        clearTimeout(forceExit);
+        process.exit(0);
+      });
+    });
+}
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

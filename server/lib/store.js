@@ -13,11 +13,12 @@ function omPath(id) {
   return path.join(DATA_DIR, `${id}.json`);
 }
 
-export function emptyOm(id, docType = 'om') {
+export function emptyOm(id, docType = 'om', ownerEmail = null) {
   const now = new Date().toISOString();
   return {
     id,
     docType,
+    ownerEmail,
     folderId: null,
     createdAt: now,
     updatedAt: now,
@@ -143,7 +144,7 @@ function mergeWithDefaults(om) {
   return merged;
 }
 
-export async function listOms() {
+export async function listOms(ownerEmail = null) {
   await ensureDataDir();
   const entries = await fs.readdir(DATA_DIR);
   const oms = await Promise.all(
@@ -156,21 +157,22 @@ export async function listOms() {
           id: om.id,
           propertyName: om.cover?.propertyName || 'Untitled Property',
           docType: om.docType || 'om',
+          ownerEmail: om.ownerEmail ?? null,
           folderId: om.folderId ?? null,
           updatedAt: om.updatedAt,
           createdAt: om.createdAt,
         };
       })
   );
-  return oms.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  return oms.filter((om) => om.ownerEmail === ownerEmail).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
 
 const VALID_DOC_TYPES = ['om', 'onePager', 'bov'];
 
-export async function createOm(docType = 'om') {
+export async function createOm(docType = 'om', ownerEmail = null) {
   await ensureDataDir();
   const id = nanoid(10);
-  const om = emptyOm(id, VALID_DOC_TYPES.includes(docType) ? docType : 'om');
+  const om = emptyOm(id, VALID_DOC_TYPES.includes(docType) ? docType : 'om', ownerEmail);
   await fs.writeFile(omPath(id), JSON.stringify(om, null, 2));
   return om;
 }
@@ -193,6 +195,7 @@ export async function updateOm(id, partial) {
     ...existing,
     ...partial,
     id: existing.id,
+    ownerEmail: existing.ownerEmail,
     createdAt: existing.createdAt,
     updatedAt: new Date().toISOString(),
   };

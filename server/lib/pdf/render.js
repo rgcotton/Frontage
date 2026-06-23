@@ -45,7 +45,10 @@ function injectFooter(pageHtml, footer) {
 }
 
 let sharedBrowser = null;
-async function getBrowser() {
+export async function getBrowser() {
+  if (sharedBrowser && !sharedBrowser.connected) {
+    sharedBrowser = null;
+  }
   if (!sharedBrowser) {
     sharedBrowser = await puppeteer.launch({ headless: true });
   }

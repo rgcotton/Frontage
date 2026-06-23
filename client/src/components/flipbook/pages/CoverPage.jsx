@@ -1,10 +1,16 @@
-import { formatCurrency, formatPercent, formatNumber } from '../../../lib/format.js';
+import { formatCurrency, formatPercent, formatNumber, filterStats } from '../../../lib/format.js';
 
 export default function CoverPage({ om }) {
   const { cover, executiveSummary, overview } = om;
   const addressLine = [cover.formattedAddress || cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip]
     .filter(Boolean)
     .join(' • ');
+  const stats = filterStats([
+    ['Offering Price', executiveSummary.offeringPrice, formatCurrency],
+    ['Cap Rate', executiveSummary.capRate, formatPercent],
+    ['NOI', executiveSummary.noi, formatCurrency],
+    ['Square Footage', overview.squareFootage, (v) => `${formatNumber(v)} SF`],
+  ]);
 
   return (
     <div className="fp-cover" style={cover.coverPhoto ? { backgroundImage: `url(${cover.coverPhoto.url})` } : undefined}>
@@ -14,24 +20,16 @@ export default function CoverPage({ om }) {
         <h1>{cover.propertyName || 'Untitled Property'}</h1>
         <div className="fp-cover-address">{addressLine}</div>
         {cover.tagline && <div className="fp-cover-tagline">{cover.tagline}</div>}
-        <div className="fp-cover-stats">
-          <div>
-            <span className="l">Offering Price</span>
-            <span className="v">{formatCurrency(executiveSummary.offeringPrice)}</span>
+        {stats.length > 0 && (
+          <div className="fp-cover-stats">
+            {stats.map(([label, value]) => (
+              <div key={label}>
+                <span className="l">{label}</span>
+                <span className="v">{value}</span>
+              </div>
+            ))}
           </div>
-          <div>
-            <span className="l">Cap Rate</span>
-            <span className="v">{formatPercent(executiveSummary.capRate)}</span>
-          </div>
-          <div>
-            <span className="l">NOI</span>
-            <span className="v">{formatCurrency(executiveSummary.noi)}</span>
-          </div>
-          <div>
-            <span className="l">Square Footage</span>
-            <span className="v">{overview.squareFootage ? `${formatNumber(overview.squareFootage)} SF` : '—'}</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

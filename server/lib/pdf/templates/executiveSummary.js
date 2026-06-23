@@ -1,14 +1,14 @@
 import { pageShell, headerBar, buildTheme } from './layout.js';
-import { esc, formatCurrency, formatPercent } from '../helpers/format.js';
+import { esc, formatCurrency, formatPercent, filterStats } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
   const theme = ctx.theme || buildTheme(om.branding);
   const { executiveSummary, cover } = om;
-  const stats = [
-    ['Offering Price', formatCurrency(executiveSummary.offeringPrice)],
-    ['Cap Rate', formatPercent(executiveSummary.capRate)],
-    ['NOI', formatCurrency(executiveSummary.noi)],
-  ];
+  const stats = filterStats([
+    ['Offering Price', executiveSummary.offeringPrice, formatCurrency],
+    ['Cap Rate', executiveSummary.capRate, formatPercent],
+    ['NOI', executiveSummary.noi, formatCurrency],
+  ]);
   const highlights = (executiveSummary.highlights || []).filter(Boolean);
 
   const inner = `
@@ -20,8 +20,7 @@ export function buildPages(om, ctx) {
         ${stats.map(([label, value]) => bigStat(label, value, theme)).join('')}
       </div>
       <div class="col">
-        <div class="subhead" style="margin-top:0;">Investment Overview</div>
-        <div class="narrative">${esc(executiveSummary.narrative) || 'No summary provided.'}</div>
+        ${executiveSummary.narrative ? `<div class="subhead" style="margin-top:0;">Investment Overview</div><div class="narrative">${esc(executiveSummary.narrative)}</div>` : ''}
         ${
           highlights.length
             ? `<div class="subhead">Investment Highlights</div>

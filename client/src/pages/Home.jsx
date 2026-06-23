@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
-import { getUser } from '../lib/user.js';
+import { clearUser } from '../lib/user.js';
 import DocTypeSelectModal from '../components/DocTypeSelectModal.jsx';
 import DocCardMenu from '../components/DocCardMenu.jsx';
+import AccountMenu from '../components/AccountMenu.jsx';
+import SignInModal from '../components/SignInModal.jsx';
 import TextPromptModal from '../components/TextPromptModal.jsx';
 import { DOC_TYPE_LABELS } from '../lib/sectionsByDocType.js';
 
@@ -17,7 +19,7 @@ function formatDate(iso) {
   });
 }
 
-export default function Home() {
+export default function Home({ user, onLogin, onLogout }) {
   const [oms, setOms] = useState([]);
   const [folders, setFolders] = useState([]);
   const [activeFolderId, setActiveFolderId] = useState(null);
@@ -25,9 +27,9 @@ export default function Home() {
   const [creating, setCreating] = useState(false);
   const [showDocTypeModal, setShowDocTypeModal] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
   const [renamingOm, setRenamingOm] = useState(null);
   const navigate = useNavigate();
-  const user = getUser();
 
   function loadAll() {
     return Promise.all([api.listOms(), api.listFolders()]).then(([omList, folderList]) => {
@@ -94,12 +96,22 @@ export default function Home() {
 
   const visibleOms = oms.filter((om) => (activeFolderId === null ? true : om.folderId === activeFolderId));
 
+  function handleLogout() {
+    clearUser();
+    onLogout();
+  }
+
+  function handleSignIn(newUser) {
+    setShowSignIn(false);
+    onLogin(newUser);
+  }
+
   return (
     <div className="dashboard">
       <aside className="dashboard-sidebar">
         <div className="dashboard-sidebar-brand">
           <span className="dot" />
-          PropDocs
+          Frontage
         </div>
 
         <div className="dashboard-sidebar-label">Folders</div>
@@ -129,11 +141,19 @@ export default function Home() {
       </aside>
 
       <main className="dashboard-main">
-        <div className="dashboard-topline">{user && <span className="dashboard-user">👤 {user.name}</span>}</div>
+        <div className="dashboard-topline">
+          {user ? (
+            <AccountMenu user={user} onLogout={handleLogout} />
+          ) : (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSignIn(true)}>
+              Sign In
+            </button>
+          )}
+        </div>
 
         <section className="dashboard-hero">
           <div className="dashboard-hero-eyebrow">
-            <span className="dot" /> PropDocs
+            <span className="dot" /> Frontage
           </div>
           <h1>Professional CRE Documents in Minutes</h1>
           <p>
@@ -198,6 +218,8 @@ export default function Home() {
           onClose={() => setRenamingOm(null)}
         />
       )}
+
+      {showSignIn && <SignInModal onComplete={handleSignIn} onClose={() => setShowSignIn(false)} />}
     </div>
   );
 }

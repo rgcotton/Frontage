@@ -1,5 +1,5 @@
 import { pageShell, headerBar } from './layout.js';
-import { formatCurrency, formatPercent, escOrDash } from '../helpers/format.js';
+import { formatCurrency, formatPercent, escOrDash, filterStats } from '../helpers/format.js';
 
 const T12_FIRST_CAP = 14;
 const T12_REST_CAP = 22;
@@ -39,15 +39,19 @@ export function buildPages(om, ctx) {
   t12Chunks.forEach((rows, idx) => {
     const isFirst = idx === 0;
     const isLast = idx === t12Chunks.length - 1;
-    const summaryStats = isFirst
-      ? `<div class="stat-grid" style="--cols:5; margin-bottom:18px;">
-        <div class="stat-box"><div class="label">Asking Price</div><div class="value">${formatCurrency(executiveSummary.offeringPrice)}</div></div>
-        <div class="stat-box"><div class="label">NOI</div><div class="value">${formatCurrency(executiveSummary.noi)}</div></div>
-        <div class="stat-box"><div class="label">Cap Rate</div><div class="value">${formatPercent(executiveSummary.capRate)}</div></div>
-        <div class="stat-box"><div class="label">Gross Income</div><div class="value">${formatCurrency(financials.grossIncome)}</div></div>
-        <div class="stat-box"><div class="label">Operating Expenses</div><div class="value">${formatCurrency(financials.operatingExpenses)}</div></div>
+    const summaryStatRows = filterStats([
+      ['Asking Price', executiveSummary.offeringPrice, formatCurrency],
+      ['NOI', executiveSummary.noi, formatCurrency],
+      ['Cap Rate', executiveSummary.capRate, formatPercent],
+      ['Gross Income', financials.grossIncome, formatCurrency],
+      ['Operating Expenses', financials.operatingExpenses, formatCurrency],
+    ]);
+    const summaryStats =
+      isFirst && summaryStatRows.length
+        ? `<div class="stat-grid" style="--cols:${summaryStatRows.length}; margin-bottom:18px;">
+        ${summaryStatRows.map(([label, value]) => `<div class="stat-box"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('')}
       </div>`
-      : '';
+        : '';
     const tableRows = rows
       .map((li) => `<tr><td>${escOrDash(li.label)}</td><td>${formatCurrency(li.income)}</td><td>${formatCurrency(li.expense)}</td></tr>`)
       .join('');
@@ -60,14 +64,14 @@ export function buildPages(om, ctx) {
       <div class="section-title">Financial Summary</div>
       <div class="gold-rule"></div>
       ${summaryStats}
-      <div class="subhead" style="margin-top:0;">Trailing 12-Month Income &amp; Expenses (T12)</div>
       ${
         lineItems.length
-          ? `<table class="pdf-table">
+          ? `<div class="subhead" style="margin-top:0;">Trailing 12-Month Income &amp; Expenses (T12)</div>
+      <table class="pdf-table">
         <thead><tr><th>Line Item</th><th>Income</th><th>Expense</th></tr></thead>
         <tbody>${tableRows}${totalRow}</tbody>
       </table>`
-          : '<div class="narrative">No T12 line items provided.</div>'
+          : ''
       }
     `;
     pages.push(pageShell(inner));
@@ -115,16 +119,20 @@ export function buildPages(om, ctx) {
     const cfChunks = chunk(cashFlows, CASHFLOW_FIRST_CAP, CASHFLOW_REST_CAP);
     cfChunks.forEach((rows, idx) => {
       const isFirst = idx === 0;
-      const assumptionsBlock = isFirst
-        ? `<div class="subhead" style="margin-top:0;">Cash Flow Assumptions</div>
-        <div class="stat-grid" style="--cols:5; margin-bottom:18px;">
-          <div class="stat-box"><div class="label">Rent Growth</div><div class="value" style="font-size:14px;">${a.rentGrowthPct ? formatPercent(a.rentGrowthPct) : '—'}</div></div>
-          <div class="stat-box"><div class="label">Expense Growth</div><div class="value" style="font-size:14px;">${a.expenseGrowthPct ? formatPercent(a.expenseGrowthPct) : '—'}</div></div>
-          <div class="stat-box"><div class="label">Vacancy</div><div class="value" style="font-size:14px;">${a.vacancyPct ? formatPercent(a.vacancyPct) : '—'}</div></div>
-          <div class="stat-box"><div class="label">Hold Period</div><div class="value" style="font-size:14px;">${a.holdPeriodYears ? `${escOrDash(a.holdPeriodYears)} yrs` : '—'}</div></div>
-          <div class="stat-box"><div class="label">Exit Cap Rate</div><div class="value" style="font-size:14px;">${a.exitCapRate ? formatPercent(a.exitCapRate) : '—'}</div></div>
+      const assumptionRows = filterStats([
+        ['Rent Growth', a.rentGrowthPct, formatPercent],
+        ['Expense Growth', a.expenseGrowthPct, formatPercent],
+        ['Vacancy', a.vacancyPct, formatPercent],
+        ['Hold Period', a.holdPeriodYears, (v) => `${v} yrs`],
+        ['Exit Cap Rate', a.exitCapRate, formatPercent],
+      ]);
+      const assumptionsBlock =
+        isFirst && assumptionRows.length
+          ? `<div class="subhead" style="margin-top:0;">Cash Flow Assumptions</div>
+        <div class="stat-grid" style="--cols:${assumptionRows.length}; margin-bottom:18px;">
+          ${assumptionRows.map(([label, value]) => `<div class="stat-box"><div class="label">${label}</div><div class="value" style="font-size:14px;">${value}</div></div>`).join('')}
         </div>`
-        : '';
+          : '';
       const tableRows = rows
         .map(
           (r) => `<tr>
@@ -139,9 +147,7 @@ export function buildPages(om, ctx) {
           <thead><tr><th>Year</th><th>Gross Income</th><th>Vacancy Loss</th><th>Operating Expenses</th><th>NOI</th><th>Cash Flow</th></tr></thead>
           <tbody>${tableRows}</tbody>
         </table>`
-        : isFirst
-          ? '<div class="narrative">No projected cash flow schedule provided.</div>'
-          : '';
+        : '';
       const inner = `
         ${headerBar(cover.propertyName, 'Pro Forma', !isFirst)}
         <div class="section-title">Pro Forma</div>

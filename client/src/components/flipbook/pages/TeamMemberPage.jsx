@@ -6,10 +6,10 @@ export default function TeamMemberPage({ member }) {
           {member.headshot && member.headshot.mimetype?.startsWith('image/') && <img src={member.headshot.url} alt={member.name} />}
         </div>
         <div className="fp-team-info">
-          <div className="fp-team-name">{member.name || '—'}</div>
-          <div className="fp-team-title">{member.title || ''}</div>
+          {member.name && <div className="fp-team-name">{member.name}</div>}
+          {member.title && <div className="fp-team-title">{member.title}</div>}
           <div className="fp-team-contact">{[member.phone, member.email].filter(Boolean).join('  •  ')}</div>
-          <p className="fp-narrative">{member.bio || 'No bio provided.'}</p>
+          {member.bio && <p className="fp-narrative">{member.bio}</p>}
         </div>
       </div>
     </div>
