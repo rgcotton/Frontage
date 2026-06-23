@@ -1,4 +1,6 @@
-export default function OfferingProceduresSection({ value, onChange }) {
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
+
+export default function OfferingProceduresSection({ value, onChange, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -7,6 +9,11 @@ export default function OfferingProceduresSection({ value, onChange }) {
     <div className="section-form">
       <h2>Offering Procedures</h2>
       <p className="section-hint">Instructions for submitting offers, scheduling tours, and accessing diligence materials.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.offeringProcedures}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, offeringProcedures: text } })}
+      />
 
       <div className="field">
         <label>Offer Deadline</label>

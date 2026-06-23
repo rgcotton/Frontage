@@ -1,6 +1,7 @@
 import AiGenerateButton from '../AiGenerateButton.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
-export default function ExecutiveSummarySection({ value, onChange, omId }) {
+export default function ExecutiveSummarySection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -23,6 +24,11 @@ export default function ExecutiveSummarySection({ value, onChange, omId }) {
     <div className="section-form">
       <h2>Executive Summary</h2>
       <p className="section-hint">The narrative pitch and headline investment metrics.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.executiveSummary}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, executiveSummary: text } })}
+      />
 
       <div className="field-row cols-3">
         <div className="field">

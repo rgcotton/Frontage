@@ -2,11 +2,11 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { listOms, createOm, getOm, updateOm, deleteOm } from '../lib/store.js';
-import { upload, toFileRef } from '../lib/upload.js';
+import { upload, toFileRef, resolveDiskPath } from '../lib/upload.js';
 import { generatePdf } from '../lib/pdf/render.js';
 import { generatePptx } from '../lib/pptxGenerator.js';
-import { generateAiContent, AI_KINDS } from '../lib/ai.js';
-import { geocodeAddress, buildAddressString, fetchStaticMapBuffer } from '../lib/maps.js';
+import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
+import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer } from '../lib/maps.js';
 
 const router = express.Router();
 const GENERATED_DIR = path.join(process.cwd(), 'generated');
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const om = await createOm();
+  const om = await createOm(req.body?.docType);
   res.status(201).json(om);
 });
 
@@ -76,6 +76,23 @@ router.post('/:id/generate', async (req, res) => {
   }
 });
 
+router.post('/:id/ai/analyze-logo', async (req, res) => {
+  const om = await getOm(req.params.id);
+  if (!om) return res.status(404).json({ error: 'Not found' });
+  const logo = om.cover.brokerLogo;
+  if (!logo || !logo.mimetype?.startsWith('image/')) {
+    return res.status(400).json({ error: 'Upload a brokerage logo first.' });
+  }
+  try {
+    const diskPath = resolveDiskPath(om.id, logo);
+    const buffer = fs.readFileSync(diskPath);
+    const result = await analyzeLogoColors(buffer, logo.mimetype);
+    res.json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 router.post('/:id/ai/:kind', async (req, res) => {
   const om = await getOm(req.params.id);
   if (!om) return res.status(404).json({ error: 'Not found' });
@@ -103,7 +120,7 @@ router.post('/:id/geocode', async (req, res) => {
 router.get('/:id/static-map.png', async (req, res) => {
   const om = await getOm(req.params.id);
   if (!om) return res.status(404).json({ error: 'Not found' });
-  const buf = await fetchStaticMapBuffer(om.cover);
+  const buf = req.query.type === 'regional' ? await fetchRegionalMapBuffer(om.cover) : await fetchStreetMapBuffer(om.cover);
   if (!buf) return res.status(404).json({ error: 'Map unavailable' });
   res.set('Content-Type', 'image/png');
   res.send(buf);

@@ -1,8 +1,9 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
-export default function MarketSection({ value, onChange, omId }) {
+export default function MarketSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -19,6 +20,11 @@ export default function MarketSection({ value, onChange, omId }) {
     <div className="section-form">
       <h2>Market Overview</h2>
       <p className="section-hint">Context on the submarket, demand drivers, and demographics.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.market}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, market: text } })}
+      />
 
       <div className="field">
         <label>Market / Submarket Name</label>

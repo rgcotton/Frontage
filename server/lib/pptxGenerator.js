@@ -1,7 +1,7 @@
 import fs from 'fs';
 import PptxGenJS from 'pptxgenjs';
 import { resolveDiskPath } from './upload.js';
-import { fetchStaticMapBuffer } from './maps.js';
+import { fetchStreetMapBuffer, fetchRegionalMapBuffer } from './maps.js';
 import { formatCurrency, formatPercent, formatNumber, formatMonthYear, escOrDash } from './pdf/helpers/format.js';
 
 const NAVY = '1A2B4C';
@@ -459,21 +459,22 @@ export async function generatePptx(om, outputPath) {
     .join(', ');
   locSlide.addText('Location & Amenities', { x: 0.3, y: 0.85, w: 9.4, h: 0.4, fontSize: 18, bold: true, color: NAVY });
   locSlide.addText(addressLine2 || 'Address not provided', { x: 0.3, y: 1.25, w: 9.4, h: 0.3, fontSize: 11, color: MUTED });
-  const mapBuf = await fetchStaticMapBuffer(om.cover);
-  if (mapBuf) {
-    locSlide.addImage({ data: `image/png;base64,${mapBuf.toString('base64')}`, x: 0.3, y: 1.7, w: 9.4, h: 5.4, sizing: { type: 'cover', w: 9.4, h: 5.4 } });
-  } else {
-    locSlide.addShape('rect', { x: 0.3, y: 1.7, w: 9.4, h: 5.4, fill: { color: LIGHT_GRAY } });
-    locSlide.addText('Map preview unavailable. Configure GOOGLE_MAPS_API_KEY and a valid property address.', {
-      x: 1.3,
-      y: 4.0,
-      w: 7.4,
-      h: 0.6,
-      fontSize: 10,
-      color: MUTED,
-      align: 'center',
-    });
+
+  function addMapBlock(buf, label, y, h, placeholderText) {
+    locSlide.addText(label, { x: 0.3, y, w: 9.4, h: 0.25, fontSize: 11, bold: true, color: NAVY });
+    const mapY = y + 0.28;
+    if (buf) {
+      locSlide.addImage({ data: `image/png;base64,${buf.toString('base64')}`, x: 0.3, y: mapY, w: 9.4, h, sizing: { type: 'cover', w: 9.4, h } });
+    } else {
+      locSlide.addShape('rect', { x: 0.3, y: mapY, w: 9.4, h, fill: { color: LIGHT_GRAY } });
+      locSlide.addText(placeholderText, { x: 1.3, y: mapY + h / 2 - 0.3, w: 7.4, h: 0.6, fontSize: 10, color: MUTED, align: 'center' });
+    }
   }
+
+  const [streetBuf, regionalBuf] = await Promise.all([fetchStreetMapBuffer(om.cover), fetchRegionalMapBuffer(om.cover)]);
+  const placeholder = 'Map preview unavailable. Configure GOOGLE_MAPS_API_KEY and a valid property address.';
+  addMapBlock(streetBuf, 'Street View', 1.65, 3.3, placeholder);
+  addMapBlock(regionalBuf, 'Regional Overview', 5.35, 1.7, placeholder);
 
   // ---------- Slide: Offering Procedures ----------
   const proc = pptx.addSlide();

@@ -1,25 +1,24 @@
 # OM Builder
 
-A guided Offering Memorandum (OM) builder for commercial real estate brokers. Fill in a section-by-section form — with AI-assisted drafting for the hardest-to-write parts — and export a pixel-perfect OM as a **PDF**, a **PowerPoint deck**, or a mobile-friendly **shareable flipbook link**.
+A guided Offering Memorandum (OM) builder for commercial real estate brokers. Pick a document type, fill in a section-by-section form — with AI-assisted drafting for the hardest-to-write parts — and export a pixel-perfect document as a **PDF**, a **PowerPoint deck**, or a mobile-friendly **shareable flipbook link**.
 
-## What it does
+## Document types
 
-The app walks a broker through 10 sections:
+When you create a new document you choose one of three types, which determines which sections you fill in and which PDF template is generated:
 
-1. Cover Page
-2. Property Overview
-3. Executive Summary
-4. Market Overview
-5. Financials (T12, Rent Roll, Pro Forma)
-6. Sales Comps
-7. Rent Comps
-8. Location & Amenities
-9. Offering Procedures
-10. About the Team
+- **Offering Memorandum** — the full 11-section package: Cover, Branding, Property Overview, Executive Summary, Market Overview, Financials (T12, Rent Roll, Pro Forma), Sales Comps, Rent Comps, Location & Amenities, Offering Procedures, About the Team.
+- **One Pager** — a single designed page (Cover, Branding, Property Overview, Executive Summary, Team) with photo, key stats, top 3 investment highlights, and broker contact.
+- **Broker Opinion of Value (BOV)** — Cover, Branding, Property Overview, Valuation Methodology & Conclusion, Comparable Sales Analysis, Broker Recommendation, Team.
 
-Each section supports dynamic repeating rows (comps, line items, rent roll, cash flow years, team members) and file uploads (photos, videos, documents). Work autosaves as you type, a sidebar progress bar and per-section checkmarks show how complete the OM is, and "Generate with AI" buttons (Executive Summary narrative, Investment Highlights, Market narrative, Sales Comp pricing analysis, Property description) draft copy from the data you've already entered — you can edit anything the AI writes.
+The document type can't be changed after creation, since each type has a different PDF template (PowerPoint and the shareable web link currently always use the full Offering Memorandum structure regardless of document type).
 
-Asking Price, NOI, and Cap Rate are entered once on **Executive Summary** and automatically flow into Financials and every export. The brokerage logo is uploaded once on the **Cover Page** and automatically appears on the Team page and Back Cover.
+Each section supports dynamic repeating rows (comps, line items, rent roll, cash flow years, team members) and file uploads (photos, videos, documents). Work autosaves as you type, a sidebar progress bar and per-section checkmarks show how complete the document is, and "Generate with AI" buttons (Executive Summary narrative, Investment Highlights, Market narrative, Sales Comp pricing analysis, Property description, Valuation Methodology, Broker Recommendation) draft tight, punchy copy from the data you've already entered — you can edit anything the AI writes, and every section has a **Custom AI Instructions** box to tell the AI what to emphasize, exclude, or adjust before generating.
+
+Asking Price, NOI, and Cap Rate are entered once on **Executive Summary** and automatically flow into Financials and every export. The brokerage logo is uploaded once on the **Cover Page** and automatically appears on the Team page and Back Cover — uploading it also asks Claude to suggest matching primary/accent colors for the **Branding** section, which you can apply with one click.
+
+## Branding
+
+The **Branding** section lets each document customize its own PDF look: a primary color, an accent color, a background style (White / Light Gray / Dark Navy), and a font style (Modern / Classic / Bold). These apply live to the generated PDF every time you click Generate — the background presets automatically flip text to light/dark as needed so contrast always holds, regardless of which primary/accent colors you pick.
 
 ## Tech stack
 
@@ -113,14 +112,14 @@ xattr -d com.apple.quarantine server/node_modules/puppeteer/.local-chromium/**/c
 
 ### Using the app
 
-1. Click **+ New Offering Memorandum** on the home page.
-2. Work through the 10 sections in the sidebar — each one autosaves a moment after you stop typing. The progress bar and green checkmarks show what's left.
-3. Use the **Validate & Format Address** button on the Cover Page to geocode and format the property address (requires `GOOGLE_MAPS_API_KEY`).
-4. Use the **✨ Generate with AI** buttons on Executive Summary, Market Overview, Sales Comps, and Property Overview to draft narrative copy from the data you've entered, then edit as needed.
+1. Click **+ New Offering Memorandum** on the home page and choose a document type (this can't be changed later).
+2. Work through the sections in the sidebar — each one autosaves a moment after you stop typing. The progress bar and green checkmarks show what's left, scoped to the sections that document type actually uses.
+3. Use the **Validate & Format Address** button on the Cover Page to geocode and format the property address (requires `GOOGLE_MAPS_API_KEY`); uploading a brokerage logo also triggers an AI color suggestion for the Branding section.
+4. Use the **✨ Generate with AI** buttons throughout the form to draft narrative copy from the data you've entered — add a note in a section's **Custom AI Instructions** box first if you want to steer the result, then edit the output as needed.
 5. In the right-hand panel, choose an **Output Format** and click **Generate**:
-   - **PDF** — a full designed document (cover, table of contents, all sections, location map, back cover), rendered via headless Chromium.
-   - **PowerPoint** — the same section structure as editable slides.
-   - **Web Link** — a shareable URL (`/share/<id>`) that renders a mobile-responsive, page-turning flipbook — useful for sending to clients without exporting a file.
+   - **PDF** — a full designed document rendered via headless Chromium, themed by the Branding section, with clickable Google Maps links on every address and the Data Room link.
+   - **PowerPoint** — the same section structure as editable slides (always the full Offering Memorandum structure, see Document types above).
+   - **Web Link** — a shareable URL (`/share/<id>`) that renders a mobile-responsive, page-turning flipbook (always the full Offering Memorandum structure) — useful for sending to clients without exporting a file.
 
 ### Supported upload types
 
@@ -134,5 +133,6 @@ There's no database to install. Each OM is stored as a single JSON file in `serv
 
 - This is a local, single-user tool with no authentication — anyone with the share link (or API access) can view an OM. Don't expose the server directly to the internet without adding auth.
 - The PDF's table of contents shows real page numbers, computed from the actual chunked page layout before rendering. The PowerPoint table of contents lists section names only — PowerPoint slides have no page-number concept, so this is an intentional difference between the two formats.
-- The Location & Amenities map (PDF, PowerPoint, and the flipbook) requires `GOOGLE_MAPS_API_KEY`; without it, a placeholder is shown instead.
-- "Generate with AI" buttons require `ANTHROPIC_API_KEY`; without it, clicking shows a clear setup error rather than failing silently.
+- The Location & Amenities page shows two maps: a street-level view (zoom 17) and a wider regional overview (zoom 13), in the PDF, PowerPoint, and the flipbook. Both require `GOOGLE_MAPS_API_KEY`; without it, a placeholder is shown instead. Note the Static Maps API must be enabled (and, if your key has an API restrictions allowlist configured in Google Cloud Console, added to it) separately from the Geocoding API.
+- Branding (colors/background/font) and the One Pager/BOV PDF templates are PDF-only this round — PowerPoint and the flipbook always render the full Offering Memorandum structure with the default look, regardless of a document's branding or document type.
+- "Generate with AI" buttons and the logo color suggestion require `ANTHROPIC_API_KEY`; without it, clicking shows a clear setup error rather than failing silently. AI output is instructed to be concise and punchy, lead with the most important point, and never use em dashes.

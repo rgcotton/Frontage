@@ -1,19 +1,11 @@
-export const SECTION_LABELS = {
-  cover: 'Cover Page',
-  overview: 'Property Overview',
-  executiveSummary: 'Executive Summary',
-  market: 'Market Overview',
-  financials: 'Financials',
-  salesComps: 'Sales Comps',
-  rentComps: 'Rent Comps',
-  locationMap: 'Location & Amenities',
-  offeringProcedures: 'Offering Procedures',
-  team: 'Team',
-};
+import { getSectionsForDocType } from './sectionsByDocType.js';
+
+export { ALL_SECTION_LABELS as SECTION_LABELS } from './sectionsByDocType.js';
 
 export function computeCompleteness(om) {
   return {
     cover: Boolean(om.cover.propertyName && om.cover.addressLine1),
+    branding: true,
     overview: Boolean(om.overview.description),
     executiveSummary: Boolean(om.executiveSummary.narrative && om.executiveSummary.offeringPrice),
     market: Boolean(om.market.narrative),
@@ -23,12 +15,15 @@ export function computeCompleteness(om) {
     locationMap: Boolean(om.cover.addressLine1),
     offeringProcedures: Boolean(om.offeringProcedures.loiInstructions || om.offeringProcedures.tourInstructions),
     team: (om.team || []).length > 0,
+    valuation: Boolean(om.valuation?.methodologyNarrative || om.valuation?.concludedValue),
+    recommendation: Boolean(om.recommendation?.narrative),
   };
 }
 
 export function overallCompletenessPct(om) {
-  const values = Object.values(computeCompleteness(om));
-  if (!values.length) return 0;
-  const done = values.filter(Boolean).length;
-  return Math.round((done / values.length) * 100);
+  const completion = computeCompleteness(om);
+  const activeKeys = getSectionsForDocType(om.docType || 'om').map((s) => s.key);
+  if (!activeKeys.length) return 0;
+  const done = activeKeys.filter((key) => completion[key]).length;
+  return Math.round((done / activeKeys.length) * 100);
 }

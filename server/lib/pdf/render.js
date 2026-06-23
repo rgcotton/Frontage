@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
-import { buildDocument, footerHtml } from './templates/layout.js';
+import { buildDocument, buildTheme, footerHtml } from './templates/layout.js';
 import { toDataUri } from './helpers/images.js';
-import { fetchStaticMapDataUri } from '../maps.js';
+import { fetchStreetMapDataUri, fetchRegionalMapDataUri } from '../maps.js';
 import * as cover from './templates/cover.js';
 import * as toc from './templates/toc.js';
 import * as overview from './templates/overview.js';
@@ -14,8 +14,11 @@ import * as locationMap from './templates/locationMap.js';
 import * as offeringProcedures from './templates/offeringProcedures.js';
 import * as team from './templates/team.js';
 import * as backCover from './templates/backCover.js';
+import * as valuation from './templates/valuation.js';
+import * as recommendation from './templates/recommendation.js';
+import * as onePager from './templates/onePager.js';
 
-const CONTENT_SECTIONS = [
+const OM_CONTENT_SECTIONS = [
   { label: 'Property Overview', mod: overview },
   { label: 'Executive Summary', mod: executiveSummary },
   { label: 'Market Overview', mod: market },
@@ -24,6 +27,14 @@ const CONTENT_SECTIONS = [
   { label: 'Rent Comparables', mod: rentComps },
   { label: 'Location & Amenities', mod: locationMap },
   { label: 'Offering Procedures', mod: offeringProcedures },
+  { label: 'Meet the Team', mod: team },
+];
+
+const BOV_CONTENT_SECTIONS = [
+  { label: 'Subject Property', mod: overview },
+  { label: 'Valuation Methodology', mod: valuation },
+  { label: 'Comparable Sales Analysis', mod: salesComps },
+  { label: 'Broker Recommendation', mod: recommendation },
   { label: 'Meet the Team', mod: team },
 ];
 
@@ -48,20 +59,15 @@ export async function closeBrowser() {
   }
 }
 
-export async function generatePdf(om, outputPath, ctxOverrides = {}) {
-  const renderCtx = {
-    coverPhotoUri: toDataUri(om.id, om.cover.coverPhoto),
-    brokerLogoUri: toDataUri(om.id, om.cover.brokerLogo),
-    staticMapUri: await fetchStaticMapDataUri(om.cover),
-    ...ctxOverrides,
-  };
-
+// Assembles the cover + table of contents + content sections + back cover document
+// shared by the full 'om' and 'bov' document types. Returns the joined page HTML.
+function assembleMultiPageDocument(om, renderCtx, contentSections) {
   const coverPages = cover.buildPages(om, renderCtx);
 
   let runningPage = 2; // page 1 = cover, page 2 = TOC
   const tocEntries = [];
   const sectionPages = [];
-  for (const section of CONTENT_SECTIONS) {
+  for (const section of contentSections) {
     const pages = section.mod.buildPages(om, renderCtx);
     tocEntries.push({ label: section.label, startPage: runningPage + 1 });
     sectionPages.push(...pages);
@@ -81,7 +87,32 @@ export async function generatePdf(om, outputPath, ctxOverrides = {}) {
   }
   allPages.push(...backCoverPages);
 
-  const documentHtml = buildDocument(allPages.join('\n'));
+  return allPages.join('\n');
+}
+
+export async function generatePdf(om, outputPath, ctxOverrides = {}) {
+  const theme = buildTheme(om.branding);
+  const [streetMapUri, regionalMapUri] = await Promise.all([fetchStreetMapDataUri(om.cover), fetchRegionalMapDataUri(om.cover)]);
+  const renderCtx = {
+    theme,
+    coverPhotoUri: toDataUri(om.id, om.cover.coverPhoto),
+    brokerLogoUri: toDataUri(om.id, om.cover.brokerLogo),
+    streetMapUri,
+    regionalMapUri,
+    ...ctxOverrides,
+  };
+
+  const docType = om.docType || 'om';
+  let bodyHtml;
+  if (docType === 'onePager') {
+    bodyHtml = onePager.buildPages(om, renderCtx).join('\n');
+  } else if (docType === 'bov') {
+    bodyHtml = assembleMultiPageDocument(om, renderCtx, BOV_CONTENT_SECTIONS);
+  } else {
+    bodyHtml = assembleMultiPageDocument(om, renderCtx, OM_CONTENT_SECTIONS);
+  }
+
+  const documentHtml = buildDocument(bodyHtml, theme);
 
   const browser = await getBrowser();
   const page = await browser.newPage();

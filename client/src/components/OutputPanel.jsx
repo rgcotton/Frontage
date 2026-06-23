@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { computeCompleteness, SECTION_LABELS } from '../lib/completeness.js';
+import { getSectionsForDocType } from '../lib/sectionsByDocType.js';
 
 const FORMATS = [
   { value: 'pdf', label: 'PDF Document' },
@@ -29,6 +30,7 @@ export default function OutputPanel({ om }) {
   }
 
   const completion = computeCompleteness(om);
+  const activeKeys = getSectionsForDocType(om.docType || 'om').map((s) => s.key);
   const shareFullUrl = result?.shareUrl ? `${window.location.origin}${result.shareUrl}` : null;
 
   return (
@@ -81,8 +83,8 @@ export default function OutputPanel({ om }) {
 
         <div className="checklist">
           <h4>Completeness</h4>
-          {Object.entries(completion).map(([key, done]) => (
-            <div className={`checklist-item ${done ? 'done' : ''}`} key={key}>
+          {activeKeys.map((key) => (
+            <div className={`checklist-item ${completion[key] ? 'done' : ''}`} key={key}>
               <span className="check" />
               {SECTION_LABELS[key]}
             </div>

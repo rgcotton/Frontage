@@ -1,5 +1,6 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
 let nextId = 1;
 function makeId(prefix) {
@@ -8,7 +9,7 @@ function makeId(prefix) {
 
 const LEASE_TYPES = ['NNN', 'Gross', 'Modified Gross'];
 
-export default function FinancialsSection({ value, onChange, omId, om }) {
+export default function FinancialsSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -61,6 +62,11 @@ export default function FinancialsSection({ value, onChange, omId, om }) {
     <div className="section-form">
       <h2>Financials</h2>
       <p className="section-hint">Income, expenses, rent roll, and pro forma projections.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.financials}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, financials: text } })}
+      />
 
       <div className="field-row cols-3">
         <div className="field">

@@ -9,6 +9,11 @@ export function buildAddressString(cover) {
   return [cover.addressLine1, cover.city, cover.state, cover.zip].filter(Boolean).join(', ');
 }
 
+export function googleMapsSearchUrl(query) {
+  if (!query || !query.trim()) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query.trim())}`;
+}
+
 export async function geocodeAddress(addressString) {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -49,7 +54,7 @@ export async function geocodeAddress(addressString) {
   };
 }
 
-export async function fetchStaticMapBuffer(cover) {
+export async function fetchStaticMapBuffer(cover, { zoom = 17, size = '640x400' } = {}) {
   const apiKey = getApiKey();
   if (!apiKey) return null;
   const center = cover.lat != null && cover.lng != null ? `${cover.lat},${cover.lng}` : buildAddressString(cover);
@@ -57,8 +62,8 @@ export async function fetchStaticMapBuffer(cover) {
 
   const params = new URLSearchParams({
     center,
-    zoom: '14',
-    size: '640x400',
+    zoom: String(zoom),
+    size,
     scale: '2',
     maptype: 'roadmap',
     markers: `color:0xC9A227|${center}`,
@@ -75,8 +80,30 @@ export async function fetchStaticMapBuffer(cover) {
   }
 }
 
-export async function fetchStaticMapDataUri(cover) {
-  const buf = await fetchStaticMapBuffer(cover);
+export async function fetchStaticMapDataUri(cover, options) {
+  const buf = await fetchStaticMapBuffer(cover, options);
+  if (!buf) return null;
+  return `data:image/png;base64,${buf.toString('base64')}`;
+}
+
+// Street-level view (zoom 17): the property and surrounding streets/buildings.
+export async function fetchStreetMapBuffer(cover) {
+  return fetchStaticMapBuffer(cover, { zoom: 17 });
+}
+
+// Regional overview (zoom 13): broader context for demand drivers and access routes.
+export async function fetchRegionalMapBuffer(cover) {
+  return fetchStaticMapBuffer(cover, { zoom: 13 });
+}
+
+export async function fetchStreetMapDataUri(cover) {
+  const buf = await fetchStreetMapBuffer(cover);
+  if (!buf) return null;
+  return `data:image/png;base64,${buf.toString('base64')}`;
+}
+
+export async function fetchRegionalMapDataUri(cover) {
+  const buf = await fetchRegionalMapBuffer(cover);
   if (!buf) return null;
   return `data:image/png;base64,${buf.toString('base64')}`;
 }

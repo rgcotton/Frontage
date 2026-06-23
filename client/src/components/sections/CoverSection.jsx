@@ -1,17 +1,41 @@
 import { useState } from 'react';
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 import { api } from '../../api.js';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
 
-export default function CoverSection({ value, onChange, omId }) {
+export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) {
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState(null);
   const [geocodeResult, setGeocodeResult] = useState(null);
+  const [analyzingLogo, setAnalyzingLogo] = useState(false);
+  const [logoSuggestion, setLogoSuggestion] = useState(null);
+  const [logoError, setLogoError] = useState(null);
 
   function set(field, val) {
     onChange({ ...value, [field]: val });
+  }
+
+  async function handleLogoUploaded(refs) {
+    set('brokerLogo', refs[0]);
+    setLogoError(null);
+    setLogoSuggestion(null);
+    setAnalyzingLogo(true);
+    try {
+      const suggestion = await api.analyzeLogo(omId);
+      setLogoSuggestion(suggestion);
+    } catch (err) {
+      setLogoError(err.message);
+    } finally {
+      setAnalyzingLogo(false);
+    }
+  }
+
+  function applyLogoSuggestion() {
+    onUpdateOm?.({ branding: { ...om.branding, primaryColor: logoSuggestion.primaryColor, accentColor: logoSuggestion.accentColor } });
+    setLogoSuggestion(null);
   }
 
   async function handleValidateAddress() {
@@ -46,6 +70,11 @@ export default function CoverSection({ value, onChange, omId }) {
     <div className="section-form">
       <h2>Cover Page</h2>
       <p className="section-hint">The first impression — property identity, address, and hero imagery.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.cover}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, cover: text } })}
+      />
 
       <div className="field">
         <label>Property Name</label>
@@ -131,8 +160,32 @@ export default function CoverSection({ value, onChange, omId }) {
 
       <div className="field">
         <label>Broker / Brokerage Logo</label>
-        <FileUpload omId={omId} accept="image/*" hint="Used automatically on the Cover, Team, and Back Cover pages." onUploaded={(refs) => set('brokerLogo', refs[0])} />
+        <FileUpload omId={omId} accept="image/*" hint="Used automatically on the Cover, Team, and Back Cover pages." onUploaded={handleLogoUploaded} />
         {value.brokerLogo && <FilePreview files={[value.brokerLogo]} onRemove={() => set('brokerLogo', null)} />}
+        {analyzingLogo && <p className="field-hint">Analyzing logo colors…</p>}
+        {logoError && (
+          <p className="field-hint" style={{ color: 'var(--danger)' }}>
+            {logoError}
+          </p>
+        )}
+        {logoSuggestion && (
+          <div className="geocode-banner">
+            <div className="geocode-banner-text">
+              <strong>Suggested branding:</strong>
+              <span className="color-swatch" style={{ background: logoSuggestion.primaryColor }} title={logoSuggestion.primaryColor} />
+              <span className="color-swatch" style={{ background: logoSuggestion.accentColor }} title={logoSuggestion.accentColor} />
+              {logoSuggestion.primaryColor} / {logoSuggestion.accentColor}
+            </div>
+            <div className="geocode-banner-actions">
+              <button type="button" className="btn btn-primary btn-sm" onClick={applyLogoSuggestion}>
+                Apply to Branding
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLogoSuggestion(null)}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

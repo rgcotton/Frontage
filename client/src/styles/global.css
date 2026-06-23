@@ -151,6 +151,19 @@ select {
   transform: translateY(-1px);
 }
 
+.om-card-doctype {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  background: rgba(201, 162, 39, 0.12);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
 .om-card h3 {
   font-size: 16px;
   margin-bottom: 6px;
@@ -590,6 +603,56 @@ select {
 
 .add-row-btn {
   align-self: flex-start;
+}
+
+/* ---------- Branding ---------- */
+
+.color-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-field-row input[type='color'] {
+  width: 40px;
+  height: 38px;
+  padding: 2px;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.color-field-row input[type='text'] {
+  flex: 1;
+}
+
+.color-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+/* ---------- Custom AI instructions ---------- */
+
+.ai-instructions-field {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.06), rgba(26, 43, 76, 0.03));
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+.ai-instructions-field label {
+  color: var(--gold-dark);
+}
+
+.ai-instructions-field textarea {
+  min-height: 50px;
 }
 
 /* ---------- AI generate ---------- */
@@ -1390,4 +1453,71 @@ select {
     height: 38px;
     font-size: 16px;
   }
+}
+
+/* ---------- Doc type select modal ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 32, 59, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.modal-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-card h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.doc-type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.doc-type-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.doc-type-option:hover:not(:disabled) {
+  border-color: var(--navy);
+  background: var(--white);
+}
+
+.doc-type-option strong {
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.doc-type-option span {
+  color: var(--gray-500);
+  font-size: 12.5px;
+}
+
+.doc-type-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

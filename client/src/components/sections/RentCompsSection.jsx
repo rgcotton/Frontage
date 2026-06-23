@@ -1,3 +1,5 @@
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
+
 let nextId = 1;
 function makeId() {
   return `rcomp-${Date.now()}-${nextId++}`;
@@ -5,7 +7,7 @@ function makeId() {
 
 const LEASE_TYPES = ['NNN', 'Gross', 'Modified Gross'];
 
-export default function RentCompsSection({ value, onChange }) {
+export default function RentCompsSection({ value, onChange, om, onUpdateOm }) {
   const comps = value || [];
 
   function update(id, field, val) {
@@ -24,6 +26,11 @@ export default function RentCompsSection({ value, onChange }) {
     <div className="section-form">
       <h2>Rent Comparables</h2>
       <p className="section-hint">Comparable lease transactions to benchmark achievable rents.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.rentComps}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, rentComps: text } })}
+      />
 
       {comps.map((c, i) => (
         <div className="repeat-card" key={c.id}>

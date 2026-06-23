@@ -1,7 +1,8 @@
-import { pageShell, headerBar, NAVY, GOLD } from './layout.js';
+import { pageShell, headerBar, buildTheme } from './layout.js';
 import { esc, formatCurrency, formatPercent } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || buildTheme(om.branding);
   const { executiveSummary, cover } = om;
   const stats = [
     ['Offering Price', formatCurrency(executiveSummary.offeringPrice)],
@@ -16,7 +17,7 @@ export function buildPages(om, ctx) {
     <div class="gold-rule"></div>
     <div class="two-col">
       <div class="col" style="flex:0 0 2.1in; display:flex; flex-direction:column; gap:14px;">
-        ${stats.map(([label, value]) => bigStat(label, value)).join('')}
+        ${stats.map(([label, value]) => bigStat(label, value, theme)).join('')}
       </div>
       <div class="col">
         <div class="subhead" style="margin-top:0;">Investment Overview</div>
@@ -33,8 +34,8 @@ export function buildPages(om, ctx) {
   return [pageShell(inner)];
 }
 
-function bigStat(label, value) {
-  return `<div style="background:${NAVY}; border-radius:8px; padding:20px 18px; border-left:4px solid ${GOLD};">
+function bigStat(label, value, theme) {
+  return `<div style="background:${theme.primaryColor}; border-radius:8px; padding:20px 18px; border-left:4px solid ${theme.accentColor};">
     <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.65); margin-bottom:8px;">${esc(label)}</div>
     <div style="font-size:24px; font-weight:700; color:#fff;">${value}</div>
   </div>`;

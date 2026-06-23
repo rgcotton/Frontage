@@ -1,4 +1,6 @@
-export default function LocationMapSection({ om, onNavigateToSection }) {
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
+
+export default function LocationMapSection({ om, onNavigateToSection, onUpdateOm }) {
   const cover = om?.cover || {};
   const addressLine = [cover.formattedAddress || cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip]
     .filter(Boolean)
@@ -8,6 +10,11 @@ export default function LocationMapSection({ om, onNavigateToSection }) {
     <div className="section-form">
       <h2>Location &amp; Amenities</h2>
       <p className="section-hint">A map centered on the property address is generated automatically in the PDF, PowerPoint, and web outputs.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.locationMap}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, locationMap: text } })}
+      />
 
       <div className="field">
         <label>Property Address</label>

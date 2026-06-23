@@ -1,12 +1,13 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
 let nextId = 1;
 function makeId() {
   return `member-${Date.now()}-${nextId++}`;
 }
 
-export default function TeamSection({ value, onChange, omId }) {
+export default function TeamSection({ value, onChange, omId, om, onUpdateOm }) {
   const team = value || [];
 
   function update(id, field, val) {
@@ -25,6 +26,11 @@ export default function TeamSection({ value, onChange, omId }) {
     <div className="section-form">
       <h2>About the Team</h2>
       <p className="section-hint">Broker contact information and bios for the team page. The brokerage logo from the Cover Page is used automatically on the Team and Back Cover pages.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.team}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, team: text } })}
+      />
 
       {team.map((m, i) => (
         <div className="repeat-card" key={m.id}>

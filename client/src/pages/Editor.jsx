@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../api.js';
-import Sidebar, { SECTIONS } from '../components/Sidebar.jsx';
+import { getSectionsForDocType } from '../lib/sectionsByDocType.js';
+import Sidebar from '../components/Sidebar.jsx';
 import OutputPanel from '../components/OutputPanel.jsx';
 import CoverSection from '../components/sections/CoverSection.jsx';
 import OverviewSection from '../components/sections/OverviewSection.jsx';
@@ -13,9 +14,13 @@ import RentCompsSection from '../components/sections/RentCompsSection.jsx';
 import LocationMapSection from '../components/sections/LocationMapSection.jsx';
 import OfferingProceduresSection from '../components/sections/OfferingProceduresSection.jsx';
 import TeamSection from '../components/sections/TeamSection.jsx';
+import BrandingSection from '../components/sections/BrandingSection.jsx';
+import ValuationSection from '../components/sections/ValuationSection.jsx';
+import RecommendationSection from '../components/sections/RecommendationSection.jsx';
 
 const SECTION_COMPONENTS = {
   cover: CoverSection,
+  branding: BrandingSection,
   overview: OverviewSection,
   executiveSummary: ExecutiveSummarySection,
   market: MarketSection,
@@ -25,6 +30,8 @@ const SECTION_COMPONENTS = {
   locationMap: LocationMapSection,
   offeringProcedures: OfferingProceduresSection,
   team: TeamSection,
+  valuation: ValuationSection,
+  recommendation: RecommendationSection,
 };
 
 export default function Editor() {
@@ -74,6 +81,15 @@ export default function Editor() {
     scheduleSave();
   }
 
+  function updateOm(partial) {
+    setOm((prev) => {
+      const next = { ...prev, ...partial };
+      omRef.current = next;
+      return next;
+    });
+    scheduleSave();
+  }
+
   if (loadError) {
     return <div className="center-page">Could not load this offering memorandum: {loadError}</div>;
   }
@@ -81,12 +97,13 @@ export default function Editor() {
     return <div className="center-page">Loading…</div>;
   }
 
+  const sections = getSectionsForDocType(om.docType || 'om');
   const ActiveComponent = SECTION_COMPONENTS[activeSection];
-  const activeIndex = SECTIONS.findIndex((s) => s.key === activeSection);
+  const activeIndex = sections.findIndex((s) => s.key === activeSection);
 
   return (
     <div className="editor-layout">
-      <Sidebar activeKey={activeSection} onSelect={setActiveSection} propertyName={om.cover.propertyName} om={om} />
+      <Sidebar activeKey={activeSection} onSelect={setActiveSection} propertyName={om.cover.propertyName} om={om} sections={sections} />
 
       <main className="editor-main">
         <div className="save-indicator" style={{ marginBottom: 16 }}>
@@ -101,6 +118,7 @@ export default function Editor() {
             omId={om.id}
             om={om}
             onNavigateToSection={setActiveSection}
+            onUpdateOm={updateOm}
           />
         </div>
 
@@ -108,14 +126,14 @@ export default function Editor() {
           <button
             className="btn btn-ghost"
             disabled={activeIndex === 0}
-            onClick={() => setActiveSection(SECTIONS[activeIndex - 1].key)}
+            onClick={() => setActiveSection(sections[activeIndex - 1].key)}
           >
             ← Previous
           </button>
           <button
             className="btn btn-primary"
-            disabled={activeIndex === SECTIONS.length - 1}
-            onClick={() => setActiveSection(SECTIONS[activeIndex + 1].key)}
+            disabled={activeIndex === sections.length - 1}
+            onClick={() => setActiveSection(sections[activeIndex + 1].key)}
           >
             Next →
           </button>

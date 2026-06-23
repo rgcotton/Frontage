@@ -1,6 +1,13 @@
 import { pageShell, headerBar } from './layout.js';
 import { esc, escOrDash, formatCurrency, formatPercent, formatMonthYear, formatNumber } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
+import { googleMapsSearchUrl } from '../../maps.js';
+
+function addressLink(address) {
+  const text = escOrDash(address);
+  const url = address ? googleMapsSearchUrl(address) : null;
+  return url ? `<a class="pdf-link" href="${url}">${text}</a>` : text;
+}
 
 const COMPS_PER_PAGE = 4;
 
@@ -27,7 +34,7 @@ export function buildPages(om, ctx) {
         return `<div class="comp-card">
         ${photoUri ? `<img class="photo" src="${photoUri}" />` : `<div class="photo-placeholder"></div>`}
         <div class="body">
-          <div class="addr">${escOrDash(c.address)}</div>
+          <div class="addr">${addressLink(c.address)}</div>
           <div class="field-row"><span class="l">Sale Date</span><span class="v">${formatMonthYear(c.saleDate)}</span></div>
           <div class="field-row"><span class="l">Sale Price</span><span class="v">${formatCurrency(c.salePrice)}</span></div>
           <div class="field-row"><span class="l">Price / SF</span><span class="v">${formatCurrency(c.pricePerSF)}</span></div>

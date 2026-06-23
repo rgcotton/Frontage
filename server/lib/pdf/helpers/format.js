@@ -36,3 +36,10 @@ export function escOrDash(str) {
   const v = esc(str);
   return v === '' ? '—' : v;
 }
+
+export function normalizeUrl(input) {
+  if (!input) return '';
+  const trimmed = String(input).trim();
+  if (!trimmed) return '';
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}

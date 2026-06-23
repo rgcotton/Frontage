@@ -1,8 +1,9 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
-export default function OverviewSection({ value, onChange, omId, om }) {
+export default function OverviewSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
   }
@@ -21,6 +22,11 @@ export default function OverviewSection({ value, onChange, omId, om }) {
     <div className="section-form">
       <h2>Property Overview</h2>
       <p className="section-hint">Key physical and operational details about the asset.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.overview}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, overview: text } })}
+      />
 
       <div className="field-row cols-3">
         <div className="field">

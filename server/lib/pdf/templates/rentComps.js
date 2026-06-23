@@ -1,5 +1,12 @@
 import { pageShell, headerBar } from './layout.js';
 import { escOrDash, formatNumber } from '../helpers/format.js';
+import { googleMapsSearchUrl } from '../../maps.js';
+
+function addressLink(address) {
+  const text = escOrDash(address);
+  const url = address ? googleMapsSearchUrl(address) : null;
+  return url ? `<a class="pdf-link" href="${url}">${text}</a>` : text;
+}
 
 const COMPS_PER_PAGE = 4;
 
@@ -24,7 +31,7 @@ export function buildPages(om, ctx) {
       .map(
         (c) => `<div class="comp-card">
       <div class="body" style="padding-top:14px;">
-        <div class="addr">${escOrDash(c.address)}</div>
+        <div class="addr">${addressLink(c.address)}</div>
         <div class="field-row"><span class="l">Tenant</span><span class="v">${escOrDash(c.tenant)}</span></div>
         <div class="field-row"><span class="l">Rent / SF</span><span class="v">${escOrDash(c.rentPerSF)}</span></div>
         <div class="field-row"><span class="l">Lease Term</span><span class="v">${escOrDash(c.leaseTerm)}</span></div>

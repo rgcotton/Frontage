@@ -1,7 +1,8 @@
-import { pageShell, NAVY, GOLD } from './layout.js';
+import { pageShell, buildTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || buildTheme(om.branding);
   const { cover, team } = om;
   const primary = (team || [])[0];
   const logoBlock = ctx.brokerLogoUri
@@ -13,9 +14,9 @@ export function buildPages(om, ctx) {
     : [];
 
   const inner = `
-    <div style="position:absolute; inset:0; background:linear-gradient(160deg, ${NAVY} 0%, #0c1830 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0 1in; text-align:center;">
+    <div style="position:absolute; inset:0; background:linear-gradient(160deg, ${theme.primaryColor} 0%, #0c1830 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0 1in; text-align:center;">
       ${logoBlock}
-      <div style="width:48px; height:2px; background:${GOLD};"></div>
+      <div style="width:48px; height:2px; background:${theme.accentColor};"></div>
       ${
         contactLines.length
           ? `<div style="color:#fff;">

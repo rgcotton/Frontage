@@ -1,5 +1,5 @@
 import { pageShell, headerBar } from './layout.js';
-import { esc, formatMonthYear } from '../helpers/format.js';
+import { esc, formatMonthYear, normalizeUrl } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
   const { offeringProcedures: p, cover } = om;
@@ -16,7 +16,7 @@ export function buildPages(om, ctx) {
     <div class="narrative">${esc(p.tourInstructions) || 'Contact the brokerage team to arrange a property tour.'}</div>
     <div class="subhead">Data Room Access</div>
     <div class="narrative">${esc(p.dataRoomInstructions) || 'Data room access details will be provided upon execution of a confidentiality agreement.'}</div>
-    ${p.dataRoomLink ? `<div class="narrative" style="margin-top:8px;"><strong>Data Room:</strong> ${esc(p.dataRoomLink)}</div>` : ''}
+    ${p.dataRoomLink ? `<div class="narrative" style="margin-top:8px;"><strong>Data Room:</strong> <a class="pdf-link" href="${normalizeUrl(p.dataRoomLink)}">${esc(p.dataRoomLink)}</a></div>` : ''}
   `;
   return [pageShell(inner)];
 }

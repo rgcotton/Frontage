@@ -10,7 +10,12 @@ async function request(path, options) {
 
 export const api = {
   listOms: () => request('/api/oms'),
-  createOm: () => request('/api/oms', { method: 'POST' }),
+  createOm: (docType = 'om') =>
+    request('/api/oms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ docType }),
+    }),
   getOm: (id) => request(`/api/oms/${id}`),
   updateOm: (id, partial) =>
     request(`/api/oms/${id}`, {
@@ -37,4 +42,5 @@ export const api = {
       body: JSON.stringify(extra),
     }),
   geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
+  analyzeLogo: (id) => request(`/api/oms/${id}/ai/analyze-logo`, { method: 'POST' }),
 };

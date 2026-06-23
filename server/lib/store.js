@@ -12,10 +12,11 @@ function omPath(id) {
   return path.join(DATA_DIR, `${id}.json`);
 }
 
-export function emptyOm(id) {
+export function emptyOm(id, docType = 'om') {
   const now = new Date().toISOString();
   return {
     id,
+    docType,
     createdAt: now,
     updatedAt: now,
     cover: {
@@ -31,6 +32,12 @@ export function emptyOm(id) {
       tagline: '',
       coverPhoto: null,
       brokerLogo: null,
+    },
+    branding: {
+      primaryColor: '#1B2A4A',
+      accentColor: '#C9A84C',
+      background: 'white',
+      font: 'modern',
     },
     overview: {
       yearBuilt: '',
@@ -90,6 +97,18 @@ export function emptyOm(id) {
     },
     team: [],
     files: [],
+    aiInstructions: {},
+    valuation: {
+      methodologyApproach: '',
+      methodologyNarrative: '',
+      concludedValue: '',
+      valueEffectiveDate: '',
+      valueBasisNote: '',
+    },
+    recommendation: {
+      narrative: '',
+      recommendedAction: '',
+    },
   };
 }
 
@@ -98,7 +117,7 @@ export function emptyOm(id) {
 function mergeWithDefaults(om) {
   const defaults = emptyOm(om.id);
   const merged = { ...defaults, ...om };
-  for (const key of ['cover', 'overview', 'executiveSummary', 'market', 'offeringProcedures']) {
+  for (const key of ['cover', 'branding', 'overview', 'executiveSummary', 'market', 'offeringProcedures', 'valuation', 'recommendation']) {
     merged[key] = { ...defaults[key], ...(om[key] || {}) };
   }
   merged.financials = {
@@ -116,6 +135,7 @@ function mergeWithDefaults(om) {
   merged.rentComps = (om.rentComps || []).map((c) => ({ ...rentCompDefaults, ...c }));
   merged.team = (om.team || []).map((m) => ({ ...teamDefaults, ...m }));
   merged.files = om.files || [];
+  merged.aiInstructions = { ...defaults.aiInstructions, ...(om.aiInstructions || {}) };
   return merged;
 }
 
@@ -131,6 +151,7 @@ export async function listOms() {
         return {
           id: om.id,
           propertyName: om.cover?.propertyName || 'Untitled Property',
+          docType: om.docType || 'om',
           updatedAt: om.updatedAt,
           createdAt: om.createdAt,
         };
@@ -139,10 +160,12 @@ export async function listOms() {
   return oms.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
 
-export async function createOm() {
+const VALID_DOC_TYPES = ['om', 'onePager', 'bov'];
+
+export async function createOm(docType = 'om') {
   await ensureDataDir();
   const id = nanoid(10);
-  const om = emptyOm(id);
+  const om = emptyOm(id, VALID_DOC_TYPES.includes(docType) ? docType : 'om');
   await fs.writeFile(omPath(id), JSON.stringify(om, null, 2));
   return om;
 }

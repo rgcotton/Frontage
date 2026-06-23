@@ -1,0 +1,50 @@
+export const ALL_SECTION_LABELS = {
+  cover: 'Cover Page',
+  branding: 'Branding',
+  overview: 'Property Overview',
+  executiveSummary: 'Executive Summary',
+  market: 'Market Overview',
+  financials: 'Financials',
+  salesComps: 'Sales Comps',
+  rentComps: 'Rent Comps',
+  locationMap: 'Location & Amenities',
+  offeringProcedures: 'Offering Procedures',
+  team: 'About the Team',
+  valuation: 'Valuation',
+  recommendation: 'Recommendation',
+};
+
+const KEYS_BY_DOC_TYPE = {
+  om: [
+    'cover',
+    'branding',
+    'overview',
+    'executiveSummary',
+    'market',
+    'financials',
+    'salesComps',
+    'rentComps',
+    'locationMap',
+    'offeringProcedures',
+    'team',
+  ],
+  onePager: ['cover', 'branding', 'overview', 'executiveSummary', 'team'],
+  bov: ['cover', 'branding', 'overview', 'valuation', 'salesComps', 'recommendation', 'team'],
+};
+
+export const DOC_TYPE_LABELS = {
+  om: 'Offering Memorandum',
+  onePager: 'One Pager',
+  bov: 'Broker Opinion of Value',
+};
+
+export const DOC_TYPE_DESCRIPTIONS = {
+  om: 'Full multi-page marketing package with financials, comps, maps, and offering procedures.',
+  onePager: 'A single designed page with photo, key stats, highlights, and broker contact.',
+  bov: 'Valuation methodology, comparable sales analysis, and a value conclusion with recommendation.',
+};
+
+export function getSectionsForDocType(docType) {
+  const keys = KEYS_BY_DOC_TYPE[docType] || KEYS_BY_DOC_TYPE.om;
+  return keys.map((key) => ({ key, label: ALL_SECTION_LABELS[key] }));
+}

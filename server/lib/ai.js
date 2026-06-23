@@ -13,12 +13,14 @@ function fmt(value, fallback = 'not provided') {
   return value && String(value).trim() ? String(value).trim() : fallback;
 }
 
+const STYLE_RULES =
+  'Be concise and punchy. Lead with the single most important point, not comprehensive coverage. Use short declarative sentences. Cut filler, hedging, and corporate speak. Never use an em dash anywhere in your output; use a period, comma, or "and" instead.';
+
 const PROMPT_BUILDERS = {
   executiveSummaryNarrative(om) {
     const { cover, overview, executiveSummary, financials, market } = om;
     return {
-      system:
-        'You are a commercial real estate analyst writing the executive summary narrative for an institutional-quality Offering Memorandum. Write in a confident, professional CRE tone. Return 2-3 tight paragraphs of plain text only — no headings, no markdown, no bullet points.',
+      system: `You are a commercial real estate analyst writing the executive summary narrative for an institutional-quality Offering Memorandum. Write in a confident, professional CRE tone. Return 2-3 tight paragraphs of plain text only, no headings, no markdown, no bullet points. ${STYLE_RULES}`,
       user: `Write the executive summary narrative for this offering.
 
 Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
@@ -41,8 +43,7 @@ Market Notes: ${fmt(market.narrative)}`,
   investmentHighlights(om) {
     const { cover, overview, executiveSummary, financials, market } = om;
     return {
-      system:
-        'You are a commercial real estate analyst drafting investment highlights for an Offering Memorandum. Return ONLY a JSON array of 4 to 6 short strings (no other text, no markdown fences). Each string should be one punchy, specific investment highlight under 18 words.',
+      system: `You are a commercial real estate analyst drafting investment highlights for an Offering Memorandum. Return ONLY a JSON array of 4 to 6 short strings (no other text, no markdown fences). Each string is one punchy, specific investment highlight under 14 words, leading with the most important fact. ${STYLE_RULES}`,
       user: `Generate investment highlights for this offering.
 
 Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
@@ -62,8 +63,7 @@ Market Notes: ${fmt(market.narrative)}`,
   marketNarrative(om) {
     const { cover, market } = om;
     return {
-      system:
-        'You are a commercial real estate analyst writing the submarket narrative section of an Offering Memorandum. Return 2 tight paragraphs of plain text only — no headings, no markdown.',
+      system: `You are a commercial real estate analyst writing the submarket narrative section of an Offering Memorandum. Return 2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
       user: `Write the market overview narrative for this submarket.
 
 Property Location: ${fmt(cover.city)}, ${fmt(cover.state)}
@@ -87,8 +87,7 @@ Existing Notes: ${fmt(market.narrative)}`,
     }
     const others = (om.salesComps || []).filter((c) => c.id !== compId);
     return {
-      system:
-        'You are a commercial real estate analyst writing a pricing narrative for a sales comparable in an Offering Memorandum. Return exactly one tight paragraph of plain text only — no headings, no markdown.',
+      system: `You are a commercial real estate analyst writing a pricing narrative for a sales comparable in an Offering Memorandum. Return exactly one tight paragraph of plain text only, no headings, no markdown. ${STYLE_RULES}`,
       user: `Write a one-paragraph pricing analysis for this sales comparable, in the context of the subject property and other comps.
 
 Subject Property: ${fmt(om.cover.propertyName)} (${fmt(om.cover.propertyType)}) in ${fmt(om.cover.city)}, ${fmt(om.cover.state)}
@@ -103,14 +102,13 @@ Price/SF: ${fmt(comp.pricePerSF)}
 Cap Rate: ${fmt(comp.capRate)}
 Square Feet: ${fmt(comp.squareFeet)}
 
-Other Comps for Context: ${others.map((c) => `${fmt(c.address)} — ${fmt(c.salePrice)} at ${fmt(c.capRate)} cap`).join('; ') || 'none'}`,
+Other Comps for Context: ${others.map((c) => `${fmt(c.address)} at ${fmt(c.salePrice)}, ${fmt(c.capRate)} cap`).join('; ') || 'none'}`,
     };
   },
   propertyDescription(om) {
     const { cover, overview } = om;
     return {
-      system:
-        'You are a commercial real estate analyst writing the property description for an Offering Memorandum. Return 1-2 tight paragraphs of plain text only — no headings, no markdown.',
+      system: `You are a commercial real estate analyst writing the property description for an Offering Memorandum. Return 1-2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
       user: `Write a professional property description from these specs.
 
 Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
@@ -124,9 +122,57 @@ Parking: ${fmt(overview.parking)}
 Existing Notes: ${fmt(overview.description)}`,
     };
   },
+  valuationMethodologyNarrative(om) {
+    const { cover, overview, valuation } = om;
+    return {
+      system: `You are a commercial real estate appraiser writing the valuation methodology narrative for a Broker Opinion of Value. Return 1-2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
+      user: `Write the valuation methodology narrative for this opinion of value.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Year Built: ${fmt(overview.yearBuilt)}
+Square Footage: ${fmt(overview.squareFootage)}
+
+Valuation Approach: ${fmt(valuation.methodologyApproach)}
+Concluded Value: ${fmt(valuation.concludedValue)}
+Effective Date: ${fmt(valuation.valueEffectiveDate)}
+Basis of Value Note: ${fmt(valuation.valueBasisNote)}`,
+    };
+  },
+  brokerRecommendationNarrative(om) {
+    const { cover, executiveSummary, valuation, recommendation } = om;
+    return {
+      system: `You are a commercial real estate broker writing the bottom-line recommendation section of a Broker Opinion of Value. Return 1 tight paragraph of plain text only, no headings, no markdown. ${STYLE_RULES}`,
+      user: `Write the broker recommendation narrative for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)}) in ${fmt(cover.city)}, ${fmt(cover.state)}
+Concluded Value: ${fmt(valuation.concludedValue)}
+Valuation Approach: ${fmt(valuation.methodologyApproach)}
+Current Offering Price (if any): ${fmt(executiveSummary.offeringPrice)}
+Recommended Action: ${fmt(recommendation.recommendedAction)}`,
+    };
+  },
 };
 
 export const AI_KINDS = Object.keys(PROMPT_BUILDERS);
+
+// Maps each AI "kind" to the section key used for that section's Custom AI Instructions box.
+const KIND_SECTION_MAP = {
+  executiveSummaryNarrative: 'executiveSummary',
+  investmentHighlights: 'executiveSummary',
+  marketNarrative: 'market',
+  salesCompAnalysis: 'salesComps',
+  propertyDescription: 'overview',
+  valuationMethodologyNarrative: 'valuation',
+  brokerRecommendationNarrative: 'recommendation',
+};
+
+function appendCustomInstructions(userPrompt, om, kind) {
+  const sectionKey = KIND_SECTION_MAP[kind];
+  const instructions = sectionKey && om.aiInstructions?.[sectionKey];
+  if (!instructions || !instructions.trim()) return userPrompt;
+  return `${userPrompt}\n\nBroker's custom instructions for this section, follow these closely: ${instructions.trim()}`;
+}
 
 export async function generateAiContent(kind, om, extra = {}) {
   const builder = PROMPT_BUILDERS[kind];
@@ -143,7 +189,8 @@ export async function generateAiContent(kind, om, extra = {}) {
     throw err;
   }
 
-  const { system, user } = builder(om, extra);
+  const { system, user: baseUser } = builder(om, extra);
+  const user = appendCustomInstructions(baseUser, om, kind);
 
   let response;
   try {
@@ -174,10 +221,60 @@ export async function generateAiContent(kind, om, extra = {}) {
     } catch {
       return text
         .split('\n')
-        .map((l) => l.replace(/^[-•*\d.()\s]+/, '').trim())
+        .map((l) => l.replace(/^[-—•*\d.()\s]+/, '').trim())
         .filter(Boolean);
     }
   }
 
   return text;
+}
+
+export async function analyzeLogoColors(buffer, mimetype) {
+  const anthropic = getClient();
+  if (!anthropic) {
+    const err = new Error('ANTHROPIC_API_KEY is not set. Add it to server/.env and restart the server.');
+    err.status = 503;
+    throw err;
+  }
+
+  let response;
+  try {
+    response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 256,
+      system:
+        'You analyze brokerage logo images for a real estate document branding tool. Return ONLY strict JSON, no markdown fences, no other text: {"primaryColor":"#RRGGBB","accentColor":"#RRGGBB"}. primaryColor is the dominant or most prominent brand color in the logo, suitable as a document primary color. accentColor is a complementary or secondary color from the logo, suitable as a highlight color. If the logo is black, white, or grayscale only, suggest a navy primaryColor and a gold accentColor instead.',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mimetype, data: buffer.toString('base64') } },
+            { type: 'text', text: 'Suggest a primary color and an accent color for this brokerage logo.' },
+          ],
+        },
+      ],
+    });
+  } catch (err) {
+    const wrapped = new Error(`Anthropic API request failed: ${err.message}`);
+    wrapped.status = 502;
+    throw wrapped;
+  }
+
+  const text = response.content
+    .filter((block) => block.type === 'text')
+    .map((block) => block.text)
+    .join('\n')
+    .trim();
+
+  try {
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    const hex = /^#[0-9a-f]{6}$/i;
+    if (!hex.test(parsed.primaryColor) || !hex.test(parsed.accentColor)) throw new Error('invalid colors');
+    return { primaryColor: parsed.primaryColor, accentColor: parsed.accentColor };
+  } catch {
+    const err = new Error('Could not parse a color suggestion from the AI response.');
+    err.status = 502;
+    throw err;
+  }
 }

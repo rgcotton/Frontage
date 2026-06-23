@@ -1,13 +1,14 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
+import CustomAiInstructions from '../CustomAiInstructions.jsx';
 
 let nextId = 1;
 function makeId() {
   return `comp-${Date.now()}-${nextId++}`;
 }
 
-export default function SalesCompsSection({ value, onChange, omId }) {
+export default function SalesCompsSection({ value, onChange, omId, om, onUpdateOm }) {
   const comps = value || [];
 
   function update(id, field, val) {
@@ -29,6 +30,11 @@ export default function SalesCompsSection({ value, onChange, omId }) {
     <div className="section-form">
       <h2>Sales Comparables</h2>
       <p className="section-hint">Recently sold comparable properties to support pricing.</p>
+
+      <CustomAiInstructions
+        value={om.aiInstructions?.salesComps}
+        onChange={(text) => onUpdateOm({ aiInstructions: { ...om.aiInstructions, salesComps: text } })}
+      />
 
       {comps.map((c, i) => (
         <div className="repeat-card" key={c.id}>
