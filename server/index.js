@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
 import omsRouter from './routes/oms.js';
+import foldersRouter from './routes/folders.js';
 
 const PORT = process.env.PORT || 4000;
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -22,6 +23,7 @@ app.use('/generated', express.static(GENERATED_DIR));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/oms', omsRouter);
+app.use('/api/folders', foldersRouter);
 
 // Multer / upload error handler
 app.use((err, req, res, next) => {

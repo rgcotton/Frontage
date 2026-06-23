@@ -187,6 +187,27 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
           </div>
         )}
       </div>
+
+      <hr className="divider" />
+
+      <div className="field-row">
+        <div className="field">
+          <label>Brokerage Name</label>
+          <input
+            type="text"
+            value={value.brokerageName}
+            onChange={(e) => set('brokerageName', e.target.value)}
+            placeholder="e.g. Cotton Commercial Real Estate"
+          />
+        </div>
+        <div className="field">
+          <label>Brokerage Website / Tagline</label>
+          <input type="text" value={value.brokerageWebsite} onChange={(e) => set('brokerageWebsite', e.target.value)} placeholder="www.cottoncre.com" />
+        </div>
+      </div>
+      <p className="field-hint" style={{ marginTop: -8, marginBottom: 16 }}>
+        Shown in the footer bar of the One Pager.
+      </p>
     </div>
   );
 }

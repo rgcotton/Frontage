@@ -10,6 +10,7 @@ client/dist/
 
 # generated/runtime data (kept locally, not committed)
 server/data/oms/*.json
+server/data/folders.json
 server/uploads/*/
 server/generated/*
 

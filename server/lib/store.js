@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
+import { UPLOAD_ROOT } from './upload.js';
 
 const DATA_DIR = path.join(process.cwd(), 'data', 'oms');
 
@@ -17,6 +18,7 @@ export function emptyOm(id, docType = 'om') {
   return {
     id,
     docType,
+    folderId: null,
     createdAt: now,
     updatedAt: now,
     cover: {
@@ -32,6 +34,8 @@ export function emptyOm(id, docType = 'om') {
       tagline: '',
       coverPhoto: null,
       brokerLogo: null,
+      brokerageName: '',
+      brokerageWebsite: '',
     },
     branding: {
       primaryColor: '#1B2A4A',
@@ -152,6 +156,7 @@ export async function listOms() {
           id: om.id,
           propertyName: om.cover?.propertyName || 'Untitled Property',
           docType: om.docType || 'om',
+          folderId: om.folderId ?? null,
           updatedAt: om.updatedAt,
           createdAt: om.createdAt,
         };
@@ -204,4 +209,53 @@ export async function deleteOm(id) {
     if (err.code === 'ENOENT') return false;
     throw err;
   }
+}
+
+// FileRefs always look like { ..., filename, url: '/uploads/<omId>/<filename>', ... }. Walk the
+// whole record and repoint any of them from the old owning OM id to the new one.
+function rewriteFileUrls(node, oldId, newId) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => rewriteFileUrls(item, oldId, newId));
+  } else if (node && typeof node === 'object') {
+    if (typeof node.url === 'string' && node.url.startsWith(`/uploads/${oldId}/`)) {
+      node.url = node.url.replace(`/uploads/${oldId}/`, `/uploads/${newId}/`);
+    }
+    for (const key of Object.keys(node)) {
+      rewriteFileUrls(node[key], oldId, newId);
+    }
+  }
+}
+
+export async function duplicateOm(id) {
+  const existing = await getOm(id);
+  if (!existing) return null;
+
+  const newId = nanoid(10);
+  const clone = JSON.parse(JSON.stringify(existing));
+  rewriteFileUrls(clone, id, newId);
+
+  const now = new Date().toISOString();
+  clone.id = newId;
+  clone.createdAt = now;
+  clone.updatedAt = now;
+  clone.cover = {
+    ...clone.cover,
+    propertyName: clone.cover.propertyName ? `${clone.cover.propertyName} (Copy)` : 'Untitled Property (Copy)',
+  };
+
+  try {
+    await fs.cp(path.join(UPLOAD_ROOT, id), path.join(UPLOAD_ROOT, newId), { recursive: true });
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
+  await ensureDataDir();
+  await fs.writeFile(omPath(newId), JSON.stringify(clone, null, 2));
+  return clone;
+}
+
+export async function renameOm(id, propertyName) {
+  const existing = await getOm(id);
+  if (!existing) return null;
+  return updateOm(id, { cover: { ...existing.cover, propertyName } });
 }

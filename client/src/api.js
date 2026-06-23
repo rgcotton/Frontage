@@ -24,6 +24,13 @@ export const api = {
       body: JSON.stringify(partial),
     }),
   deleteOm: (id) => request(`/api/oms/${id}`, { method: 'DELETE' }),
+  duplicateOm: (id) => request(`/api/oms/${id}/duplicate`, { method: 'POST' }),
+  renameOm: (id, propertyName) =>
+    request(`/api/oms/${id}/rename`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ propertyName }),
+    }),
   uploadFiles: async (id, fileList) => {
     const formData = new FormData();
     Array.from(fileList).forEach((f) => formData.append('files', f));
@@ -43,4 +50,12 @@ export const api = {
     }),
   geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
   analyzeLogo: (id) => request(`/api/oms/${id}/ai/analyze-logo`, { method: 'POST' }),
+  listFolders: () => request('/api/folders'),
+  createFolder: (name) =>
+    request('/api/folders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }),
+  deleteFolder: (id) => request(`/api/folders/${id}`, { method: 'DELETE' }),
 };

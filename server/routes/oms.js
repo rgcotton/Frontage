@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import { listOms, createOm, getOm, updateOm, deleteOm } from '../lib/store.js';
+import { listOms, createOm, getOm, updateOm, deleteOm, duplicateOm, renameOm } from '../lib/store.js';
 import { upload, toFileRef, resolveDiskPath } from '../lib/upload.js';
 import { generatePdf } from '../lib/pdf/render.js';
 import { generatePptx } from '../lib/pptxGenerator.js';
@@ -37,6 +37,20 @@ router.delete('/:id', async (req, res) => {
   const ok = await deleteOm(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Not found' });
   res.status(204).end();
+});
+
+router.post('/:id/duplicate', async (req, res) => {
+  const copy = await duplicateOm(req.params.id);
+  if (!copy) return res.status(404).json({ error: 'Not found' });
+  res.status(201).json(copy);
+});
+
+router.put('/:id/rename', async (req, res) => {
+  const propertyName = String(req.body?.propertyName || '').trim();
+  if (!propertyName) return res.status(400).json({ error: 'propertyName is required' });
+  const om = await renameOm(req.params.id, propertyName);
+  if (!om) return res.status(404).json({ error: 'Not found' });
+  res.json(om);
 });
 
 router.post('/:id/upload', upload.array('files', 20), async (req, res) => {
