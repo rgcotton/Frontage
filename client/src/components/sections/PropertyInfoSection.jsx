@@ -1,8 +1,9 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
+import AiGenerateButton from '../AiGenerateButton.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
 import AutofilledTag from '../AutofilledTag.jsx';
-import { clearAutofilled } from '../../lib/autofill.js';
+import { clearAutofilled, markAutofilled } from '../../lib/autofill.js';
 import { YearInput, SquareFeetInput, PercentInput } from '../inputs/FormattedInputs.jsx';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
@@ -40,7 +41,22 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
       </div>
 
       <div className="field">
-        <label>Tagline</label>
+        <div className="field-label-row">
+          <label>Tagline</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AutofilledTag om={om} field="cover.tagline" />
+            <AiGenerateButton
+              omId={omId}
+              kind="tagline"
+              om={om}
+              label="Generate Tagline"
+              onResult={(result) => {
+                setCover('tagline', result);
+                markAutofilled(om, onUpdateOm, 'cover.tagline');
+              }}
+            />
+          </div>
+        </div>
         <input type="text" value={cover.tagline} onChange={(e) => setCover('tagline', e.target.value)} placeholder="e.g. Prime corner retail asset in a high-growth submarket" />
       </div>
 

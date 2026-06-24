@@ -152,6 +152,21 @@ Current Offering Price (if any): ${fmt(executiveSummary.offeringPrice)}
 Recommended Action: ${fmt(recommendation.recommendedAction)}`,
     };
   },
+  tagline(om) {
+    const { cover, overview, executiveSummary } = om;
+    return {
+      system: `You are a commercial real estate marketing copywriter writing a single punchy tagline for a property One Pager. Return ONLY the tagline itself: one short line, well under 12 words. No quotation marks, no trailing period, no other text. ${STYLE_RULES}`,
+      user: `Write a tagline for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.city)}, ${fmt(cover.state)}
+Offering Price: ${fmt(executiveSummary.offeringPrice)}
+Cap Rate: ${fmt(executiveSummary.capRate)}
+Square Footage: ${fmt(overview.squareFootage)}
+Year Built: ${fmt(overview.yearBuilt)}
+Existing Description: ${fmt(overview.description)}`,
+    };
+  },
 };
 
 export const AI_KINDS = Object.keys(PROMPT_BUILDERS);
@@ -165,6 +180,7 @@ const KIND_SECTION_MAP = {
   propertyDescription: 'overview',
   valuationMethodologyNarrative: 'valuation',
   brokerRecommendationNarrative: 'recommendation',
+  tagline: 'cover',
 };
 
 // `extra.liveAiInstructions`, when present, is the client's current (possibly
@@ -177,9 +193,13 @@ function readInstructions(om, extra, key) {
   return value && value.trim() ? value.trim() : null;
 }
 
-// The "cover" box (shown as the top-level Property Info instructions on the
-// One Pager, and as the Cover Page instructions on the OM/BOV) applies to every
-// AI generation call for the document, not just a single section.
+// The "cover" box (top-level Property Info instructions on the One Pager, Cover
+// Page instructions on the OM/BOV) and the "team" box (Broker Info / Meet the
+// Team instructions) both apply to every AI generation call for the document,
+// not just a single section -- most sections never get their own dedicated
+// instructions box, so this is the only way those two ever reach the AI.
+const DOCUMENT_WIDE_SECTION_KEYS = ['cover', 'team'];
+
 function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
   const sectionKey = KIND_SECTION_MAP[kind];
   const parts = [];
@@ -187,9 +207,10 @@ function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
     const sectionInstructions = readInstructions(om, extra, sectionKey);
     if (sectionInstructions) parts.push(`For this section specifically: ${sectionInstructions}`);
   }
-  if (sectionKey !== 'cover') {
-    const topLevelInstructions = readInstructions(om, extra, 'cover');
-    if (topLevelInstructions) parts.push(`For the document overall: ${topLevelInstructions}`);
+  for (const wideKey of DOCUMENT_WIDE_SECTION_KEYS) {
+    if (wideKey === sectionKey) continue; // already included above as "section specifically"
+    const wideInstructions = readInstructions(om, extra, wideKey);
+    if (wideInstructions) parts.push(`For the document overall: ${wideInstructions}`);
   }
   if (!parts.length) return userPrompt;
   return `${userPrompt}\n\nBroker's custom instructions, follow these closely:\n${parts.join('\n')}`;
@@ -249,6 +270,10 @@ export async function generateAiContent(kind, om, extra = {}) {
         .map((l) => l.replace(/^[-—•*\d.()\s]+/, '').trim())
         .filter(Boolean);
     }
+  }
+
+  if (kind === 'tagline') {
+    return text.replace(/^["'“‘]+|["'”’]+$|\.$/g, '').trim();
   }
 
   return text;

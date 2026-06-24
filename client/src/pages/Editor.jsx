@@ -130,7 +130,7 @@ export default function Editor() {
         {om.autofilledFields?.length > 0 && (
           <div className="extraction-banner">
             <span>
-              ✨ {om.autofilledFields.length} field{om.autofilledFields.length === 1 ? '' : 's'} were auto-filled from your imported document.
+              ✨ {om.autofilledFields.length} field{om.autofilledFields.length === 1 ? ' was' : 's were'} auto-filled by AI.
               Review the highlighted fields below before generating.
             </span>
           </div>

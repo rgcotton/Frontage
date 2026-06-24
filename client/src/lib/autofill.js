@@ -9,3 +9,11 @@ export function clearAutofilled(om, onUpdateOm, field) {
     onUpdateOm({ autofilledFields: om.autofilledFields.filter((f) => f !== field) });
   }
 }
+
+// Flags a field as auto-filled (e.g. right after an AI "Generate" action), so it
+// gets the same review badge as a PDF/URL-imported field. Idempotent.
+export function markAutofilled(om, onUpdateOm, field) {
+  const next = (om?.autofilledFields || []).filter((f) => f !== field);
+  next.push(field);
+  onUpdateOm({ autofilledFields: next });
+}

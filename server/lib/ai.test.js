@@ -29,6 +29,7 @@ test('every AI kind with a mapped section appends that section instructions to t
     ['propertyDescription', 'overview'],
     ['valuationMethodologyNarrative', 'valuation'],
     ['brokerRecommendationNarrative', 'recommendation'],
+    ['tagline', 'cover'],
   ];
   for (const [kind, sectionKey] of cases) {
     const om = emptyOm('test-id');
@@ -61,6 +62,50 @@ test('live top-level instructions take priority over the persisted copy', () => 
   const { user } = buildPrompt('investmentHighlights', om, { liveAiInstructions: { cover: 'Fresh top-level instructions.' } });
   assert.ok(user.includes('Fresh top-level instructions.'), 'live top-level instructions should reach the prompt');
   assert.ok(!user.includes('Stale top-level instructions.'), 'stale persisted top-level instructions should not be used when live ones are present');
+});
+
+test('team (Broker Info) instructions are appended document-wide, the same way cover instructions are', () => {
+  const om = emptyOm('test-id');
+  om.aiInstructions.executiveSummary = 'Highlight the renovated lobby.';
+  om.aiInstructions.team = 'Mention the listing broker is a certified CCIM.';
+  const { user } = buildPrompt('investmentHighlights', om, {});
+  assert.ok(user.includes('Highlight the renovated lobby.'), 'section instructions should still be appended');
+  assert.ok(user.includes('Mention the listing broker is a certified CCIM.'), 'team/Broker Info instructions should also be appended document-wide');
+});
+
+test('team instructions alone (no section, no cover instructions) are still appended', () => {
+  const om = emptyOm('test-id');
+  om.aiInstructions.team = 'Keep the tone formal.';
+  const { user } = buildPrompt('propertyDescription', om, {});
+  assert.ok(user.includes('Keep the tone formal.'), 'team instructions should be appended even with nothing else set');
+});
+
+test('cover and team instructions can both be appended document-wide at once', () => {
+  const om = emptyOm('test-id');
+  om.aiInstructions.cover = 'Mention this is a 1031 exchange.';
+  om.aiInstructions.team = 'Mention the broker is a certified CCIM.';
+  const { user } = buildPrompt('investmentHighlights', om, {});
+  assert.ok(user.includes('Mention this is a 1031 exchange.'));
+  assert.ok(user.includes('Mention the broker is a certified CCIM.'));
+});
+
+test('live team instructions take priority over the persisted copy', () => {
+  const om = emptyOm('test-id');
+  om.aiInstructions.team = 'Stale team instructions.';
+  const { user } = buildPrompt('investmentHighlights', om, { liveAiInstructions: { team: 'Fresh team instructions.' } });
+  assert.ok(user.includes('Fresh team instructions.'), 'live team instructions should reach the prompt');
+  assert.ok(!user.includes('Stale team instructions.'), 'stale persisted team instructions should not be used when live ones are present');
+});
+
+test('tagline prompt includes the property details needed to write one', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Sunset Plaza';
+  om.cover.propertyType = 'Retail';
+  om.executiveSummary.offeringPrice = 2500000;
+  const { user } = buildPrompt('tagline', om, {});
+  assert.ok(user.includes('Sunset Plaza'));
+  assert.ok(user.includes('Retail'));
+  assert.ok(user.includes('2500000') || user.includes('2,500,000'));
 });
 
 test('custom instructions for an unrelated section are not appended', () => {
