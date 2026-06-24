@@ -52,6 +52,7 @@ export function emptyOm(id, docType = 'om', ownerEmail = null) {
       occupancyPct: '',
       zoning: '',
       parking: '',
+      leaseType: '',
       description: '',
       photos: [],
     },
@@ -103,6 +104,13 @@ export function emptyOm(id, docType = 'om', ownerEmail = null) {
     team: [],
     files: [],
     aiInstructions: {},
+    // Field paths (e.g. "overview.squareFootage") populated by the PDF/URL import
+    // feature, so the editor can flag them for review. Cleared per-field as the
+    // broker edits each one.
+    autofilledFields: [],
+    // One-time notice from the last import (e.g. "this looked like a scanned
+    // image" or an extraction failure). Shown once in the editor, then dismissed.
+    lastExtractionNotes: null,
     valuation: {
       methodologyApproach: '',
       methodologyNarrative: '',

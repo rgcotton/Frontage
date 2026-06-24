@@ -8,6 +8,7 @@ import { generatePptx } from '../lib/pptxGenerator.js';
 import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
 import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer } from '../lib/maps.js';
 import { getOwnerEmail } from '../lib/auth.js';
+import { extractFromPdfBuffer, extractFromText, fetchUrlContent, buildOmPatchFromExtraction } from '../lib/extraction.js';
 
 const router = express.Router();
 const GENERATED_DIR = path.join(process.cwd(), 'generated');
@@ -98,6 +99,47 @@ router.post('/:id/upload', upload.array('files', 20), async (req, res) => {
   const updatedFiles = [...(om.files || []), ...refs];
   await updateOm(req.params.id, { files: updatedFiles });
   res.status(201).json(refs);
+});
+
+// Shared by both extraction entry points: runs the extraction, maps the result onto
+// the document's existing fields, persists the imported source file (if any), and
+// returns the updated document plus a human-readable note (e.g. scanned-image caveat).
+async function applyExtraction(req, res, om, extracted, fileRef) {
+  const { patch, autofilledFields } = buildOmPatchFromExtraction(om, extracted);
+  if (fileRef) patch.files = [...(om.files || []), fileRef];
+  patch.autofilledFields = [...new Set([...(om.autofilledFields || []), ...autofilledFields])];
+  const updated = await updateOm(req.params.id, patch);
+  res.json({ om: updated, extractionNotes: extracted.extractionNotes || null, documentType: extracted.documentType || 'text' });
+}
+
+router.post('/:id/extract/upload', upload.single('file'), async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  if (!req.file) return res.status(400).json({ error: 'A file is required.' });
+  if (req.file.mimetype !== 'application/pdf') {
+    return res.status(400).json({ error: 'Only PDF files are supported for document import right now.' });
+  }
+  try {
+    const buffer = fs.readFileSync(req.file.path);
+    const extracted = await extractFromPdfBuffer(buffer);
+    await applyExtraction(req, res, om, extracted, toFileRef(req, req.file));
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+router.post('/:id/extract/url', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  const url = String(req.body?.url || '').trim();
+  if (!url) return res.status(400).json({ error: 'A URL is required.' });
+  try {
+    const content = await fetchUrlContent(url);
+    const extracted = content.type === 'pdf' ? await extractFromPdfBuffer(content.buffer) : await extractFromText(content.text);
+    await applyExtraction(req, res, om, extracted, null);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
 });
 
 router.post('/:id/generate', async (req, res) => {

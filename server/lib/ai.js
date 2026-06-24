@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const MODEL = 'claude-sonnet-4-6';
+export const MODEL = 'claude-sonnet-4-6';
 let client = null;
 
-function getClient() {
+export function getClient() {
   if (!process.env.ANTHROPIC_API_KEY) return null;
   if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   return client;

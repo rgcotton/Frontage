@@ -65,6 +65,17 @@ export const api = {
       body: JSON.stringify(extra),
     }),
   geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
+  extractFromUpload: (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request(`/api/oms/${id}/extract/upload`, { method: 'POST', body: formData });
+  },
+  extractFromUrl: (id, url) =>
+    request(`/api/oms/${id}/extract/url`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }),
   analyzeLogo: (id) => request(`/api/oms/${id}/ai/analyze-logo`, { method: 'POST' }),
   listFolders: () => request('/api/folders'),
   createFolder: (name) =>

@@ -1,6 +1,8 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import AutofilledTag from '../AutofilledTag.jsx';
+import { clearAutofilled } from '../../lib/autofill.js';
 import { YearInput, SquareFeetInput, PercentInput } from '../inputs/FormattedInputs.jsx';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
@@ -11,10 +13,12 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
 
   function setCover(field, val) {
     onUpdateOm({ cover: { ...om.cover, [field]: val } });
+    clearAutofilled(om, onUpdateOm, `cover.${field}`);
   }
 
   function setOverview(field, val) {
     onUpdateOm({ overview: { ...om.overview, [field]: val } });
+    clearAutofilled(om, onUpdateOm, `overview.${field}`);
   }
 
   return (
@@ -28,7 +32,10 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
       />
 
       <div className="field">
-        <label>Property Name</label>
+        <div className="field-label-row">
+          <label>Property Name</label>
+          <AutofilledTag om={om} field="cover.propertyName" />
+        </div>
         <input type="text" value={cover.propertyName} onChange={(e) => setCover('propertyName', e.target.value)} placeholder="e.g. Sunset Plaza Shopping Center" />
       </div>
 
@@ -39,11 +46,17 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
 
       <div className="field-row">
         <div className="field">
-          <label>Address Line 1</label>
+          <div className="field-label-row">
+            <label>Address Line 1</label>
+            <AutofilledTag om={om} field="cover.addressLine1" />
+          </div>
           <input type="text" value={cover.addressLine1} onChange={(e) => setCover('addressLine1', e.target.value)} />
         </div>
         <div className="field">
-          <label>Property Type</label>
+          <div className="field-label-row">
+            <label>Property Type</label>
+            <AutofilledTag om={om} field="cover.propertyType" />
+          </div>
           <select value={cover.propertyType} onChange={(e) => setCover('propertyType', e.target.value)}>
             <option value="">Select type…</option>
             {PROPERTY_TYPES.map((t) => (
@@ -57,15 +70,24 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
 
       <div className="field-row cols-3">
         <div className="field">
-          <label>City</label>
+          <div className="field-label-row">
+            <label>City</label>
+            <AutofilledTag om={om} field="cover.city" />
+          </div>
           <input type="text" value={cover.city} onChange={(e) => setCover('city', e.target.value)} />
         </div>
         <div className="field">
-          <label>State</label>
+          <div className="field-label-row">
+            <label>State</label>
+            <AutofilledTag om={om} field="cover.state" />
+          </div>
           <input type="text" value={cover.state} onChange={(e) => setCover('state', e.target.value)} />
         </div>
         <div className="field">
-          <label>ZIP</label>
+          <div className="field-label-row">
+            <label>ZIP</label>
+            <AutofilledTag om={om} field="cover.zip" />
+          </div>
           <input type="text" value={cover.zip} onChange={(e) => setCover('zip', e.target.value)} />
         </div>
       </div>
@@ -82,11 +104,17 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
 
       <div className="field-row cols-3">
         <div className="field">
-          <label>Year Built</label>
+          <div className="field-label-row">
+            <label>Year Built</label>
+            <AutofilledTag om={om} field="overview.yearBuilt" />
+          </div>
           <YearInput value={overview.yearBuilt} onChange={(v) => setOverview('yearBuilt', v)} placeholder="2018" />
         </div>
         <div className="field">
-          <label>Square Footage</label>
+          <div className="field-label-row">
+            <label>Square Footage</label>
+            <AutofilledTag om={om} field="overview.squareFootage" />
+          </div>
           <SquareFeetInput value={overview.squareFootage} onChange={(v) => setOverview('squareFootage', v)} placeholder="e.g. 24,500 SF" />
         </div>
         <div className="field">
@@ -99,6 +127,19 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
         <div className="field">
           <label>Occupancy %</label>
           <PercentInput value={overview.occupancyPct} onChange={(v) => setOverview('occupancyPct', v)} placeholder="94%" />
+        </div>
+        <div className="field">
+          <div className="field-label-row">
+            <label>Lease Type</label>
+            <AutofilledTag om={om} field="overview.leaseType" />
+          </div>
+          <select value={overview.leaseType} onChange={(e) => setOverview('leaseType', e.target.value)}>
+            <option value="">Select…</option>
+            <option value="NNN">NNN</option>
+            <option value="Gross">Gross</option>
+            <option value="Modified Gross">Modified Gross</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
       </div>
     </div>

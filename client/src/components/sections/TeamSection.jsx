@@ -1,6 +1,8 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import AutofilledTag from '../AutofilledTag.jsx';
+import { clearAutofilled } from '../../lib/autofill.js';
 import { PhoneInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
@@ -13,6 +15,7 @@ export default function TeamSection({ value, onChange, omId, om, onUpdateOm }) {
 
   function update(id, field, val) {
     onChange(team.map((m) => (m.id === id ? { ...m, [field]: val } : m)));
+    if (id === team[0]?.id) clearAutofilled(om, onUpdateOm, 'team.0');
   }
 
   function addMember() {
@@ -37,6 +40,7 @@ export default function TeamSection({ value, onChange, omId, om, onUpdateOm }) {
         <div className="repeat-card" key={m.id}>
           <div className="repeat-card-header">
             <span>Team Member {i + 1}</span>
+            {i === 0 && <AutofilledTag om={om} field="team.0" />}
           </div>
           <div className="field-row">
             <div className="field">

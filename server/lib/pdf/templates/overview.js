@@ -13,6 +13,7 @@ export function buildPages(om, ctx) {
     ['Occupancy', overview.occupancyPct, formatPercent],
     ['Zoning', overview.zoning, String],
     ['Parking', overview.parking, String],
+    ['Lease Type', overview.leaseType, String],
   ];
   if (isMultifamily) rawStats.splice(3, 0, ['Units', overview.units, String]);
   const stats = filterStats(rawStats);

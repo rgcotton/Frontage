@@ -2,6 +2,8 @@ import { useState } from 'react';
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import AutofilledTag from '../AutofilledTag.jsx';
+import { clearAutofilled } from '../../lib/autofill.js';
 import { api } from '../../api.js';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
@@ -13,6 +15,7 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
 
   function set(field, val) {
     onChange({ ...value, [field]: val });
+    clearAutofilled(om, onUpdateOm, `cover.${field}`);
   }
 
   async function handleValidateAddress() {
@@ -54,7 +57,10 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
       />
 
       <div className="field">
-        <label>Property Name</label>
+        <div className="field-label-row">
+          <label>Property Name</label>
+          <AutofilledTag om={om} field="cover.propertyName" />
+        </div>
         <input type="text" value={value.propertyName} onChange={(e) => set('propertyName', e.target.value)} placeholder="e.g. Sunset Plaza Shopping Center" />
       </div>
 
@@ -65,11 +71,17 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
 
       <div className="field-row">
         <div className="field">
-          <label>Address Line 1</label>
+          <div className="field-label-row">
+            <label>Address Line 1</label>
+            <AutofilledTag om={om} field="cover.addressLine1" />
+          </div>
           <input type="text" value={value.addressLine1} onChange={(e) => set('addressLine1', e.target.value)} />
         </div>
         <div className="field">
-          <label>Property Type</label>
+          <div className="field-label-row">
+            <label>Property Type</label>
+            <AutofilledTag om={om} field="cover.propertyType" />
+          </div>
           <select value={value.propertyType} onChange={(e) => set('propertyType', e.target.value)}>
             <option value="">Select type…</option>
             {PROPERTY_TYPES.map((t) => (
@@ -83,15 +95,24 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
 
       <div className="field-row cols-3">
         <div className="field">
-          <label>City</label>
+          <div className="field-label-row">
+            <label>City</label>
+            <AutofilledTag om={om} field="cover.city" />
+          </div>
           <input type="text" value={value.city} onChange={(e) => set('city', e.target.value)} />
         </div>
         <div className="field">
-          <label>State</label>
+          <div className="field-label-row">
+            <label>State</label>
+            <AutofilledTag om={om} field="cover.state" />
+          </div>
           <input type="text" value={value.state} onChange={(e) => set('state', e.target.value)} />
         </div>
         <div className="field">
-          <label>ZIP</label>
+          <div className="field-label-row">
+            <label>ZIP</label>
+            <AutofilledTag om={om} field="cover.zip" />
+          </div>
           <input type="text" value={value.zip} onChange={(e) => set('zip', e.target.value)} />
         </div>
       </div>
@@ -146,7 +167,10 @@ export default function CoverSection({ value, onChange, omId, om, onUpdateOm }) 
 
       <div className="field-row">
         <div className="field">
-          <label>Brokerage Name</label>
+          <div className="field-label-row">
+            <label>Brokerage Name</label>
+            <AutofilledTag om={om} field="cover.brokerageName" />
+          </div>
           <input
             type="text"
             value={value.brokerageName}

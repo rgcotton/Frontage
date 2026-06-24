@@ -1,6 +1,8 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import AutofilledTag from '../AutofilledTag.jsx';
+import { clearAutofilled } from '../../lib/autofill.js';
 import { CurrencyInput, PercentInput, SquareFeetInput } from '../inputs/FormattedInputs.jsx';
 
 let nextId = 1;
@@ -13,6 +15,7 @@ const LEASE_TYPES = ['NNN', 'Gross', 'Modified Gross'];
 export default function FinancialsSection({ value, onChange, omId, om, onUpdateOm }) {
   function set(field, val) {
     onChange({ ...value, [field]: val });
+    clearAutofilled(om, onUpdateOm, `financials.${field}`);
   }
 
   function updateLineItem(id, field, val) {
@@ -128,7 +131,10 @@ export default function FinancialsSection({ value, onChange, omId, om, onUpdateO
 
       <hr className="divider" />
 
-      <div className="subsection-title">Rent Roll</div>
+      <div className="subsection-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        Rent Roll
+        <AutofilledTag om={om} field="financials.rentRoll" />
+      </div>
       {(value.rentRoll || []).map((r) => (
         <div className="repeat-card" key={r.id}>
           <div className="field-row cols-3">

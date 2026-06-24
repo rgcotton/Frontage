@@ -118,6 +118,24 @@ export default function Editor() {
           {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Could not save — retrying' : 'All changes saved'}
         </div>
 
+        {om.lastExtractionNotes && (
+          <div className="extraction-banner extraction-banner-warning">
+            <span>⚠️ {om.lastExtractionNotes}</span>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => updateOm({ lastExtractionNotes: null })}>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {om.autofilledFields?.length > 0 && (
+          <div className="extraction-banner">
+            <span>
+              ✨ {om.autofilledFields.length} field{om.autofilledFields.length === 1 ? '' : 's'} were auto-filled from your imported document.
+              Review the highlighted fields below before generating.
+            </span>
+          </div>
+        )}
+
         <div className="section-fade" key={activeSection}>
           <ActiveComponent
             value={om[activeSection]}

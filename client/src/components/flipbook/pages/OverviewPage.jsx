@@ -13,6 +13,7 @@ export default function OverviewPage({ om }) {
   rawStats.push(['Occupancy', overview.occupancyPct, formatPercent]);
   rawStats.push(['Zoning', overview.zoning, String]);
   rawStats.push(['Parking', overview.parking, String]);
+  rawStats.push(['Lease Type', overview.leaseType, String]);
   const stats = filterStats(rawStats);
 
   const photos = (overview.photos || []).filter((p) => p.mimetype?.startsWith('image/')).slice(0, 4);

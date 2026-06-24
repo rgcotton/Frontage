@@ -57,6 +57,31 @@ export default function Home({ user, onLogin, onLogout }) {
     }
   }
 
+  // AI extraction is a strong first pass, not a guarantee -- if it fails (bad file,
+  // unreachable URL, scanned image with no readable text), the broker should still
+  // land on a normal blank document rather than getting stuck, with the reason
+  // surfaced once they get there.
+  async function handleImport(docType, payload) {
+    setCreating(true);
+    try {
+      const om = await api.createOm(docType);
+      try {
+        if (payload.kind === 'upload') {
+          await api.extractFromUpload(om.id, payload.file);
+        } else {
+          await api.extractFromUrl(om.id, payload.url);
+        }
+      } catch (err) {
+        await api.updateOm(om.id, { lastExtractionNotes: `Could not read that document: ${err.message}` });
+      }
+      navigate(`/om/${om.id}`);
+    } catch (err) {
+      alert(`Could not create document: ${err.message}`);
+      setCreating(false);
+      setShowDocTypeModal(false);
+    }
+  }
+
   async function handleCreateFolder(name) {
     await api.createFolder(name);
     await loadAll();
@@ -195,7 +220,13 @@ export default function Home({ user, onLogin, onLogout }) {
       </main>
 
       {showDocTypeModal && (
-        <DocTypeSelectModal documents={oms} onComplete={handleCreateDocument} onClose={() => setShowDocTypeModal(false)} creating={creating} />
+        <DocTypeSelectModal
+          documents={oms}
+          onComplete={handleCreateDocument}
+          onImport={handleImport}
+          onClose={() => setShowDocTypeModal(false)}
+          creating={creating}
+        />
       )}
 
       {showNewFolderModal && (

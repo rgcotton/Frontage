@@ -1,6 +1,8 @@
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import CustomAiInstructions from '../CustomAiInstructions.jsx';
+import AutofilledTag from '../AutofilledTag.jsx';
+import { clearAutofilled } from '../../lib/autofill.js';
 import { PhoneInput } from '../inputs/FormattedInputs.jsx';
 
 function makeId() {
@@ -16,10 +18,12 @@ export default function BrokerInfoSection({ omId, om, onUpdateOm }) {
     const baseTeam = team.length ? team : [primary];
     const updated = baseTeam.map((m, i) => (i === 0 ? { ...m, [field]: val } : m));
     onUpdateOm({ team: updated });
+    clearAutofilled(om, onUpdateOm, 'team.0');
   }
 
   function setCover(field, val) {
     onUpdateOm({ cover: { ...om.cover, [field]: val } });
+    clearAutofilled(om, onUpdateOm, `cover.${field}`);
   }
 
   return (
@@ -34,7 +38,10 @@ export default function BrokerInfoSection({ omId, om, onUpdateOm }) {
 
       <div className="field-row">
         <div className="field">
-          <label>Name</label>
+          <div className="field-label-row">
+            <label>Name</label>
+            <AutofilledTag om={om} field="team.0" />
+          </div>
           <input type="text" value={primary.name} onChange={(e) => setTeam('name', e.target.value)} />
         </div>
         <div className="field">
@@ -70,7 +77,10 @@ export default function BrokerInfoSection({ omId, om, onUpdateOm }) {
 
       <div className="field-row">
         <div className="field">
-          <label>Brokerage Name</label>
+          <div className="field-label-row">
+            <label>Brokerage Name</label>
+            <AutofilledTag om={om} field="cover.brokerageName" />
+          </div>
           <input
             type="text"
             value={cover.brokerageName}
