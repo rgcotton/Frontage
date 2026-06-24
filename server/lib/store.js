@@ -122,6 +122,14 @@ export function emptyOm(id, docType = 'om', ownerEmail = null) {
       narrative: '',
       recommendedAction: '',
     },
+    sharing: {
+      requireNda: false,
+      ndaText: '',
+    },
+    // { id, name, signedAt, token } -- the broker-facing record of who has signed.
+    ndaSignatures: [],
+    // { id, name, address, category, driveTimeMinutes } in broker-chosen display order.
+    driveTimePois: [],
   };
 }
 
@@ -130,7 +138,7 @@ export function emptyOm(id, docType = 'om', ownerEmail = null) {
 function mergeWithDefaults(om) {
   const defaults = emptyOm(om.id);
   const merged = { ...defaults, ...om };
-  for (const key of ['cover', 'branding', 'overview', 'executiveSummary', 'market', 'offeringProcedures', 'valuation', 'recommendation']) {
+  for (const key of ['cover', 'branding', 'overview', 'executiveSummary', 'market', 'offeringProcedures', 'valuation', 'recommendation', 'sharing']) {
     merged[key] = { ...defaults[key], ...(om[key] || {}) };
   }
   merged.financials = {
@@ -144,9 +152,12 @@ function mergeWithDefaults(om) {
   const salesCompDefaults = { address: '', saleDate: '', salePrice: '', pricePerSF: '', capRate: '', squareFeet: '', notes: '', photo: null };
   const rentCompDefaults = { address: '', tenant: '', rentPerSF: '', leaseTerm: '', squareFeet: '', leaseType: '' };
   const teamDefaults = { name: '', title: '', phone: '', email: '', bio: '', headshot: null };
+  const poiDefaults = { name: '', address: '', category: '', driveTimeMinutes: null };
   merged.salesComps = (om.salesComps || []).map((c) => ({ ...salesCompDefaults, ...c }));
   merged.rentComps = (om.rentComps || []).map((c) => ({ ...rentCompDefaults, ...c }));
   merged.team = (om.team || []).map((m) => ({ ...teamDefaults, ...m }));
+  merged.driveTimePois = (om.driveTimePois || []).map((p) => ({ ...poiDefaults, ...p }));
+  merged.ndaSignatures = om.ndaSignatures || [];
   merged.files = om.files || [];
   merged.aiInstructions = { ...defaults.aiInstructions, ...(om.aiInstructions || {}) };
   return merged;

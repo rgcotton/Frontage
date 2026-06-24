@@ -167,6 +167,21 @@ Year Built: ${fmt(overview.yearBuilt)}
 Existing Description: ${fmt(overview.description)}`,
     };
   },
+  ndaAgreement(om) {
+    const { cover, team } = om;
+    const broker = (team || [])[0];
+    const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return {
+      system: `You are drafting a short, plain-English Non-Disclosure Agreement for a commercial real estate broker to send to prospective buyers/investors before they view a confidential offering. Write a concise, professional, one-page agreement -- not a dense legal wall of text that scares a reader away from signing. Cover exactly these points: (1) the information shared is confidential, (2) the recipient will not share it with third parties, (3) the document is for informational purposes only and is not a guarantee of accuracy, (4) the recipient agrees not to use the information to circumvent the broker or contact the seller/tenants directly. Return ONLY the agreement text in plain paragraphs, no markdown, no signature block, no headings other than a single title line. ${STYLE_RULES}`,
+      user: `Draft a Non-Disclosure Agreement for this offering.
+
+Property: ${fmt(cover.propertyName)}
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Broker: ${fmt(broker?.name)}
+Brokerage: ${fmt(cover.brokerageName)}
+Date: ${today}`,
+    };
+  },
 };
 
 export const AI_KINDS = Object.keys(PROMPT_BUILDERS);

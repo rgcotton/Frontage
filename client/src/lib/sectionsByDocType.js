@@ -8,6 +8,7 @@ export const ALL_SECTION_LABELS = {
   salesComps: 'Sales Comps',
   rentComps: 'Rent Comps',
   locationMap: 'Location & Amenities',
+  driveTimePois: 'Drive Times',
   offeringProcedures: 'Offering Procedures',
   team: 'About the Team',
   valuation: 'Valuation',
@@ -28,10 +29,11 @@ const KEYS_BY_DOC_TYPE = {
     'salesComps',
     'rentComps',
     'locationMap',
+    'driveTimePois',
     'offeringProcedures',
     'team',
   ],
-  onePager: ['propertyInfo', 'dealHighlights', 'brokerInfo'],
+  onePager: ['propertyInfo', 'dealHighlights', 'driveTimePois', 'brokerInfo'],
   bov: ['cover', 'branding', 'overview', 'valuation', 'salesComps', 'recommendation', 'team'],
 };
 

@@ -9,15 +9,15 @@ const BOTTOM_TOP = STATS_TOP + STATS_H;
 const FOOTER_H = 0.45;
 const FOOTER_TOP = 11 - FOOTER_H;
 const LEFT_COL_W_PCT = 55;
-const DESCRIPTION_MAX_CHARS = 320;
+const MAX_POIS = 4;
 
 // One consistent type scale used everywhere on this page, instead of ad-hoc
 // one-off font sizes per element.
 const TYPE = {
   micro: '9px', // stat labels
   small: '10.5px', // support copy, contact info, footer subtext, eyebrow tag
-  base: '12px', // body copy (description, highlight support)
-  label: '13px', // address line, broker title, highlight headline
+  base: '12px', // body copy
+  label: '13px', // address line, broker title, highlight headline, POI name
   section: '15.5px', // section headers, brokerage name
   name: '19px', // broker name
   stat: '24px', // stat values
@@ -30,18 +30,14 @@ function splitHighlight(text) {
   return { headline: text, support: '' };
 }
 
-function truncateText(text, maxLength) {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  const cut = text.slice(0, maxLength);
-  const lastSpace = cut.lastIndexOf(' ');
-  return `${cut.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
-}
-
 function checkBadge(accentColor) {
   return `<div style="flex:0 0 17px; width:17px; height:17px; border-radius:50%; background:${accentColor}; display:flex; align-items:center; justify-content:center; margin-top:1px;">
     <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.7L13 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>`;
+}
+
+function pinIcon(accentColor) {
+  return `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="${accentColor}"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>`;
 }
 
 export function buildPages(om, ctx) {
@@ -51,9 +47,9 @@ export function buildPages(om, ctx) {
     .filter(Boolean)
     .join(', ');
   const highlights = (executiveSummary.highlights || []).filter(Boolean).slice(0, 4);
+  const pois = (om.driveTimePois || []).slice(0, MAX_POIS);
   const primary = (team || [])[0];
   const headshotUri = toDataUri(om.id, primary?.headshot);
-  const descriptionText = truncateText(overview.description, DESCRIPTION_MAX_CHARS);
 
   const rawStats = [
     ['Price', executiveSummary.offeringPrice, () => formatCurrency(executiveSummary.offeringPrice)],
@@ -83,12 +79,24 @@ export function buildPages(om, ctx) {
   const highlightsHtml = highlightItems.length
     ? highlightItems
         .map(
-          ({ headline, support }, i) => `<div style="display:flex; gap:10px; align-items:flex-start; padding:7px 0; ${i < highlightItems.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
+          ({ headline, support }, i) => `<div style="display:flex; gap:9px; align-items:flex-start; padding:6px 0; ${i < highlightItems.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
             ${checkBadge(theme.accentColor)}
             <div>
-              <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.primaryColor}; line-height:1.3;">${esc(headline)}</div>
-              ${support ? `<div style="font-size:${TYPE.small}; color:${theme.mutedColor}; line-height:1.4; margin-top:2px;">${esc(support)}</div>` : ''}
+              <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.primaryColor}; line-height:1.25;">${esc(headline)}</div>
+              ${support ? `<div style="font-size:${TYPE.small}; color:${theme.mutedColor}; line-height:1.3; margin-top:1px;">${esc(support)}</div>` : ''}
             </div>
+          </div>`
+        )
+        .join('')
+    : '';
+
+  const poisHtml = pois.length
+    ? pois
+        .map(
+          (p, i) => `<div style="display:flex; align-items:center; gap:8px; padding:6px 0; ${i < pois.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
+            ${pinIcon(theme.accentColor)}
+            <div style="flex:1; font-size:${TYPE.label}; font-weight:600; color:${theme.textColor};">${esc(p.name)}</div>
+            <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.accentColor}; white-space:nowrap;">${typeof p.driveTimeMinutes === 'number' ? `${p.driveTimeMinutes} min` : ''}</div>
           </div>`
         )
         .join('')
@@ -101,6 +109,23 @@ export function buildPages(om, ctx) {
   const hasLogo = Boolean(ctx.brokerLogoUri);
   const logoBlock = hasLogo
     ? `<div style="background:#fff; border-radius:8px; padding:10px 16px; display:inline-block;"><img src="${ctx.brokerLogoUri}" style="max-width:1.7in; max-height:0.6in; object-fit:contain; display:block;" /></div>`
+    : '';
+
+  const highlightsCard = highlightsHtml
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:${poisHtml ? '1.15' : '1'}; min-height:0; padding:0.2in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:8px;">Investment Highlights</div>
+      ${highlightsHtml}
+    </div>`
+    : '';
+
+  const driveTimesCard = poisHtml
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0.85; min-height:0; padding:0.18in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+        <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase;">Drive Times</div>
+        <div style="font-size:${TYPE.micro}; color:${theme.mutedColor}; text-transform:uppercase; letter-spacing:0.4px;">From Property</div>
+      </div>
+      <div>${poisHtml}</div>
+    </div>`
     : '';
 
   const inner = `
@@ -120,18 +145,9 @@ export function buildPages(om, ctx) {
         : ''
     }
 
-    <div style="position:absolute; left:0; width:${LEFT_COL_W_PCT}%; top:${bottomTop}in; bottom:${FOOTER_H}in; padding:0.4in; display:flex; flex-direction:column;">
-      <div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:1; min-height:0; padding:0.32in 0.34in; display:flex; flex-direction:column;">
-        <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:14px;">Investment Highlights</div>
-        ${highlightsHtml ? `<div>${highlightsHtml}</div>` : ''}
-        ${
-          descriptionText
-            ? `<div style="${highlightsHtml ? `border-top:1px solid ${theme.cardBorder}; margin-top:14px; padding-top:14px;` : ''} flex:1; min-height:0; overflow:hidden;">
-          <div style="font-size:${TYPE.base}; line-height:1.7; color:${theme.textColor}; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4; overflow:hidden;">${esc(descriptionText)}</div>
-        </div>`
-            : ''
-        }
-      </div>
+    <div style="position:absolute; left:0; width:${LEFT_COL_W_PCT}%; top:${bottomTop}in; bottom:${FOOTER_H}in; padding:0.4in; display:flex; flex-direction:column; gap:0.16in;">
+      ${highlightsCard}
+      ${driveTimesCard}
     </div>
 
     <div style="position:absolute; left:${LEFT_COL_W_PCT}%; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:${hasLogo ? 'space-between' : 'center'}; padding:0.4in 0.35in;">

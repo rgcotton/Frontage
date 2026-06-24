@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { emptyOm } from './store.js';
 
 // store.js resolves its data directory from process.cwd() at import time, so each
 // test runs in its own freshly-chdir'd temp directory before dynamically importing it.
@@ -51,4 +52,22 @@ test('duplicateOm preserves the ownerEmail of the source document', async () => 
   const om = await store.createOm('om', 'jane@example.com');
   const copy = await store.duplicateOm(om.id);
   assert.equal(copy.ownerEmail, 'jane@example.com');
+});
+
+test('emptyOm defaults sharing, ndaSignatures, and driveTimePois to a safe empty state', () => {
+  const om = emptyOm('id1');
+  assert.deepEqual(om.sharing, { requireNda: false, ndaText: '' });
+  assert.deepEqual(om.ndaSignatures, []);
+  assert.deepEqual(om.driveTimePois, []);
+});
+
+test('getOm backfills sharing/ndaSignatures/driveTimePois for a record saved before this feature existed', async () => {
+  const { store, dir } = await loadStoreInTempDir();
+  const legacy = { id: 'legacy1', docType: 'om', cover: { propertyName: 'Old Doc' } };
+  await fs.mkdir(path.join(dir, 'data', 'oms'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'data', 'oms', 'legacy1.json'), JSON.stringify(legacy));
+  const loaded = await store.getOm('legacy1');
+  assert.deepEqual(loaded.sharing, { requireNda: false, ndaText: '' });
+  assert.deepEqual(loaded.ndaSignatures, []);
+  assert.deepEqual(loaded.driveTimePois, []);
 });

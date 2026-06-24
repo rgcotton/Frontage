@@ -20,6 +20,7 @@ import RecommendationSection from '../components/sections/RecommendationSection.
 import PropertyInfoSection from '../components/sections/PropertyInfoSection.jsx';
 import DealHighlightsSection from '../components/sections/DealHighlightsSection.jsx';
 import BrokerInfoSection from '../components/sections/BrokerInfoSection.jsx';
+import DriveTimesSection from '../components/sections/DriveTimesSection.jsx';
 
 const SECTION_COMPONENTS = {
   cover: CoverSection,
@@ -38,6 +39,7 @@ const SECTION_COMPONENTS = {
   propertyInfo: PropertyInfoSection,
   dealHighlights: DealHighlightsSection,
   brokerInfo: BrokerInfoSection,
+  driveTimePois: DriveTimesSection,
 };
 
 export default function Editor() {
@@ -165,7 +167,7 @@ export default function Editor() {
         </div>
       </main>
 
-      <OutputPanel om={om} />
+      <OutputPanel om={om} onUpdateOm={updateOm} />
     </div>
   );
 }

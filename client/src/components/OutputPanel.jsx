@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api.js';
+import AiGenerateButton from './AiGenerateButton.jsx';
 import { computeCompleteness, SECTION_LABELS } from '../lib/completeness.js';
 import { getSectionsForDocType } from '../lib/sectionsByDocType.js';
 
@@ -9,7 +10,7 @@ const FORMATS = [
   { value: 'web', label: 'Shareable Web Link' },
 ];
 
-export default function OutputPanel({ om }) {
+export default function OutputPanel({ om, onUpdateOm }) {
   const [format, setFormat] = useState('pdf');
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState(null);
@@ -29,9 +30,14 @@ export default function OutputPanel({ om }) {
     }
   }
 
+  function setSharing(field, val) {
+    onUpdateOm({ sharing: { ...om.sharing, [field]: val } });
+  }
+
   const completion = computeCompleteness(om);
   const activeKeys = getSectionsForDocType(om.docType || 'om').map((s) => s.key);
   const shareFullUrl = result?.shareUrl ? `${window.location.origin}${result.shareUrl}` : null;
+  const sharing = om.sharing || {};
 
   return (
     <aside className="editor-aside">
@@ -48,6 +54,49 @@ export default function OutputPanel({ om }) {
             ))}
           </select>
         </div>
+
+        {format === 'web' && (
+          <div className="nda-settings">
+            <label className="checkbox-row">
+              <input type="checkbox" checked={Boolean(sharing.requireNda)} onChange={(e) => setSharing('requireNda', e.target.checked)} />
+              Require NDA before viewing
+            </label>
+
+            {sharing.requireNda && (
+              <div className="nda-settings-detail">
+                <div className="field-label-row">
+                  <label>NDA Text</label>
+                  <AiGenerateButton
+                    omId={om.id}
+                    kind="ndaAgreement"
+                    om={om}
+                    label={sharing.ndaText ? 'Regenerate' : 'Generate NDA'}
+                    onResult={(result) => setSharing('ndaText', result)}
+                  />
+                </div>
+                <textarea
+                  value={sharing.ndaText || ''}
+                  onChange={(e) => setSharing('ndaText', e.target.value)}
+                  rows={8}
+                  placeholder="Click Generate NDA to draft an agreement, or write your own."
+                />
+                <p className="field-hint">AI-generated -- review before relying on it. Recipients see this exact text before they can view the document.</p>
+
+                {(om.ndaSignatures || []).length > 0 && (
+                  <div className="nda-signatures">
+                    <h4>Signed by ({om.ndaSignatures.length})</h4>
+                    {om.ndaSignatures.map((s) => (
+                      <div key={s.id} className="nda-signature-row">
+                        <span>{s.name}</span>
+                        <span className="nda-signature-time">{new Date(s.signedAt).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleGenerate} disabled={generating}>
           {generating ? 'Generating…' : 'Generate'}

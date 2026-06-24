@@ -1,5 +1,6 @@
 const GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
 const STATICMAP_URL = 'https://maps.googleapis.com/maps/api/staticmap';
+const DISTANCE_MATRIX_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json';
 
 function getApiKey() {
   return process.env.GOOGLE_MAPS_API_KEY || null;
@@ -106,4 +107,43 @@ export async function fetchRegionalMapDataUri(cover) {
   const buf = await fetchRegionalMapBuffer(cover);
   if (!buf) return null;
   return `data:image/png;base64,${buf.toString('base64')}`;
+}
+
+// Drive time in whole minutes from origin to destination, or null if it can't be
+// determined for any reason (no key, missing address, unreachable, API error) --
+// callers show a blank rather than an error, so failure here must never throw.
+export async function fetchDriveTimeMinutes(originAddress, destAddress) {
+  const apiKey = getApiKey();
+  if (!apiKey || !originAddress?.trim() || !destAddress?.trim()) return null;
+
+  const params = new URLSearchParams({
+    origins: originAddress,
+    destinations: destAddress,
+    mode: 'driving',
+    units: 'imperial',
+    key: apiKey,
+  });
+
+  try {
+    const res = await fetch(`${DISTANCE_MATRIX_URL}?${params.toString()}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const element = data?.rows?.[0]?.elements?.[0];
+    if (data.status !== 'OK' || element?.status !== 'OK' || typeof element?.duration?.value !== 'number') return null;
+    return Math.round(element.duration.value / 60);
+  } catch {
+    return null;
+  }
+}
+
+// Recalculates every POI's drive time from the given property address, in
+// parallel. A POI that can't be resolved gets driveTimeMinutes: null (never an
+// error), so the UI shows a blank for that one row instead of breaking the rest.
+export async function recalculateDriveTimes(originAddress, pois) {
+  return Promise.all(
+    pois.map(async (poi) => ({
+      ...poi,
+      driveTimeMinutes: await fetchDriveTimeMinutes(originAddress, poi.address),
+    }))
+  );
 }

@@ -26,7 +26,14 @@ export const api = {
       body: JSON.stringify({ docType }),
     }),
   getOm: (id) => request(`/api/oms/${id}`),
-  getSharedOm: (id) => request(`/api/oms/${id}/shared`),
+  getSharedOm: (id, token) => request(`/api/oms/${id}/shared${token ? `?token=${encodeURIComponent(token)}` : ''}`),
+  getShareInfo: (id) => request(`/api/oms/${id}/share-info`),
+  signNda: (id, name) =>
+    request(`/api/oms/${id}/nda/sign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }),
   updateOm: (id, partial) =>
     request(`/api/oms/${id}`, {
       method: 'PUT',
@@ -65,6 +72,12 @@ export const api = {
       body: JSON.stringify(extra),
     }),
   geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
+  recalculateDriveTimes: (id, pois) =>
+    request(`/api/oms/${id}/poi/recalculate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pois }),
+    }),
   extractFromUpload: (id, file) => {
     const formData = new FormData();
     formData.append('file', file);

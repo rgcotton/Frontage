@@ -11,6 +11,7 @@ import * as financials from './templates/financials.js';
 import * as salesComps from './templates/salesComps.js';
 import * as rentComps from './templates/rentComps.js';
 import * as locationMap from './templates/locationMap.js';
+import * as driveTimePois from './templates/driveTimePois.js';
 import * as offeringProcedures from './templates/offeringProcedures.js';
 import * as team from './templates/team.js';
 import * as backCover from './templates/backCover.js';
@@ -26,6 +27,7 @@ const OM_CONTENT_SECTIONS = [
   { label: 'Sales Comparables', mod: salesComps },
   { label: 'Rent Comparables', mod: rentComps },
   { label: 'Location & Amenities', mod: locationMap },
+  { label: 'Drive Times & Points of Interest', mod: driveTimePois },
   { label: 'Offering Procedures', mod: offeringProcedures },
   { label: 'Meet the Team', mod: team },
 ];
@@ -72,6 +74,7 @@ function assembleMultiPageDocument(om, renderCtx, contentSections) {
   const sectionPages = [];
   for (const section of contentSections) {
     const pages = section.mod.buildPages(om, renderCtx);
+    if (!pages.length) continue; // e.g. Drive Times with zero POIs added -- no page, no TOC entry
     tocEntries.push({ label: section.label, startPage: runningPage + 1 });
     sectionPages.push(...pages);
     runningPage += pages.length;

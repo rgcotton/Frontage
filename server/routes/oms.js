@@ -6,9 +6,10 @@ import { upload, toFileRef, resolveDiskPath } from '../lib/upload.js';
 import { generatePdf } from '../lib/pdf/render.js';
 import { generatePptx } from '../lib/pptxGenerator.js';
 import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
-import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer } from '../lib/maps.js';
+import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer, recalculateDriveTimes } from '../lib/maps.js';
 import { getOwnerEmail } from '../lib/auth.js';
 import { extractFromPdfBuffer, extractFromText, fetchUrlContent, buildOmPatchFromExtraction } from '../lib/extraction.js';
+import { createSignature, isValidSignatureToken } from '../lib/nda.js';
 
 const router = express.Router();
 const GENERATED_DIR = path.join(process.cwd(), 'generated');
@@ -41,12 +42,42 @@ router.get('/:id', async (req, res) => {
   res.json(om);
 });
 
+// Public, unauthenticated: just enough to decide what the share page should render
+// (the NDA gate or the document) without ever leaking document content.
+router.get('/:id/share-info', async (req, res) => {
+  const om = await getOm(req.params.id);
+  if (!om) return res.status(404).json({ error: 'Not found' });
+  res.json({
+    propertyName: om.cover?.propertyName || 'Untitled Property',
+    requireNda: Boolean(om.sharing?.requireNda),
+    ndaText: om.sharing?.ndaText || '',
+  });
+});
+
+// Public, unauthenticated: anyone who signs gets a token tied to this document, which
+// /shared then accepts. Not real auth -- same unguessable-token bar as the rest of the app.
+router.post('/:id/nda/sign', async (req, res) => {
+  const om = await getOm(req.params.id);
+  if (!om) return res.status(404).json({ error: 'Not found' });
+  try {
+    const signature = createSignature(req.body?.name);
+    await updateOm(req.params.id, { ndaSignatures: [...(om.ndaSignatures || []), signature] });
+    res.json({ token: signature.token });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 // Public, unauthenticated view used by the shareable web link (SharePage / Flipbook).
 // Anyone with the link can view; the unguessable id is the only access control, same
-// as the existing /uploads and /generated static file serving.
+// as the existing /uploads and /generated static file serving -- unless the broker has
+// required an NDA, in which case a valid signature token is also required.
 router.get('/:id/shared', async (req, res) => {
   const om = await getOm(req.params.id);
   if (!om) return res.status(404).json({ error: 'Not found' });
+  if (om.sharing?.requireNda && !isValidSignatureToken(om, req.query.token)) {
+    return res.status(403).json({ error: 'An NDA signature is required to view this document.' });
+  }
   res.json(om);
 });
 
@@ -209,6 +240,19 @@ router.post('/:id/geocode', async (req, res) => {
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message });
   }
+});
+
+router.post('/:id/poi/recalculate', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  // The client may pass its current in-memory POI list, which can be ahead of what's
+  // persisted (e.g. recalculating right after an edit, before the debounced autosave
+  // lands) -- without this, recalculating against the stale persisted list would
+  // silently wipe out the user's unsaved edit.
+  const pois = req.body.pois || om.driveTimePois || [];
+  const driveTimePois = await recalculateDriveTimes(buildAddressString(om.cover), pois);
+  const updated = await updateOm(req.params.id, { driveTimePois });
+  res.json(updated);
 });
 
 // Public, unauthenticated: only ever fetched as an <img src> from the shareable

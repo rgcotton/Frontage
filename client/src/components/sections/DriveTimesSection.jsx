@@ -1,0 +1,120 @@
+import { useState } from 'react';
+import { api } from '../../api.js';
+
+let nextId = 1;
+function makeId() {
+  return `poi-${Date.now()}-${nextId++}`;
+}
+
+const CATEGORIES = ['Major Employer', 'Grocery Store', 'Hospital', 'Highway Access', 'School', 'Shopping Center', 'Other'];
+
+export default function DriveTimesSection({ value, onChange, omId, om, onUpdateOm }) {
+  const pois = value || [];
+  const [recalculating, setRecalculating] = useState(false);
+  const [error, setError] = useState(null);
+  const propertyAddress = [om?.cover?.addressLine1, om?.cover?.city, om?.cover?.state].filter(Boolean).join(', ');
+
+  function update(id, field, val) {
+    onChange(pois.map((p) => (p.id === id ? { ...p, [field]: val } : p)));
+  }
+
+  function addPoi() {
+    onChange([...pois, { id: makeId(), name: '', address: '', category: '', driveTimeMinutes: null }]);
+  }
+
+  function removePoi(id) {
+    onChange(pois.filter((p) => p.id !== id));
+  }
+
+  function move(index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= pois.length) return;
+    const next = [...pois];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  }
+
+  async function handleRecalculate() {
+    setRecalculating(true);
+    setError(null);
+    try {
+      const updated = await api.recalculateDriveTimes(omId, pois);
+      onUpdateOm({ driveTimePois: updated.driveTimePois });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRecalculating(false);
+    }
+  }
+
+  return (
+    <div className="section-form">
+      <h2>Drive Times &amp; Points of Interest</h2>
+      <p className="section-hint">
+        Add nearby places of interest -- drive times are calculated automatically from the property address
+        {propertyAddress ? ` (${propertyAddress})` : ''} once both addresses are present.
+      </p>
+
+      <button type="button" className="btn btn-ghost btn-sm" onClick={handleRecalculate} disabled={recalculating || !pois.length}>
+        {recalculating ? 'Recalculating…' : '↻ Recalculate All Drive Times'}
+      </button>
+      {error && (
+        <p className="field-hint" style={{ color: 'var(--danger)' }}>
+          {error}
+        </p>
+      )}
+
+      {pois.map((p, i) => (
+        <div className="repeat-card" key={p.id}>
+          <div className="repeat-card-header">
+            <span>
+              POI {i + 1}
+              {typeof p.driveTimeMinutes === 'number' ? ` -- ${p.driveTimeMinutes} min drive` : ''}
+            </span>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
+                ↑
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => move(i, 1)} disabled={i === pois.length - 1} aria-label="Move down">
+                ↓
+              </button>
+            </div>
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Name</label>
+              <input type="text" value={p.name} onChange={(e) => update(p.id, 'name', e.target.value)} placeholder="e.g. Walmart Supercenter" />
+            </div>
+            <div className="field">
+              <label>Category</label>
+              <select value={p.category} onChange={(e) => update(p.id, 'category', e.target.value)}>
+                <option value="">Select…</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="field">
+            <label>Address</label>
+            <input
+              type="text"
+              value={p.address}
+              onChange={(e) => update(p.id, 'address', e.target.value)}
+              onBlur={handleRecalculate}
+              placeholder="e.g. 123 Commerce Dr, Springfield, MO"
+            />
+          </div>
+          <button type="button" className="btn-danger-text" onClick={() => removePoi(p.id)}>
+            Remove
+          </button>
+        </div>
+      ))}
+      <button type="button" className="btn btn-ghost btn-sm add-row-btn" onClick={addPoi}>
+        + Add Point of Interest
+      </button>
+    </div>
+  );
+}

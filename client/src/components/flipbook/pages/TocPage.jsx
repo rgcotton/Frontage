@@ -6,6 +6,7 @@ const ENTRIES = [
   'Sales Comparables',
   'Rent Comparables',
   'Location & Amenities',
+  'Drive Times & Points of Interest',
   'Offering Procedures',
   'Meet the Team',
 ];

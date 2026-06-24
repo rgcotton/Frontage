@@ -108,6 +108,30 @@ test('tagline prompt includes the property details needed to write one', () => {
   assert.ok(user.includes('2500000') || user.includes('2,500,000'));
 });
 
+test('ndaAgreement prompt includes property address, broker name, brokerage name, and the current date', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Sunset Plaza';
+  om.cover.addressLine1 = '123 Main St';
+  om.cover.city = 'Tampa';
+  om.cover.state = 'FL';
+  om.cover.brokerageName = 'Cotton Commercial';
+  om.team = [{ id: 't1', name: 'Jane Broker', title: '', phone: '', email: '', bio: '', headshot: null }];
+  const { user } = buildPrompt('ndaAgreement', om, {});
+  assert.ok(user.includes('123 Main St'));
+  assert.ok(user.includes('Tampa'));
+  assert.ok(user.includes('Cotton Commercial'));
+  assert.ok(user.includes('Jane Broker'));
+  const today = new Date().getFullYear().toString();
+  assert.ok(user.includes(today), 'prompt should include the current date so the AI can reference it');
+});
+
+test('ndaAgreement system prompt asks for a concise, one-page, non-scary agreement', () => {
+  const om = emptyOm('test-id');
+  const { system } = buildPrompt('ndaAgreement', om, {});
+  assert.ok(/concise|brief|short/i.test(system), 'system prompt should ask for conciseness');
+  assert.ok(/confidential/i.test(system), 'system prompt should mention confidentiality');
+});
+
 test('custom instructions for an unrelated section are not appended', () => {
   const om = emptyOm('test-id');
   om.aiInstructions.market = 'This belongs to the market section, not executive summary.';

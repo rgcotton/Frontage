@@ -10,6 +10,7 @@ import FinancialsPage from './pages/FinancialsPage.jsx';
 import SalesCompsPage from './pages/SalesCompsPage.jsx';
 import RentCompsPage from './pages/RentCompsPage.jsx';
 import LocationMapPage from './pages/LocationMapPage.jsx';
+import DriveTimesPage from './pages/DriveTimesPage.jsx';
 import OfferingProceduresPage from './pages/OfferingProceduresPage.jsx';
 import TeamMemberPage from './pages/TeamMemberPage.jsx';
 import BackCoverPage from './pages/BackCoverPage.jsx';
@@ -27,6 +28,7 @@ export default function Flipbook({ om }) {
     ...((om.salesComps || []).length ? [{ key: 'salesComps', node: <SalesCompsPage om={om} /> }] : []),
     ...((om.rentComps || []).length ? [{ key: 'rentComps', node: <RentCompsPage om={om} /> }] : []),
     { key: 'locationMap', node: <LocationMapPage om={om} /> },
+    ...((om.driveTimePois || []).length ? [{ key: 'driveTimePois', node: <DriveTimesPage om={om} /> }] : []),
     { key: 'offeringProcedures', node: <OfferingProceduresPage om={om} /> },
     ...(om.team || []).map((m) => ({ key: `team-${m.id}`, node: <TeamMemberPage member={m} /> })),
     { key: 'backCover', node: <BackCoverPage om={om} /> },

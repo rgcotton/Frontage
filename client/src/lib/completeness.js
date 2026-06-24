@@ -13,6 +13,7 @@ export function computeCompleteness(om) {
     salesComps: (om.salesComps || []).length > 0,
     rentComps: (om.rentComps || []).length > 0,
     locationMap: Boolean(om.cover.addressLine1),
+    driveTimePois: (om.driveTimePois || []).length > 0,
     offeringProcedures: Boolean(om.offeringProcedures.loiInstructions || om.offeringProcedures.tourInstructions),
     team: (om.team || []).length > 0,
     valuation: Boolean(om.valuation?.methodologyNarrative || om.valuation?.concludedValue),

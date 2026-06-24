@@ -1127,6 +1127,66 @@ select {
   color: var(--gray-500);
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--charcoal);
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.nda-settings {
+  margin-bottom: 14px;
+}
+
+.nda-settings-detail {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+}
+
+.nda-settings-detail textarea {
+  width: 100%;
+  font-size: 12.5px;
+  line-height: 1.6;
+  padding: 9px 11px;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.nda-signatures {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.nda-signatures h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.nda-signature-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--gray-200);
+}
+
+.nda-signature-time {
+  color: var(--gray-500);
+  flex-shrink: 0;
+}
+
 .checklist {
   margin-top: 18px;
   padding-top: 18px;
@@ -1238,6 +1298,63 @@ select {
   justify-content: center;
   min-height: 60vh;
   color: var(--gray-500);
+}
+
+/* ---------- NDA gate (shareable web link) ---------- */
+
+.nda-gate-shell {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--dash-bg) 0%, #0c1830 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.nda-gate-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 36px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+}
+
+.nda-gate-card h2 {
+  font-size: 21px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.nda-gate-subtitle {
+  color: var(--gray-500);
+  font-size: 13.5px;
+  margin-bottom: 16px;
+}
+
+.nda-gate-disclaimer {
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 11.5px;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.nda-gate-text {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 16px;
+  max-height: 280px;
+  overflow-y: auto;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--charcoal);
+  white-space: pre-wrap;
+  margin-bottom: 16px;
 }
 
 /* ---------- Flipbook (shareable web link) ---------- */
