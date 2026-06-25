@@ -8,7 +8,7 @@ const STATS_H = 1.15;
 const BOTTOM_TOP = STATS_TOP + STATS_H;
 const FOOTER_H = 0.45;
 const FOOTER_TOP = 11 - FOOTER_H;
-const LEFT_COL_W_PCT = 55;
+const LEFT_COL_W_PCT = 72;
 const MAX_POIS = 4;
 
 // One consistent type scale used everywhere on this page, instead of ad-hoc
@@ -41,12 +41,15 @@ function pinIcon(accentColor) {
 }
 
 export function buildPages(om, ctx) {
+  console.log('[onePager] LEFT_COL_W_PCT =', LEFT_COL_W_PCT);
   const theme = ctx.theme || buildTheme(om.branding);
   const { cover, overview, executiveSummary, team } = om;
   const addressLine = [cover.formattedAddress || cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip]
     .filter(Boolean)
     .join(', ');
-  const highlights = (executiveSummary.highlights || []).filter(Boolean).slice(0, 4);
+  const highlights = cover.onePagerHighlights
+    ? cover.onePagerHighlights.split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 4)
+    : (executiveSummary.highlights || []).filter(Boolean).slice(0, 4);
   const pois = (om.driveTimePois || []).slice(0, MAX_POIS);
   const primary = (team || [])[0];
   const headshotUri = toDataUri(om.id, primary?.headshot);
@@ -79,11 +82,11 @@ export function buildPages(om, ctx) {
   const highlightsHtml = highlightItems.length
     ? highlightItems
         .map(
-          ({ headline, support }, i) => `<div style="display:flex; gap:9px; align-items:flex-start; padding:6px 0; ${i < highlightItems.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
+          ({ headline, support }, i) => `<div style="display:flex; gap:9px; align-items:flex-start; padding:3px 0; ${i < highlightItems.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
             ${checkBadge(theme.accentColor)}
             <div>
-              <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.primaryColor}; line-height:1.25;">${esc(headline)}</div>
-              ${support ? `<div style="font-size:${TYPE.small}; color:${theme.mutedColor}; line-height:1.3; margin-top:1px;">${esc(support)}</div>` : ''}
+              <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.primaryColor}; line-height:1.2;">${esc(headline)}</div>
+              ${support ? `<div style="font-size:${TYPE.small}; color:${theme.mutedColor}; line-height:1.25; margin-top:1px;">${esc(support)}</div>` : ''}
             </div>
           </div>`
         )
@@ -93,7 +96,7 @@ export function buildPages(om, ctx) {
   const poisHtml = pois.length
     ? pois
         .map(
-          (p, i) => `<div style="display:flex; align-items:center; gap:8px; padding:6px 0; ${i < pois.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
+          (p, i) => `<div style="display:flex; align-items:center; gap:8px; padding:3px 0; ${i < pois.length - 1 ? `border-bottom:1px solid ${theme.cardBorder};` : ''}">
             ${pinIcon(theme.accentColor)}
             <div style="flex:1; font-size:${TYPE.label}; font-weight:600; color:${theme.textColor};">${esc(p.name)}</div>
             <div style="font-size:${TYPE.label}; font-weight:700; color:${theme.accentColor}; white-space:nowrap;">${typeof p.driveTimeMinutes === 'number' ? `${p.driveTimeMinutes} min` : ''}</div>
@@ -112,15 +115,15 @@ export function buildPages(om, ctx) {
     : '';
 
   const highlightsCard = highlightsHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:1; min-height:0; padding:0.2in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
-      <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:8px;">Investment Highlights</div>
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.14in 0.2in; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:5px;">Investment Highlights</div>
       ${highlightsHtml}
     </div>`
     : '';
 
   const driveTimesCard = poisHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.18in 0.26in; display:flex; flex-direction:column;">
-      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.14in 0.2in; display:flex; flex-direction:column;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
         <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase;">Drive Times</div>
         <div style="font-size:${TYPE.micro}; color:${theme.mutedColor}; text-transform:uppercase; letter-spacing:0.4px;">From Property</div>
       </div>
@@ -128,25 +131,32 @@ export function buildPages(om, ctx) {
     </div>`
     : '';
 
-  const brokerCardInner = `
+  const dealSummaryCard = cover.onePagerDealSummary
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.14in 0.2in; display:flex; flex-direction:column;">
+      <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:5px;">Deal Summary</div>
+      <div style="font-size:${TYPE.base}; color:${theme.textColor}; line-height:1.45;">${esc(cover.onePagerDealSummary)}</div>
+    </div>`
+    : '';
+
+const brokerCardInner = `
     ${(() => {
       if (headshotUri) {
-        return `<img src="${headshotUri}" style="width:1.5in; height:1.5in; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`;
+        return `<img src="${headshotUri}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid ${theme.accentColor};" />`;
       }
       const initials = primary?.name
         ? primary.name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('')
         : '';
       if (!initials) return '';
-      return `<div style="width:1.5in; height:1.5in; border-radius:50%; background:${theme.primaryColor}; border:3px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#fff; letter-spacing:1px;">${initials}</div>`;
+      return `<div style="width:48px; height:48px; border-radius:50%; background:${theme.primaryColor}; border:2px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:#fff; letter-spacing:1px;">${initials}</div>`;
     })()}
-    ${primary?.name ? `<div style="font-size:${TYPE.name}; font-weight:700; color:#fff; margin-top:18px;">${esc(primary.name)}</div>` : ''}
-    ${primary?.title ? `<div style="font-size:${TYPE.label}; color:${theme.accentColor}; margin-top:5px; font-weight:600;">${esc(primary.title)}</div>` : ''}
-    <div style="width:36px; height:1px; background:rgba(255,255,255,0.25); margin:16px 0;"></div>
-    <div style="font-size:${TYPE.small}; color:#fff; line-height:1.7;">
+    ${primary?.name ? `<div style="font-size:${TYPE.base}; font-weight:700; color:#fff; margin-top:8px;">${esc(primary.name)}</div>` : ''}
+    ${primary?.title ? `<div style="font-size:${TYPE.small}; color:${theme.accentColor}; margin-top:2px; font-weight:600;">${esc(primary.title)}</div>` : ''}
+    <div style="width:28px; height:1px; background:rgba(255,255,255,0.25); margin:8px 0;"></div>
+    <div style="font-size:${TYPE.micro}; color:#fff; line-height:1.6;">
       ${primary?.phone ? `<div>${esc(primary.phone)}</div>` : ''}
       ${primary?.email ? `<div>${esc(primary.email)}</div>` : ''}
     </div>
-    ${hasLogo ? `<div style="margin-top:0.28in;">${logoBlock}</div>` : ''}
+    ${hasLogo ? `<div style="margin-top:0.15in;">${logoBlock}</div>` : ''}
   `;
 
   const inner = `
@@ -166,12 +176,13 @@ export function buildPages(om, ctx) {
         : ''
     }
 
-    <div style="position:absolute; left:0; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; display:flex; flex-direction:row;">
-      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.16in; padding:0.4in;">
+    <div style="position:absolute; left:0; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; display:flex; flex-direction:row; overflow:hidden;">
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.1in; padding:0.25in;">
+        ${dealSummaryCard}
         ${highlightsCard}
         ${driveTimesCard}
       </div>
-      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; align-self:flex-start; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.4in 0.35in; box-sizing:border-box;">
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; height:100%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.2in; box-sizing:border-box;">
         ${brokerCardInner}
       </div>
     </div>

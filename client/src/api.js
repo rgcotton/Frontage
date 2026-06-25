@@ -71,7 +71,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(extra),
     }),
-  generateAllAi: (id) => request(`/api/oms/${id}/ai/generate-all`, { method: 'POST' }),
+  generateAllAi: (id, aiInstructions) =>
+    request(`/api/oms/${id}/ai/generate-all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(aiInstructions ? { liveAiInstructions: aiInstructions } : {}),
+    }),
   geocodeAddress: (id) => request(`/api/oms/${id}/geocode`, { method: 'POST' }),
   recalculateDriveTimes: (id, pois) =>
     request(`/api/oms/${id}/poi/recalculate`, {

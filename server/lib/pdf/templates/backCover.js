@@ -14,7 +14,7 @@ export function buildPages(om, ctx) {
     : [];
 
   const inner = `
-    <div style="position:absolute; inset:0; background:linear-gradient(160deg, ${theme.primaryColor} 0%, #0c1830 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0 1in; text-align:center;">
+    <div style="position:absolute; inset:0; background:linear-gradient(160deg, ${theme.primaryColor} 0%, #0c1830 100%); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:22px; padding:1.8in 1in 0.5in; text-align:center;">
       ${logoBlock}
       <div style="width:48px; height:2px; background:${theme.accentColor};"></div>
       ${

@@ -4,7 +4,7 @@ import { esc, formatNumber, formatPercent, formatCurrency, filterStats } from '.
 function statGrid(rawRows, cols, valueFontSize) {
   const rows = filterStats(rawRows);
   if (!rows.length) return '';
-  return `<div class="stat-grid" style="--cols:${cols}; margin-bottom:18px;">
+  return `<div class="stat-grid" style="--cols:${cols}; margin-bottom:13px;">
       ${rows.map(([label, value]) => `<div class="stat-box"><div class="label">${esc(label)}</div><div class="value" style="font-size:${valueFontSize}px;">${esc(value)}</div></div>`).join('')}
     </div>`;
 }
@@ -38,7 +38,7 @@ export function buildPages(om, ctx) {
     <div class="section-title">Market Overview</div>
     ${market.marketName ? `<div class="section-subtitle">${esc(market.marketName)}</div>` : ''}
     <div class="gold-rule"></div>
-    ${market.narrative ? `<div class="narrative" style="margin-bottom:18px;">${esc(market.narrative)}</div>` : ''}
+    ${market.narrative ? `<div class="narrative" style="margin-bottom:13px;">${esc(market.narrative)}</div>` : ''}
     ${demoHtml ? `<div class="subhead" style="margin-top:0;">Demographics</div>${demoHtml}` : ''}
     ${trendsHtml ? `<div class="subhead">Submarket Trends</div>${trendsHtml}` : ''}
   `;

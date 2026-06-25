@@ -204,7 +204,7 @@ router.post('/:id/generate', async (req, res) => {
 const DOC_TYPE_AUTO_KINDS = {
   om: ['propertyDescription', 'executiveSummaryNarrative', 'investmentHighlights', 'marketNarrative', 'tagline'],
   bov: ['propertyDescription', 'valuationMethodologyNarrative', 'brokerRecommendationNarrative'],
-  onePager: ['propertyDescription', 'tagline'],
+  onePager: ['propertyDescription', 'tagline', 'onePagerHighlights', 'onePagerDealSummary'],
 };
 
 function applyGeneratedResults(om, results) {
@@ -231,6 +231,14 @@ function applyGeneratedResults(om, results) {
         if (!patch.cover) patch.cover = { ...om.cover };
         patch.cover.tagline = result;
         break;
+      case 'onePagerHighlights':
+        if (!patch.cover) patch.cover = { ...om.cover };
+        patch.cover.onePagerHighlights = result;
+        break;
+case 'onePagerDealSummary':
+        if (!patch.cover) patch.cover = { ...om.cover };
+        patch.cover.onePagerDealSummary = result;
+        break;
       case 'valuationMethodologyNarrative':
         if (!patch.valuation) patch.valuation = { ...om.valuation };
         patch.valuation.methodologyNarrative = result;
@@ -252,8 +260,9 @@ router.post('/:id/ai/generate-all', async (req, res) => {
   if (!om) return;
   const kinds = DOC_TYPE_AUTO_KINDS[om.docType || 'om'] || DOC_TYPE_AUTO_KINDS.om;
   try {
+    const extra = req.body && req.body.liveAiInstructions ? { liveAiInstructions: req.body.liveAiInstructions } : {};
     const settled = await Promise.allSettled(
-      kinds.map((kind) => generateAiContent(kind, om).then((result) => [kind, result]))
+      kinds.map((kind) => generateAiContent(kind, om, extra).then((result) => [kind, result]))
     );
     const fulfilled = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
     if (!fulfilled.length) return res.status(502).json({ error: 'All AI generation calls failed' });

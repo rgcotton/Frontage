@@ -27,7 +27,7 @@ export function buildPages(om, ctx) {
   if (!stats.length && !overview.description && !photos.length) return [];
 
   const photoGridHtml = photos.length
-    ? `<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;">
+    ? `<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:11px;">
         ${photos.map((p) => `<img src="${p}" style="width:100%; height:1.35in; object-fit:cover; border-radius:5px;" />`).join('')}
       </div>`
     : '';
@@ -39,7 +39,7 @@ export function buildPages(om, ctx) {
     ${photoGridHtml}
     ${
       stats.length
-        ? `<div class="stat-grid" style="--cols:${cols}; margin-bottom:16px;">
+        ? `<div class="stat-grid" style="--cols:${cols}; margin-bottom:11px;">
       ${stats.map(([label, value]) => `<div class="stat-box"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div></div>`).join('')}
     </div>`
         : ''

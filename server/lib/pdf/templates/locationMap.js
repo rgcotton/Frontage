@@ -1,4 +1,4 @@
-import { pageShell, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, buildTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 function mapBlock(uri, height, cardBorder) {
@@ -31,5 +31,5 @@ export function buildPages(om, ctx) {
     ${streetBlock}
     ${regionalBlock}
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

@@ -1,4 +1,4 @@
-import { pageShell, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, buildTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
@@ -7,32 +7,42 @@ export function buildPages(om, ctx) {
   const team = om.team || [];
   const cover = om.cover;
   if (!team.length) return [];
-  return team.map((m, i) => {
-    const headshotUri = toDataUri(om.id, m.headshot);
-    const inner = `
-      ${headerBar(cover.propertyName, 'Meet the Team', i > 0)}
-      <div class="section-title">Meet the Team</div>
-      <div class="gold-rule"></div>
-      <div style="display:flex; flex:1; min-height:0; border-radius:8px; overflow:hidden; border:1px solid ${theme.cardBorder};">
-        <div style="flex:0 0 40%; position:relative;">
-          ${
-            headshotUri
-              ? `<img src="${headshotUri}" style="width:100%; height:100%; object-fit:cover; display:block;" />`
-              : `<div style="width:100%; height:100%; background:${theme.statBoxBg};"></div>`
-          }
-          <div style="position:absolute; left:0; top:0; bottom:0; width:6px; background:${theme.accentColor};"></div>
-        </div>
-        <div style="flex:1; padding:26px 28px; display:flex; flex-direction:column;">
+
+  const cards = team
+    .map((m, i) => {
+      const headshotUri = toDataUri(om.id, m.headshot);
+      const marginStyle = i < team.length - 1 ? 'margin-bottom:0.18in;' : '';
+      const textContent = `
+        <div style="flex:1; padding:18px 20px; display:flex; flex-direction:column;">
           ${m.name ? `<div style="font-size:22px; font-weight:700; color:${theme.primaryColor};">${esc(m.name)}</div>` : ''}
-          ${m.title ? `<div style="font-size:13px; color:${theme.mutedColor}; margin-bottom:14px;">${esc(m.title)}</div>` : ''}
-          <div style="display:flex; gap:18px; font-size:10.5px; color:${theme.textColor}; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid ${theme.cardBorder};">
+          ${m.title ? `<div style="font-size:13px; color:${theme.mutedColor}; margin-bottom:10px;">${esc(m.title)}</div>` : ''}
+          <div style="display:flex; gap:13px; font-size:10.5px; color:${theme.textColor}; margin-bottom:13px; padding-bottom:10px; border-bottom:1px solid ${theme.cardBorder};">
             ${m.phone ? `<span>${esc(m.phone)}</span>` : ''}
             ${m.email ? `<span>${esc(m.email)}</span>` : ''}
           </div>
-          ${m.bio ? `<div class="narrative" style="flex:1; overflow:hidden;">${esc(m.bio)}</div>` : ''}
-        </div>
-      </div>
-    `;
-    return pageShell(inner);
-  });
+          ${m.bio ? `<div class="narrative">${esc(m.bio)}</div>` : ''}
+        </div>`;
+
+      if (headshotUri) {
+        return `<div style="display:flex; min-height:3.2in; border-radius:8px; overflow:hidden; border:1px solid ${theme.cardBorder}; ${marginStyle} break-inside:avoid; page-break-inside:avoid;">
+          <div style="flex:0 0 40%; position:relative;">
+            <img src="${headshotUri}" style="width:100%; height:100%; object-fit:cover; display:block;" />
+            <div style="position:absolute; left:0; top:0; bottom:0; width:6px; background:${theme.accentColor};"></div>
+          </div>
+          ${textContent}
+        </div>`;
+      }
+      return `<div style="display:flex; border-radius:8px; overflow:hidden; border:1px solid ${theme.cardBorder}; border-left:6px solid ${theme.accentColor}; ${marginStyle} break-inside:avoid; page-break-inside:avoid;">
+        ${textContent}
+      </div>`;
+    })
+    .join('');
+
+  const inner = `
+    ${headerBar(cover.propertyName, 'Meet the Team')}
+    <div class="section-title">Meet the Team</div>
+    <div class="gold-rule"></div>
+    ${cards}
+  `;
+  return [flowSection(inner, true)];
 }

@@ -72,7 +72,7 @@ html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${
 .pdf-page-content {
   position: absolute;
   inset: 0;
-  padding: 0.55in 0.6in 0.55in;
+  padding: 0.38in 0.42in 0.38in;
   display: flex;
   flex-direction: column;
 }
@@ -80,21 +80,21 @@ html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${
   position: absolute;
   left: 0.6in;
   right: 0.6in;
-  bottom: 0.32in;
+  bottom: 0.22in;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   font-size: 8px;
   color: ${t.mutedColor};
   border-top: 1px solid ${t.cardBorder};
-  padding-top: 6px;
+  padding-top: 4px;
   letter-spacing: 0.2px;
 }
 .pdf-header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 13px;
   flex-shrink: 0;
 }
 .pdf-header-bar .prop-name {
@@ -102,7 +102,7 @@ html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${
   font-weight: 700;
   color: #fff;
   background: ${t.primaryColor};
-  padding: 7px 14px;
+  padding: 5px 10px;
   border-radius: 3px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -114,52 +114,52 @@ html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }
-.section-title { font-size: ${t.titleSize}; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 6px; }
-.section-subtitle { font-size: 12px; color: ${t.mutedColor}; margin-bottom: 14px; }
-.gold-rule { width: 54px; height: 3px; background: ${t.accentColor}; margin-bottom: 16px; flex-shrink: 0; }
-.stat-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 12px; }
-.stat-box { background: ${t.statBoxBg}; border-radius: 6px; padding: 13px 15px; }
-.stat-box .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.4px; color: ${t.mutedColor}; margin-bottom: 6px; }
+.section-title { font-size: ${t.titleSize}; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 4px; }
+.section-subtitle { font-size: 12px; color: ${t.mutedColor}; margin-bottom: 10px; }
+.gold-rule { width: 54px; height: 3px; background: ${t.accentColor}; margin-bottom: 11px; flex-shrink: 0; }
+.stat-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; }
+.stat-box { background: ${t.statBoxBg}; border-radius: 6px; padding: 9px 11px; }
+.stat-box .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.4px; color: ${t.mutedColor}; margin-bottom: 4px; }
 .stat-box .value { font-size: 17px; font-weight: 700; color: ${t.primaryColor}; line-height: 1.2; }
 table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
 table.pdf-table th {
   background: ${t.primaryColor};
   color: #fff;
   text-align: left;
-  padding: 7px 9px;
+  padding: 5px 6px;
   font-size: 8.5px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   font-weight: 700;
 }
-table.pdf-table td { padding: 6px 9px; border-bottom: 1px solid ${t.cardBorder}; color: ${t.textColor}; }
+table.pdf-table td { padding: 4px 6px; border-bottom: 1px solid ${t.cardBorder}; color: ${t.textColor}; }
 table.pdf-table tr:nth-child(even) td { background: ${t.tableStripe}; }
 table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; border-top: 2px solid ${t.primaryColor}; background: ${t.totalRowBg}; }
-.card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .comp-card { border: 1px solid ${t.cardBorder}; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-.comp-card .photo { width: 100%; height: 1.15in; object-fit: cover; background: ${t.statBoxBg}; display: block; }
-.comp-card .photo-placeholder { width: 100%; height: 1.15in; background: ${t.statBoxBg}; }
-.comp-card .body { padding: 11px 13px; flex: 1; }
-.comp-card .body .addr { font-weight: 700; color: ${t.primaryColor}; font-size: 11.5px; margin-bottom: 8px; }
-.comp-card .field-row { display: flex; justify-content: space-between; font-size: 9.5px; padding: 3px 0; border-bottom: 1px dashed ${t.cardBorder}; }
+.comp-card .photo { width: 100%; height: 0.8in; object-fit: cover; background: ${t.statBoxBg}; display: block; }
+.comp-card .photo-placeholder { width: 100%; height: 0.8in; background: ${t.statBoxBg}; }
+.comp-card .body { padding: 8px 9px; flex: 1; }
+.comp-card .body .addr { font-weight: 700; color: ${t.primaryColor}; font-size: 11.5px; margin-bottom: 6px; }
+.comp-card .field-row { display: flex; justify-content: space-between; font-size: 9.5px; padding: 2px 0; border-bottom: 1px dashed ${t.cardBorder}; }
 .comp-card .field-row .l { color: ${t.mutedColor}; }
 .comp-card .field-row .v { font-weight: 600; color: ${t.textColor}; text-align: right; }
-.comp-card .notes { font-size: 9px; color: ${t.mutedColor}; margin-top: 8px; font-style: italic; }
-.two-col { display: flex; gap: 24px; flex: 1; min-height: 0; }
+.comp-card .notes { font-size: 9px; color: ${t.mutedColor}; margin-top: 6px; font-style: italic; }
+.two-col { display: flex; gap: 17px; flex: 1; min-height: 0; }
 .two-col .col { flex: 1; min-width: 0; }
 .bullet-list { list-style: none; }
-.bullet-list li { position: relative; padding-left: 16px; font-size: 10.5px; line-height: 1.5; margin-bottom: 8px; color: ${t.textColor}; }
+.bullet-list li { position: relative; padding-left: 16px; font-size: 10.5px; line-height: 1.5; margin-bottom: 6px; color: ${t.textColor}; }
 .bullet-list li::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: ${t.accentColor}; }
 .narrative { font-size: 10.5px; line-height: 1.6; color: ${t.textColor}; white-space: pre-wrap; }
-.subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 8px; margin-top: 16px; }
+.subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 6px; margin-top: 11px; }
 .pdf-link { color: inherit; text-decoration: underline; text-decoration-color: currentColor; }
 .pdf-flow-body {
   width: 8.5in;
-  padding: 0.55in 0.6in 0.4in;
+  padding: 0.38in 0.42in 0.28in;
   background: ${t.pageBg};
 }
 .pdf-flow-section {
-  margin-bottom: 0.25in;
+  margin-bottom: 0.18in;
 }
 .pdf-flow-section .pdf-header-bar {
   break-after: avoid;
@@ -192,8 +192,9 @@ export function pageShell(innerHtml, extraClass = '') {
   return `<section class="pdf-page ${extraClass}"><div class="pdf-page-content">${innerHtml}</div></section>`;
 }
 
-export function flowSection(innerHtml) {
-  return `<div class="pdf-flow-section">${innerHtml}</div>`;
+export function flowSection(innerHtml, breakBefore = false) {
+  const style = breakBefore ? ' style="break-before:page; page-break-before:always;"' : '';
+  return `<div class="pdf-flow-section"${style}>${innerHtml}</div>`;
 }
 
 export function headerBar(propertyName, sectionLabel, continued = false) {

@@ -164,6 +164,7 @@ function mergeWithDefaults(om) {
 }
 
 export async function listOms(ownerEmail = null) {
+  if (ownerEmail === null) return [];
   await ensureDataDir();
   const entries = await fs.readdir(DATA_DIR);
   const oms = await Promise.all(

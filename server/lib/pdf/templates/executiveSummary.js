@@ -18,7 +18,7 @@ export function buildPages(om, ctx) {
     <div class="section-title">Executive Summary</div>
     <div class="gold-rule"></div>
     <div class="two-col">
-      <div class="col" style="flex:0 0 2.1in; display:flex; flex-direction:column; gap:14px;">
+      <div class="col" style="flex:0 0 2.1in; display:flex; flex-direction:column; gap:10px;">
         ${stats.map(([label, value]) => bigStat(label, value, theme)).join('')}
       </div>
       <div class="col">
@@ -36,8 +36,8 @@ export function buildPages(om, ctx) {
 }
 
 function bigStat(label, value, theme) {
-  return `<div style="background:${theme.primaryColor}; border-radius:8px; padding:20px 18px; border-left:4px solid ${theme.accentColor};">
-    <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.65); margin-bottom:8px;">${esc(label)}</div>
+  return `<div style="background:${theme.primaryColor}; border-radius:8px; padding:14px 13px; border-left:4px solid ${theme.accentColor};">
+    <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.65); margin-bottom:6px;">${esc(label)}</div>
     <div style="font-size:24px; font-weight:700; color:#fff;">${value}</div>
   </div>`;
 }

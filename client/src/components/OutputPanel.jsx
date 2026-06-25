@@ -15,6 +15,27 @@ export default function OutputPanel({ om, onUpdateOm }) {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState(null);
+
+  async function handleGenerateAndPreview() {
+    setPreviewing(true);
+    setPreviewError(null);
+    // Open blank tab immediately (in the user gesture) to avoid popup blockers
+    const win = window.open('', '_blank');
+    try {
+      const updated = await api.generateAllAi(om.id, om.aiInstructions);
+      onUpdateOm(updated);
+      const res = await api.generate(om.id, 'pdf');
+      if (win) win.location.href = res.downloadUrl;
+      else window.open(res.downloadUrl, '_blank');
+    } catch (err) {
+      if (win) win.close();
+      setPreviewError(err.message);
+    } finally {
+      setPreviewing(false);
+    }
+  }
 
   async function handleGenerate() {
     setGenerating(true);
@@ -43,6 +64,22 @@ export default function OutputPanel({ om, onUpdateOm }) {
     <aside className="editor-aside">
       <div className="output-panel">
         <h3>Generate Offering</h3>
+
+        {om.docType === 'onePager' && (
+          <div style={{ marginBottom: 16 }}>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+              onClick={handleGenerateAndPreview}
+              disabled={previewing || generating}
+            >
+              {previewing ? 'Generating…' : '✨ Generate & Preview'}
+            </button>
+            {previewError && (
+              <div className="output-result" style={{ color: '#b3261e', marginTop: 8 }}>{previewError}</div>
+            )}
+          </div>
+        )}
 
         <div className="field">
           <label>Output Format</label>

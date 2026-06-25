@@ -25,13 +25,13 @@ const OM_CONTENT_SECTIONS = [
   { label: 'Property Overview', mod: overview, flow: true },
   { label: 'Executive Summary', mod: executiveSummary, flow: true },
   { label: 'Market Overview', mod: market, flow: true },
-  { label: 'Financials', mod: financials },
-  { label: 'Sales Comparables', mod: salesComps },
-  { label: 'Rent Comparables', mod: rentComps },
-  { label: 'Location & Amenities', mod: locationMap },
+  { label: 'Financials', mod: financials, flow: true },
+  { label: 'Sales Comparables', mod: salesComps, flow: true },
+  { label: 'Rent Comparables', mod: rentComps, flow: true },
+  { label: 'Location & Amenities', mod: locationMap, flow: true },
   { label: 'Drive Times & Points of Interest', mod: driveTimePois, flow: true },
   { label: 'Offering Procedures', mod: offeringProcedures, flow: true },
-  { label: 'Meet the Team', mod: team },
+  { label: 'Meet the Team', mod: team, flow: true },
 ];
 
 const BOV_CONTENT_SECTIONS = [
@@ -128,6 +128,9 @@ export async function generatePdf(om, outputPath, ctxOverrides = {}) {
   const docType = om.docType || 'om';
   let bodyHtml;
   if (docType === 'onePager') {
+    console.log('[render] brokerLogo raw:', JSON.stringify(om.cover.brokerLogo));
+    console.log('[render] brokerLogoUri length:', renderCtx.brokerLogoUri?.length ?? 'null');
+    console.log('[render] hasLogo:', Boolean(renderCtx.brokerLogoUri));
     bodyHtml = onePager.buildPages(om, renderCtx).join('\n');
   } else if (docType === 'bov') {
     bodyHtml = assembleMultiPageDocument(om, renderCtx, BOV_CONTENT_SECTIONS);

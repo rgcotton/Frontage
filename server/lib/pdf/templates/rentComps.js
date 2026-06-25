@@ -1,4 +1,4 @@
-import { pageShell, headerBar } from './layout.js';
+import { flowSection, headerBar } from './layout.js';
 import { esc, escOrDash, formatNumber } from '../helpers/format.js';
 import { googleMapsSearchUrl } from '../../maps.js';
 
@@ -18,20 +18,15 @@ function fieldRows(rows) {
     .join('');
 }
 
-const COMPS_PER_PAGE = 4;
-
 export function buildPages(om, ctx) {
   const comps = om.rentComps || [];
   const cover = om.cover;
   if (!comps.length) return [];
-  const pages = [];
-  for (let i = 0; i < comps.length; i += COMPS_PER_PAGE) {
-    const slice = comps.slice(i, i + COMPS_PER_PAGE);
-    const isFirst = i === 0;
-    const cards = slice
-      .map(
-        (c) => `<div class="comp-card">
-      <div class="body" style="padding-top:14px;">
+
+  const cards = comps
+    .map(
+      (c) => `<div class="comp-card">
+      <div class="body" style="padding-top:10px;">
         <div class="addr">${addressLink(c.address)}</div>
         ${fieldRows([
           ['Tenant', c.tenant],
@@ -42,15 +37,14 @@ export function buildPages(om, ctx) {
         ])}
       </div>
     </div>`
-      )
-      .join('');
-    const inner = `
-      ${headerBar(cover.propertyName, 'Rent Comparables', !isFirst)}
-      <div class="section-title">Rent Comparables</div>
-      <div class="gold-rule"></div>
-      <div class="card-grid">${cards}</div>
-    `;
-    pages.push(pageShell(inner));
-  }
-  return pages;
+    )
+    .join('');
+
+  const inner = `
+    ${headerBar(cover.propertyName, 'Rent Comparables')}
+    <div class="section-title">Rent Comparables</div>
+    <div class="gold-rule"></div>
+    <div class="card-grid">${cards}</div>
+  `;
+  return [flowSection(inner)];
 }

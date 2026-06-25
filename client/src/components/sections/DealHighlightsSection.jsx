@@ -8,6 +8,10 @@ export default function DealHighlightsSection({ omId, om, onUpdateOm }) {
   const executiveSummary = om.executiveSummary || {};
   const highlights = executiveSummary.highlights || [];
 
+  function setCover(field, val) {
+    onUpdateOm({ cover: { ...om.cover, [field]: val } });
+  }
+
   function set(field, val) {
     onUpdateOm({ executiveSummary: { ...om.executiveSummary, [field]: val } });
     clearAutofilled(om, onUpdateOm, `executiveSummary.${field}`);
@@ -83,6 +87,48 @@ export default function DealHighlightsSection({ omId, om, onUpdateOm }) {
       <button type="button" className="btn btn-ghost btn-sm add-row-btn" onClick={addHighlight}>
         + Add Highlight
       </button>
+
+      <hr className="divider" />
+
+      <div className="field-label-row" style={{ marginBottom: 8 }}>
+        <div className="subsection-title" style={{ marginBottom: 0 }}>Deal Summary</div>
+        <AiGenerateButton
+          omId={omId}
+          kind="onePagerDealSummary"
+          om={om}
+          onResult={(result) => setCover('onePagerDealSummary', result)}
+          label="Generate Deal Summary"
+        />
+      </div>
+      <div className="field">
+        <p className="section-hint" style={{ marginTop: 0 }}>2–3 sentences leading with what makes this deal unique. Shown on the One Pager above the highlights.</p>
+        <textarea
+          rows={3}
+          value={om.cover?.onePagerDealSummary || ''}
+          onChange={(e) => setCover('onePagerDealSummary', e.target.value)}
+          placeholder="e.g. Westside Plaza delivers day-one cash flow from a 100% NNN-leased strip center at one of Overland Park's busiest signalized corners."
+        />
+      </div>
+
+      <div className="field-label-row" style={{ marginBottom: 8 }}>
+        <div className="subsection-title" style={{ marginBottom: 0 }}>One Pager Highlights</div>
+        <AiGenerateButton
+          omId={omId}
+          kind="onePagerHighlights"
+          om={om}
+          onResult={(result) => setCover('onePagerHighlights', result)}
+          label="Generate Highlights"
+        />
+      </div>
+      <div className="field">
+        <p className="section-hint" style={{ marginTop: 0 }}>4 bullet points, one per line. Overrides the Investment Highlights list above when set. Leave blank to use the list above.</p>
+        <textarea
+          rows={5}
+          value={om.cover?.onePagerHighlights || ''}
+          onChange={(e) => setCover('onePagerHighlights', e.target.value)}
+          placeholder={"100% occupied with NNN leases, zero landlord exposure\nSignalized corner location with 42,000 VPD traffic count\nStaggered lease expirations reduce rollover risk\nStrong in-place NOI with 5.75% cap rate"}
+        />
+      </div>
     </div>
   );
 }

@@ -33,7 +33,7 @@ test('listOms only returns documents owned by the requested ownerEmail', async (
   assert.equal(janes.length, 1);
 
   const signedOut = await store.listOms(null);
-  assert.equal(signedOut.length, 1);
+  assert.equal(signedOut.length, 0);
 
   const bobs = await store.listOms('bob@example.com');
   assert.equal(bobs.length, 1);

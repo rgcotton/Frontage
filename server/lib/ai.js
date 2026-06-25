@@ -167,6 +167,42 @@ Year Built: ${fmt(overview.yearBuilt)}
 Existing Description: ${fmt(overview.description)}`,
     };
   },
+  onePagerHighlights(om) {
+    const { cover, overview, executiveSummary } = om;
+    return {
+      system: `You are a CRE marketing copywriter writing investment highlights for a One Pager. Return exactly 4 bullet points, each one sentence, no bullet characters, just newline-separated lines. Lead each with the strongest selling point. No markdown, no headers. ${STYLE_RULES}`,
+      user: `Write 4 investment highlights for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Offering Price: ${fmt(executiveSummary.offeringPrice)}
+Cap Rate: ${fmt(executiveSummary.capRate)}
+NOI: ${fmt(executiveSummary.noi)}
+Square Footage: ${fmt(overview.squareFootage)}
+Lot Size: ${fmt(overview.lotSize)}
+Zoning: ${fmt(overview.zoning)}
+Occupancy: ${fmt(overview.occupancyPct)}
+Year Built: ${fmt(overview.yearBuilt)}
+Existing Notes: ${fmt(overview.description)}`,
+    };
+  },
+  onePagerDealSummary(om) {
+    const { cover, overview, executiveSummary } = om;
+    return {
+      system: `You are a CRE marketing copywriter writing a deal summary for a One Pager. Maximum 3 sentences, under 50 words total. Lead with what makes this specific deal unique, not a generic site description. No markdown. ${STYLE_RULES}`,
+      user: `Write a deal summary for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Offering Price: ${fmt(executiveSummary.offeringPrice)}
+Cap Rate: ${fmt(executiveSummary.capRate)}
+NOI: ${fmt(executiveSummary.noi)}
+Occupancy: ${fmt(overview.occupancyPct)}
+Year Built: ${fmt(overview.yearBuilt)}
+Square Footage: ${fmt(overview.squareFootage)}
+Existing Notes: ${fmt(overview.description)}`,
+    };
+  },
   ndaAgreement(om) {
     const { cover, team } = om;
     const broker = (team || [])[0];
@@ -196,6 +232,8 @@ const KIND_SECTION_MAP = {
   valuationMethodologyNarrative: 'valuation',
   brokerRecommendationNarrative: 'recommendation',
   tagline: 'cover',
+  onePagerHighlights: 'executiveSummary',
+  onePagerDealSummary: 'executiveSummary',
 };
 
 // `extra.liveAiInstructions`, when present, is the client's current (possibly
@@ -217,6 +255,7 @@ const DOCUMENT_WIDE_SECTION_KEYS = ['cover', 'team'];
 
 function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
   const sectionKey = KIND_SECTION_MAP[kind];
+  console.log('[appendCustomInstructions] kind:', kind, '| sectionKey:', sectionKey, '| aiInstructions:', JSON.stringify(extra.liveAiInstructions || om.aiInstructions), '| extra keys:', Object.keys(extra));
   const parts = [];
   if (sectionKey) {
     const sectionInstructions = readInstructions(om, extra, sectionKey);
@@ -227,8 +266,10 @@ function appendCustomInstructions(userPrompt, om, kind, extra = {}) {
     const wideInstructions = readInstructions(om, extra, wideKey);
     if (wideInstructions) parts.push(`For the document overall: ${wideInstructions}`);
   }
-  if (!parts.length) return userPrompt;
-  return `${userPrompt}\n\nBroker's custom instructions, follow these closely:\n${parts.join('\n')}`;
+  if (!parts.length) { console.log('[appendCustomInstructions] no instructions found, returning base prompt'); return userPrompt; }
+  const result = `${userPrompt}\n\nBroker's custom instructions, follow these closely:\n${parts.join('\n')}`;
+  console.log('[appendCustomInstructions] final appended string:', result);
+  return result;
 }
 
 export function buildPrompt(kind, om, extra = {}) {
@@ -245,6 +286,7 @@ export function buildPrompt(kind, om, extra = {}) {
 
 export async function generateAiContent(kind, om, extra = {}) {
   const { system, user } = buildPrompt(kind, om, extra);
+  console.log('[generateAiContent] kind:', kind, '| extra:', JSON.stringify(extra), '| user prompt:\n', user);
 
   const anthropic = getClient();
   if (!anthropic) {

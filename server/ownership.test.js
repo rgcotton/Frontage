@@ -44,7 +44,7 @@ test('documents and folders are isolated per owner, including the signed-out wor
   const signedOutList = await (await authedFetch('/api/oms', null)).json();
   assert.equal(janeList.length, 1, "jane should only see her own document");
   assert.equal(bobList.length, 1, "bob should only see his own document");
-  assert.equal(signedOutList.length, 1, 'the signed-out workspace should only see its own document');
+  assert.equal(signedOutList.length, 0, 'the signed-out workspace should see no documents');
 
   const bobGetsJanesDoc = await authedFetch(`/api/oms/${janeOm.id}`, 'bob@example.com');
   assert.equal(bobGetsJanesDoc.status, 404, "bob must not be able to fetch jane's document by id");
