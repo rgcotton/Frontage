@@ -128,6 +128,27 @@ export function buildPages(om, ctx) {
     </div>`
     : '';
 
+  const brokerCardInner = `
+    ${(() => {
+      if (headshotUri) {
+        return `<img src="${headshotUri}" style="width:1.5in; height:1.5in; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`;
+      }
+      const initials = primary?.name
+        ? primary.name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('')
+        : '';
+      if (!initials) return '';
+      return `<div style="width:1.5in; height:1.5in; border-radius:50%; background:${theme.primaryColor}; border:3px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#fff; letter-spacing:1px;">${initials}</div>`;
+    })()}
+    ${primary?.name ? `<div style="font-size:${TYPE.name}; font-weight:700; color:#fff; margin-top:18px;">${esc(primary.name)}</div>` : ''}
+    ${primary?.title ? `<div style="font-size:${TYPE.label}; color:${theme.accentColor}; margin-top:5px; font-weight:600;">${esc(primary.title)}</div>` : ''}
+    <div style="width:36px; height:1px; background:rgba(255,255,255,0.25); margin:16px 0;"></div>
+    <div style="font-size:${TYPE.small}; color:#fff; line-height:1.7;">
+      ${primary?.phone ? `<div>${esc(primary.phone)}</div>` : ''}
+      ${primary?.email ? `<div>${esc(primary.email)}</div>` : ''}
+    </div>
+    ${hasLogo ? `<div style="margin-top:0.28in;">${logoBlock}</div>` : ''}
+  `;
+
   const inner = `
     <div style="position:absolute; left:0; right:0; top:0; height:${PHOTO_H}in; ${photoBg}"></div>
     <div style="position:absolute; left:0.55in; right:0.55in; bottom:${11 - PHOTO_H + 0.35}in;">
@@ -145,32 +166,14 @@ export function buildPages(om, ctx) {
         : ''
     }
 
-    <div style="position:absolute; left:0; width:${LEFT_COL_W_PCT}%; top:${bottomTop}in; bottom:${FOOTER_H}in; padding:0.4in; display:flex; flex-direction:column; gap:0.16in;">
-      ${highlightsCard}
-      ${driveTimesCard}
-    </div>
-
-    <div style="position:absolute; left:${LEFT_COL_W_PCT}%; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:${hasLogo ? 'space-between' : 'center'}; padding:0.4in 0.35in;">
-      <div style="display:flex; flex-direction:column; align-items:center;">
-        ${(() => {
-          if (headshotUri) {
-            return `<img src="${headshotUri}" style="width:1.5in; height:1.5in; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`;
-          }
-          const initials = primary?.name
-            ? primary.name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('')
-            : '';
-          if (!initials) return '';
-          return `<div style="width:1.5in; height:1.5in; border-radius:50%; background:${theme.primaryColor}; border:3px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#fff; letter-spacing:1px;">${initials}</div>`;
-        })()}
-        ${primary?.name ? `<div style="font-size:${TYPE.name}; font-weight:700; color:#fff; margin-top:18px;">${esc(primary.name)}</div>` : ''}
-        ${primary?.title ? `<div style="font-size:${TYPE.label}; color:${theme.accentColor}; margin-top:5px; font-weight:600;">${esc(primary.title)}</div>` : ''}
-        <div style="width:36px; height:1px; background:rgba(255,255,255,0.25); margin:16px 0;"></div>
-        <div style="font-size:${TYPE.small}; color:#fff; line-height:1.7;">
-          ${primary?.phone ? `<div>${esc(primary.phone)}</div>` : ''}
-          ${primary?.email ? `<div>${esc(primary.email)}</div>` : ''}
-        </div>
+    <div style="position:absolute; left:0; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; display:flex; flex-direction:row;">
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.16in; padding:0.4in;">
+        ${highlightsCard}
+        ${driveTimesCard}
       </div>
-      ${logoBlock}
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; align-self:flex-start; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.4in 0.35in; box-sizing:border-box;">
+        ${brokerCardInner}
+      </div>
     </div>
 
     <div style="position:absolute; left:0; right:0; top:${FOOTER_TOP}in; height:${FOOTER_H}in; background:${theme.accentColor}; display:flex; align-items:center; justify-content:space-between; padding:0 0.5in;">
