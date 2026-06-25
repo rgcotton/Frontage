@@ -201,6 +201,70 @@ router.post('/:id/generate', async (req, res) => {
   }
 });
 
+const DOC_TYPE_AUTO_KINDS = {
+  om: ['propertyDescription', 'executiveSummaryNarrative', 'investmentHighlights', 'marketNarrative', 'tagline'],
+  bov: ['propertyDescription', 'valuationMethodologyNarrative', 'brokerRecommendationNarrative'],
+  onePager: ['propertyDescription', 'tagline'],
+};
+
+function applyGeneratedResults(om, results) {
+  const patch = {};
+  for (const [kind, result] of results) {
+    switch (kind) {
+      case 'propertyDescription':
+        if (!patch.overview) patch.overview = { ...om.overview };
+        patch.overview.description = result;
+        break;
+      case 'executiveSummaryNarrative':
+        if (!patch.executiveSummary) patch.executiveSummary = { ...om.executiveSummary };
+        patch.executiveSummary.narrative = result;
+        break;
+      case 'investmentHighlights':
+        if (!patch.executiveSummary) patch.executiveSummary = { ...om.executiveSummary };
+        patch.executiveSummary.highlights = result;
+        break;
+      case 'marketNarrative':
+        if (!patch.market) patch.market = { ...om.market };
+        patch.market.narrative = result;
+        break;
+      case 'tagline':
+        if (!patch.cover) patch.cover = { ...om.cover };
+        patch.cover.tagline = result;
+        break;
+      case 'valuationMethodologyNarrative':
+        if (!patch.valuation) patch.valuation = { ...om.valuation };
+        patch.valuation.methodologyNarrative = result;
+        break;
+      case 'brokerRecommendationNarrative':
+        if (!patch.recommendation) patch.recommendation = { ...om.recommendation };
+        patch.recommendation.narrative = result;
+        break;
+    }
+  }
+  return patch;
+}
+
+// Runs all applicable AI narrative kinds for the document's docType in parallel and
+// persists every result in one updateOm call. Used after document extraction to give
+// brokers a fully-drafted document without clicking "Generate" on each section.
+router.post('/:id/ai/generate-all', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  const kinds = DOC_TYPE_AUTO_KINDS[om.docType || 'om'] || DOC_TYPE_AUTO_KINDS.om;
+  try {
+    const settled = await Promise.allSettled(
+      kinds.map((kind) => generateAiContent(kind, om).then((result) => [kind, result]))
+    );
+    const fulfilled = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+    if (!fulfilled.length) return res.status(502).json({ error: 'All AI generation calls failed' });
+    const patch = applyGeneratedResults(om, fulfilled);
+    const updated = await updateOm(req.params.id, patch);
+    res.json(updated);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
 router.post('/:id/ai/analyze-logo', async (req, res) => {
   const om = await getOwnedOm(req, res);
   if (!om) return;

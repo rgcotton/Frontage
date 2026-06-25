@@ -110,7 +110,7 @@ export default function DocTypeSelectModal({ documents = [], onComplete, onImpor
             {importing ? (
               <div className="import-loading">
                 <div className="spinner" />
-                <p>Reading your document and extracting fields… this can take up to 30 seconds.</p>
+                <p>AI is reading your document and writing all sections — this may take 60–90 seconds.</p>
               </div>
             ) : (
               <>
