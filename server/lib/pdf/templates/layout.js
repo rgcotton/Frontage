@@ -59,7 +59,7 @@ function buildSharedCss(theme) {
   return `
 @page { margin: 0; size: 8.5in 11in; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; }
+html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${t.pageBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pdf-page {
   width: 8.5in;
   height: 11in;
@@ -153,11 +153,47 @@ table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; bo
 .narrative { font-size: 10.5px; line-height: 1.6; color: ${t.textColor}; white-space: pre-wrap; }
 .subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 8px; margin-top: 16px; }
 .pdf-link { color: inherit; text-decoration: underline; text-decoration-color: currentColor; }
+.pdf-flow-body {
+  width: 8.5in;
+  padding: 0.55in 0.6in 0.4in;
+  background: ${t.pageBg};
+}
+.pdf-flow-section {
+  margin-bottom: 0.25in;
+}
+.pdf-flow-section .pdf-header-bar {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.pdf-flow-section .section-title {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.pdf-flow-section .gold-rule {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.pdf-flow-body + .pdf-page {
+  break-before: page;
+  page-break-before: always;
+}
+table.pdf-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.comp-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 `;
 }
 
 export function pageShell(innerHtml, extraClass = '') {
   return `<section class="pdf-page ${extraClass}"><div class="pdf-page-content">${innerHtml}</div></section>`;
+}
+
+export function flowSection(innerHtml) {
+  return `<div class="pdf-flow-section">${innerHtml}</div>`;
 }
 
 export function headerBar(propertyName, sectionLabel, continued = false) {
@@ -167,10 +203,10 @@ export function headerBar(propertyName, sectionLabel, continued = false) {
   </div>`;
 }
 
-export function footerHtml(pageNumber, totalPages, propertyName) {
+export function footerHtml(propertyName) {
   return `<div class="pdf-footer">
     <span>Confidential Offering Memorandum &mdash; ${esc(propertyName || 'Property')}</span>
-    <span>Page ${pageNumber} of ${totalPages}</span>
+    <span>Strictly Private &amp; Confidential</span>
   </div>`;
 }
 

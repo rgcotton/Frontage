@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './executiveSummary.js';
 
+test('fully blank executive summary returns no pages', () => {
+  const om = emptyOm('test-id');
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all executive summary fields are blank');
+});
+
 test('blank executive summary fields render no placeholder dashes or fallback text', () => {
   const om = emptyOm('test-id');
   om.executiveSummary.offeringPrice = 3000000;

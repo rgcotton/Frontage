@@ -1,8 +1,9 @@
-import { pageShell, headerBar } from './layout.js';
+import { flowSection, headerBar } from './layout.js';
 import { esc, formatMonthYear, normalizeUrl } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
   const { offeringProcedures: p, cover } = om;
+  if (!p.offerDeadline && !p.loiInstructions && !p.tourInstructions && !p.dataRoomInstructions && !p.dataRoomLink) return [];
   const inner = `
     ${headerBar(cover.propertyName, 'Offering Procedures')}
     <div class="section-title">Offering Procedures</div>
@@ -19,5 +20,5 @@ export function buildPages(om, ctx) {
     ${p.dataRoomInstructions ? `<div class="subhead">Data Room Access</div><div class="narrative">${esc(p.dataRoomInstructions)}</div>` : ''}
     ${p.dataRoomLink ? `<div class="narrative" style="margin-top:8px;"><strong>Data Room:</strong> <a class="pdf-link" href="${normalizeUrl(p.dataRoomLink)}">${esc(p.dataRoomLink)}</a></div>` : ''}
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './valuation.js';
 
+test('fully blank valuation returns no pages', () => {
+  const om = emptyOm('test-id');
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all valuation fields are blank');
+});
+
 test('blank valuation fields render no placeholder dashes or fallback text', () => {
   const om = emptyOm('test-id');
   om.valuation.concludedValue = 4200000;

@@ -3,6 +3,12 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './overview.js';
 
+test('fully blank overview returns no pages', () => {
+  const om = emptyOm('test-id');
+  // all overview fields left at defaults (empty)
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all overview fields are blank');
+});
+
 test('blank overview fields render no placeholder dashes or fallback text', () => {
   const om = emptyOm('test-id');
   om.overview.yearBuilt = 1998;

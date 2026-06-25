@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './recommendation.js';
 
+test('fully blank recommendation returns no pages', () => {
+  const om = emptyOm('test-id');
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all recommendation fields are blank');
+});
+
 test('blank recommendation narrative renders no fallback text', () => {
   const om = emptyOm('test-id');
   om.recommendation.recommendedAction = 'Sell';

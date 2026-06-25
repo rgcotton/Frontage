@@ -34,48 +34,50 @@ export function buildPages(om, ctx) {
   const lineItems = financials.lineItems || [];
   const totalIncome = lineItems.reduce((s, li) => s + numeric(li.income), 0);
   const totalExpense = lineItems.reduce((s, li) => s + numeric(li.expense), 0);
-  const t12Chunks = chunk(lineItems, T12_FIRST_CAP, T12_REST_CAP);
+  const summaryStatRows = filterStats([
+    ['Asking Price', executiveSummary.offeringPrice, formatCurrency],
+    ['NOI', executiveSummary.noi, formatCurrency],
+    ['Cap Rate', executiveSummary.capRate, formatPercent],
+    ['Gross Income', financials.grossIncome, formatCurrency],
+    ['Operating Expenses', financials.operatingExpenses, formatCurrency],
+  ]);
 
-  t12Chunks.forEach((rows, idx) => {
-    const isFirst = idx === 0;
-    const isLast = idx === t12Chunks.length - 1;
-    const summaryStatRows = filterStats([
-      ['Asking Price', executiveSummary.offeringPrice, formatCurrency],
-      ['NOI', executiveSummary.noi, formatCurrency],
-      ['Cap Rate', executiveSummary.capRate, formatPercent],
-      ['Gross Income', financials.grossIncome, formatCurrency],
-      ['Operating Expenses', financials.operatingExpenses, formatCurrency],
-    ]);
-    const summaryStats =
-      isFirst && summaryStatRows.length
-        ? `<div class="stat-grid" style="--cols:${summaryStatRows.length}; margin-bottom:18px;">
-        ${summaryStatRows.map(([label, value]) => `<div class="stat-box"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('')}
-      </div>`
-        : '';
-    const tableRows = rows
-      .map((li) => `<tr><td>${escOrDash(li.label)}</td><td>${formatCurrency(li.income)}</td><td>${formatCurrency(li.expense)}</td></tr>`)
-      .join('');
-    const totalRow =
-      isLast && lineItems.length
-        ? `<tr class="total-row"><td>Total</td><td>${formatCurrency(totalIncome)}</td><td>${formatCurrency(totalExpense)}</td></tr>`
-        : '';
-    const inner = `
-      ${headerBar(cover.propertyName, 'Financials', !isFirst)}
-      <div class="section-title">Financial Summary</div>
-      <div class="gold-rule"></div>
-      ${summaryStats}
-      ${
-        lineItems.length
-          ? `<div class="subhead" style="margin-top:0;">Trailing 12-Month Income &amp; Expenses (T12)</div>
-      <table class="pdf-table">
-        <thead><tr><th>Line Item</th><th>Income</th><th>Expense</th></tr></thead>
-        <tbody>${tableRows}${totalRow}</tbody>
-      </table>`
-          : ''
-      }
-    `;
-    pages.push(pageShell(inner));
-  });
+  if (lineItems.length || summaryStatRows.length) {
+    const t12Chunks = chunk(lineItems, T12_FIRST_CAP, T12_REST_CAP);
+    t12Chunks.forEach((rows, idx) => {
+      const isFirst = idx === 0;
+      const isLast = idx === t12Chunks.length - 1;
+      const summaryStats =
+        isFirst && summaryStatRows.length
+          ? `<div class="stat-grid" style="--cols:${summaryStatRows.length}; margin-bottom:18px;">
+          ${summaryStatRows.map(([label, value]) => `<div class="stat-box"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('')}
+        </div>`
+          : '';
+      const tableRows = rows
+        .map((li) => `<tr><td>${escOrDash(li.label)}</td><td>${formatCurrency(li.income)}</td><td>${formatCurrency(li.expense)}</td></tr>`)
+        .join('');
+      const totalRow =
+        isLast && lineItems.length
+          ? `<tr class="total-row"><td>Total</td><td>${formatCurrency(totalIncome)}</td><td>${formatCurrency(totalExpense)}</td></tr>`
+          : '';
+      const inner = `
+        ${headerBar(cover.propertyName, 'Financials', !isFirst)}
+        <div class="section-title">Financial Summary</div>
+        <div class="gold-rule"></div>
+        ${summaryStats}
+        ${
+          lineItems.length
+            ? `<div class="subhead" style="margin-top:0;">Trailing 12-Month Income &amp; Expenses (T12)</div>
+        <table class="pdf-table">
+          <thead><tr><th>Line Item</th><th>Income</th><th>Expense</th></tr></thead>
+          <tbody>${tableRows}${totalRow}</tbody>
+        </table>`
+            : ''
+        }
+      `;
+      pages.push(pageShell(inner));
+    });
+  }
 
   // --- Rent Roll ---
   const rentRoll = financials.rentRoll || [];

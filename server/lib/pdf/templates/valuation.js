@@ -1,4 +1,4 @@
-import { pageShell, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, buildTheme } from './layout.js';
 import { esc, formatCurrency, formatMonthYear, filterStats } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
@@ -9,6 +9,8 @@ export function buildPages(om, ctx) {
     ['Concluded Value', v.concludedValue, formatCurrency],
     ['Effective Date', v.valueEffectiveDate, formatMonthYear],
   ]);
+
+  if (!stats.length && !v.methodologyNarrative && !v.valueBasisNote) return [];
 
   const inner = `
     ${headerBar(cover.propertyName, 'Valuation')}
@@ -24,5 +26,5 @@ export function buildPages(om, ctx) {
     ${v.methodologyNarrative ? `<div class="subhead" style="margin-top:0;">Methodology</div><div class="narrative">${esc(v.methodologyNarrative)}</div>` : ''}
     ${v.valueBasisNote ? `<div class="subhead">Basis of Value</div><div class="narrative">${esc(v.valueBasisNote)}</div>` : ''}
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

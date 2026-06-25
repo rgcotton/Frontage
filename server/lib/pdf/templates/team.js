@@ -6,16 +6,7 @@ export function buildPages(om, ctx) {
   const theme = ctx.theme || buildTheme(om.branding);
   const team = om.team || [];
   const cover = om.cover;
-  if (!team.length) {
-    return [
-      pageShell(`
-      ${headerBar(cover.propertyName, 'Meet the Team')}
-      <div class="section-title">Meet the Team</div>
-      <div class="gold-rule"></div>
-      <div class="narrative">No team members provided.</div>
-    `),
-    ];
-  }
+  if (!team.length) return [];
   return team.map((m, i) => {
     const headshotUri = toDataUri(om.id, m.headshot);
     const inner = `

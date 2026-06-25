@@ -1,4 +1,4 @@
-import { pageShell, headerBar } from './layout.js';
+import { flowSection, headerBar } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
@@ -26,5 +26,5 @@ export function buildPages(om, ctx) {
       <tbody>${rows}</tbody>
     </table>
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

@@ -39,6 +39,40 @@ test('a POI with no calculated drive time renders blank, not an error or a dash'
   assert.ok(!/\d+ min/.test(html));
 });
 
+test('drive times card uses auto height so it shrinks to content, not a fixed flex ratio', () => {
+  const om = emptyOm('test-id');
+  om.driveTimePois = [{ id: 'p1', name: 'Walmart', address: '1 Main St', category: 'Grocery Store', driveTimeMinutes: 5 }];
+  const html = buildPages(om, {}).join('\n');
+  // Card must not use flex:0.85 (which forces a fixed proportion, leaving white space when few POIs)
+  assert.ok(!html.includes('flex:0.85'), 'drive times card must not use a fixed flex ratio');
+  // It must use flex-grow:0 so it sizes to its content
+  assert.ok(html.includes('flex-grow:0') || html.includes('flex:0 0'), 'drive times card must opt out of growing');
+});
+
+test('highlights card always takes flex:1 to fill remaining space regardless of POI count', () => {
+  const om = emptyOm('test-id');
+  om.executiveSummary.highlights = ['Fully leased.'];
+  om.driveTimePois = [{ id: 'p1', name: 'Walmart', address: '1 Main St', category: 'Grocery Store', driveTimeMinutes: 5 }];
+  const html = buildPages(om, {}).join('\n');
+  // Should not use flex:1.15 (the old "with-POI" ratio) — just flex:1
+  assert.ok(!html.includes('flex:1.15'), 'highlights card must not use a proportional flex ratio when POIs exist');
+});
+
+test('no headshot renders initials placeholder, not an empty circle', () => {
+  const om = emptyOm('test-id');
+  om.team = [{ id: 't1', name: 'Jane Doe', title: 'Broker', phone: '', email: '', bio: '', headshot: null }];
+  const html = buildPages(om, {}).join('\n');
+  assert.ok(html.includes('JD'), 'should render broker initials when no headshot is provided');
+  assert.ok(!html.includes('background:rgba(255,255,255,0.12)'), 'should not render the empty grey circle');
+});
+
+test('no headshot and no team member name renders no circle at all', () => {
+  const om = emptyOm('test-id');
+  om.team = [{ id: 't1', name: '', title: 'Agent', phone: '', email: '', bio: '', headshot: null }];
+  const html = buildPages(om, {}).join('\n');
+  assert.ok(!html.includes('border-radius:50%') || !html.includes('background:rgba(255,255,255,0.12)'), 'should not render empty grey circle when there is no name for initials');
+});
+
 test('with no drive-time POIs at all, the layout renders exactly as before (highlights card alone)', () => {
   const om = emptyOm('test-id');
   om.cover.propertyName = 'Test Property';

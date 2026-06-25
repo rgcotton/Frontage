@@ -1,4 +1,4 @@
-import { pageShell, headerBar } from './layout.js';
+import { flowSection, headerBar } from './layout.js';
 import { esc, formatNumber, formatPercent, filterStats } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
@@ -23,6 +23,8 @@ export function buildPages(om, ctx) {
     .map((f) => toDataUri(om.id, f))
     .filter(Boolean)
     .slice(0, 6);
+
+  if (!stats.length && !overview.description && !photos.length) return [];
 
   const photoGridHtml = photos.length
     ? `<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;">
@@ -49,5 +51,5 @@ export function buildPages(om, ctx) {
         : ''
     }
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

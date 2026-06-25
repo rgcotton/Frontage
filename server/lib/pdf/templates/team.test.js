@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './team.js';
 
+test('empty team returns no pages', () => {
+  const om = emptyOm('test-id');
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when there are no team members');
+});
+
 test('blank team member bio renders no fallback text', () => {
   const om = emptyOm('test-id');
   om.team = [{ name: 'Jane Doe', title: 'Broker', phone: '', email: '', bio: '', headshot: null }];

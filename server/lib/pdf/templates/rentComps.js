@@ -23,16 +23,7 @@ const COMPS_PER_PAGE = 4;
 export function buildPages(om, ctx) {
   const comps = om.rentComps || [];
   const cover = om.cover;
-  if (!comps.length) {
-    return [
-      pageShell(`
-      ${headerBar(cover.propertyName, 'Rent Comparables')}
-      <div class="section-title">Rent Comparables</div>
-      <div class="gold-rule"></div>
-      <div class="narrative">No rent comparables provided.</div>
-    `),
-    ];
-  }
+  if (!comps.length) return [];
   const pages = [];
   for (let i = 0; i < comps.length; i += COMPS_PER_PAGE) {
     const slice = comps.slice(i, i + COMPS_PER_PAGE);

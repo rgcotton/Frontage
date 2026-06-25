@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './offeringProcedures.js';
 
+test('fully blank offering procedures returns no pages', () => {
+  const om = emptyOm('test-id');
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all offering procedures fields are blank');
+});
+
 test('blank offering procedures fields render no fallback copy', () => {
   const om = emptyOm('test-id');
   om.offeringProcedures.dataRoomLink = 'https://example.com/dataroom';

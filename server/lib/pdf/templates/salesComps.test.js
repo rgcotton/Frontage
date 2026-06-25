@@ -3,6 +3,12 @@ import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './salesComps.js';
 
+test('empty salesComps returns no pages', () => {
+  const om = emptyOm('test-id');
+  // om.salesComps defaults to []
+  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when there are no comps');
+});
+
 test('blank sales comp fields render no placeholder dashes', () => {
   const om = emptyOm('test-id');
   om.salesComps = [{ address: '456 Oak Ave', saleDate: '', salePrice: '', pricePerSF: '', capRate: '', squareFeet: '', notes: '', photo: null }];

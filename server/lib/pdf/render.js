@@ -19,24 +19,26 @@ import * as valuation from './templates/valuation.js';
 import * as recommendation from './templates/recommendation.js';
 import * as onePager from './templates/onePager.js';
 
+// flow:true = sections that emit flowSection() HTML — they share printed pages.
+// flow omitted = sections that emit pageShell() HTML — each gets its own forced page.
 const OM_CONTENT_SECTIONS = [
-  { label: 'Property Overview', mod: overview },
-  { label: 'Executive Summary', mod: executiveSummary },
-  { label: 'Market Overview', mod: market },
+  { label: 'Property Overview', mod: overview, flow: true },
+  { label: 'Executive Summary', mod: executiveSummary, flow: true },
+  { label: 'Market Overview', mod: market, flow: true },
   { label: 'Financials', mod: financials },
   { label: 'Sales Comparables', mod: salesComps },
   { label: 'Rent Comparables', mod: rentComps },
   { label: 'Location & Amenities', mod: locationMap },
-  { label: 'Drive Times & Points of Interest', mod: driveTimePois },
-  { label: 'Offering Procedures', mod: offeringProcedures },
+  { label: 'Drive Times & Points of Interest', mod: driveTimePois, flow: true },
+  { label: 'Offering Procedures', mod: offeringProcedures, flow: true },
   { label: 'Meet the Team', mod: team },
 ];
 
 const BOV_CONTENT_SECTIONS = [
-  { label: 'Subject Property', mod: overview },
-  { label: 'Valuation Methodology', mod: valuation },
+  { label: 'Subject Property', mod: overview, flow: true },
+  { label: 'Valuation Methodology', mod: valuation, flow: true },
   { label: 'Comparable Sales Analysis', mod: salesComps },
-  { label: 'Broker Recommendation', mod: recommendation },
+  { label: 'Broker Recommendation', mod: recommendation, flow: true },
   { label: 'Meet the Team', mod: team },
 ];
 
@@ -64,36 +66,51 @@ export async function closeBrowser() {
   }
 }
 
-// Assembles the cover + table of contents + content sections + back cover document
-// shared by the full 'om' and 'bov' document types. Returns the joined page HTML.
+// Assembles cover + TOC + content sections + back cover.
+// Flow sections (flow:true) share printed pages naturally via CSS; full-page sections
+// each force their own page. TOC lists section labels without page numbers.
 function assembleMultiPageDocument(om, renderCtx, contentSections) {
   const coverPages = cover.buildPages(om, renderCtx);
 
-  let runningPage = 2; // page 1 = cover, page 2 = TOC
-  const tocEntries = [];
-  const sectionPages = [];
+  // Collect only sections that have content
+  const activeSections = [];
   for (const section of contentSections) {
     const pages = section.mod.buildPages(om, renderCtx);
-    if (!pages.length) continue; // e.g. Drive Times with zero POIs added -- no page, no TOC entry
-    tocEntries.push({ label: section.label, startPage: runningPage + 1 });
-    sectionPages.push(...pages);
-    runningPage += pages.length;
+    if (!pages.length) continue;
+    activeSections.push({ ...section, pages });
   }
 
-  const backCoverPages = backCover.buildPages(om, renderCtx);
-  const totalPages = 1 + 1 + sectionPages.length + backCoverPages.length;
-
+  // TOC entries: section number + label, no page numbers (not predictable with flow layout)
+  const tocEntries = activeSections.map((s, i) => ({ label: s.label, number: i + 1 }));
   const tocPages = toc.buildPages(om, tocEntries);
+  const backCoverPages = backCover.buildPages(om, renderCtx);
 
-  const allPages = [...coverPages, ...tocPages];
-  let pageNum = 3;
-  for (const pageHtml of sectionPages) {
-    allPages.push(injectFooter(pageHtml, footerHtml(pageNum, totalPages, om.cover.propertyName)));
-    pageNum++;
+  // Build content: consecutive flow sections are wrapped in a pdf-flow-body so they
+  // share a printed page; full-page sections remain as individual pageShell sections.
+  const parts = [...coverPages, ...tocPages];
+
+  let flowBuffer = [];
+  const flushFlow = () => {
+    if (flowBuffer.length) {
+      parts.push(`<div class="pdf-flow-body">${flowBuffer.join('\n')}</div>`);
+      flowBuffer = [];
+    }
+  };
+
+  for (const section of activeSections) {
+    if (section.flow) {
+      flowBuffer.push(...section.pages);
+    } else {
+      flushFlow();
+      for (const pageHtml of section.pages) {
+        parts.push(injectFooter(pageHtml, footerHtml(om.cover.propertyName)));
+      }
+    }
   }
-  allPages.push(...backCoverPages);
+  flushFlow();
 
-  return allPages.join('\n');
+  parts.push(...backCoverPages);
+  return parts.join('\n');
 }
 
 export async function generatePdf(om, outputPath, ctxOverrides = {}) {

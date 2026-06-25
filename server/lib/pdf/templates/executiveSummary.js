@@ -1,4 +1,4 @@
-import { pageShell, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, buildTheme } from './layout.js';
 import { esc, formatCurrency, formatPercent, filterStats } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
@@ -10,6 +10,8 @@ export function buildPages(om, ctx) {
     ['NOI', executiveSummary.noi, formatCurrency],
   ]);
   const highlights = (executiveSummary.highlights || []).filter(Boolean);
+
+  if (!stats.length && !highlights.length && !executiveSummary.narrative) return [];
 
   const inner = `
     ${headerBar(cover.propertyName, 'Executive Summary')}
@@ -30,7 +32,7 @@ export function buildPages(om, ctx) {
       </div>
     </div>
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }
 
 function bigStat(label, value, theme) {

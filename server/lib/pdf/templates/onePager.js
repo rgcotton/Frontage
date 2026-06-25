@@ -112,14 +112,14 @@ export function buildPages(om, ctx) {
     : '';
 
   const highlightsCard = highlightsHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:${poisHtml ? '1.15' : '1'}; min-height:0; padding:0.2in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:1; min-height:0; padding:0.2in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
       <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:8px;">Investment Highlights</div>
       ${highlightsHtml}
     </div>`
     : '';
 
   const driveTimesCard = poisHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0.85; min-height:0; padding:0.18in 0.26in; display:flex; flex-direction:column; overflow:hidden;">
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.18in 0.26in; display:flex; flex-direction:column;">
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
         <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase;">Drive Times</div>
         <div style="font-size:${TYPE.micro}; color:${theme.mutedColor}; text-transform:uppercase; letter-spacing:0.4px;">From Property</div>
@@ -152,11 +152,16 @@ export function buildPages(om, ctx) {
 
     <div style="position:absolute; left:${LEFT_COL_W_PCT}%; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:${hasLogo ? 'space-between' : 'center'}; padding:0.4in 0.35in;">
       <div style="display:flex; flex-direction:column; align-items:center;">
-        ${
-          headshotUri
-            ? `<img src="${headshotUri}" style="width:1.5in; height:1.5in; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`
-            : `<div style="width:1.5in; height:1.5in; border-radius:50%; background:rgba(255,255,255,0.12); border:3px solid ${theme.accentColor};"></div>`
-        }
+        ${(() => {
+          if (headshotUri) {
+            return `<img src="${headshotUri}" style="width:1.5in; height:1.5in; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`;
+          }
+          const initials = primary?.name
+            ? primary.name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('')
+            : '';
+          if (!initials) return '';
+          return `<div style="width:1.5in; height:1.5in; border-radius:50%; background:${theme.primaryColor}; border:3px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#fff; letter-spacing:1px;">${initials}</div>`;
+        })()}
         ${primary?.name ? `<div style="font-size:${TYPE.name}; font-weight:700; color:#fff; margin-top:18px;">${esc(primary.name)}</div>` : ''}
         ${primary?.title ? `<div style="font-size:${TYPE.label}; color:${theme.accentColor}; margin-top:5px; font-weight:600;">${esc(primary.title)}</div>` : ''}
         <div style="width:36px; height:1px; background:rgba(255,255,255,0.25); margin:16px 0;"></div>

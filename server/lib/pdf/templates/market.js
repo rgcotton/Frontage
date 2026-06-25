@@ -1,4 +1,4 @@
-import { pageShell, headerBar } from './layout.js';
+import { flowSection, headerBar } from './layout.js';
 import { esc, formatNumber, formatPercent, formatCurrency, filterStats } from '../helpers/format.js';
 
 function statGrid(rawRows, cols, valueFontSize) {
@@ -31,6 +31,8 @@ export function buildPages(om, ctx) {
     13
   );
 
+  if (!demoHtml && !trendsHtml && !market.narrative && !market.marketName) return [];
+
   const inner = `
     ${headerBar(cover.propertyName, 'Market Overview')}
     <div class="section-title">Market Overview</div>
@@ -40,5 +42,5 @@ export function buildPages(om, ctx) {
     ${demoHtml ? `<div class="subhead" style="margin-top:0;">Demographics</div>${demoHtml}` : ''}
     ${trendsHtml ? `<div class="subhead">Submarket Trends</div>${trendsHtml}` : ''}
   `;
-  return [pageShell(inner)];
+  return [flowSection(inner)];
 }

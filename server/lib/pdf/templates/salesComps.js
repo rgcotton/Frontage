@@ -24,16 +24,7 @@ const COMPS_PER_PAGE = 4;
 export function buildPages(om, ctx) {
   const comps = om.salesComps || [];
   const cover = om.cover;
-  if (!comps.length) {
-    return [
-      pageShell(`
-      ${headerBar(cover.propertyName, 'Sales Comparables')}
-      <div class="section-title">Sales Comparables</div>
-      <div class="gold-rule"></div>
-      <div class="narrative">No sales comparables provided.</div>
-    `),
-    ];
-  }
+  if (!comps.length) return [];
   const pages = [];
   for (let i = 0; i < comps.length; i += COMPS_PER_PAGE) {
     const slice = comps.slice(i, i + COMPS_PER_PAGE);
