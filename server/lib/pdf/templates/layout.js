@@ -57,10 +57,12 @@ export function buildTheme(branding = {}) {
 function buildSharedCss(theme) {
   const t = theme || buildTheme();
   return `
-@page { margin: 0; size: 8.5in 11in; }
+@page { margin: 0.38in 0.42in; size: 8.5in 11in; }
+@page fixed-page { margin: 0; size: 8.5in 11in; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${t.pageBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pdf-page {
+  page: fixed-page;
   width: 8.5in;
   height: 11in;
   position: relative;
@@ -145,17 +147,17 @@ table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; bo
 .comp-card .field-row .l { color: ${t.mutedColor}; }
 .comp-card .field-row .v { font-weight: 600; color: ${t.textColor}; text-align: right; }
 .comp-card .notes { font-size: 9px; color: ${t.mutedColor}; margin-top: 6px; font-style: italic; }
-.two-col { display: flex; gap: 17px; flex: 1; min-height: 0; }
+.two-col { display: flex; gap: 17px; flex: 1; min-height: 0; break-inside: avoid; page-break-inside: avoid; }
 .two-col .col { flex: 1; min-width: 0; }
-.bullet-list { list-style: none; }
+.bullet-list { list-style: none; break-inside: avoid; page-break-inside: avoid; }
 .bullet-list li { position: relative; padding-left: 16px; font-size: 10.5px; line-height: 1.5; margin-bottom: 6px; color: ${t.textColor}; }
 .bullet-list li::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: ${t.accentColor}; }
 .narrative { font-size: 10.5px; line-height: 1.6; color: ${t.textColor}; white-space: pre-wrap; }
 .subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 6px; margin-top: 11px; }
 .pdf-link { color: inherit; text-decoration: underline; text-decoration-color: currentColor; }
 .pdf-flow-body {
-  width: 8.5in;
-  padding: 0.38in 0.42in 0.28in;
+  width: 100%;
+  padding: 0;
   background: ${t.pageBg};
 }
 .pdf-flow-section {
@@ -170,6 +172,10 @@ table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; bo
   page-break-after: avoid;
 }
 .pdf-flow-section .gold-rule {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+.pdf-flow-section .subhead {
   break-after: avoid;
   page-break-after: avoid;
 }

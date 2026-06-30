@@ -13,26 +13,33 @@ export function buildPages(om, ctx) {
 
   if (!stats.length && !highlights.length && !executiveSummary.narrative) return [];
 
-  const inner = `
+  const narrativeHtml = executiveSummary.narrative
+    ? `<div class="subhead" style="margin-top:0;">Investment Overview</div><div class="narrative">${esc(executiveSummary.narrative)}</div>`
+    : '';
+
+  const bodyHtml = stats.length
+    ? `<div class="two-col">
+        <div class="col" style="flex:0 0 2.1in; display:flex; flex-direction:column; gap:10px;">
+          ${stats.map(([label, value]) => bigStat(label, value, theme)).join('')}
+        </div>
+        <div class="col">${narrativeHtml}</div>
+      </div>`
+    : narrativeHtml;
+
+  const overviewInner = `
     ${headerBar(cover.propertyName, 'Executive Summary')}
     <div class="section-title">Executive Summary</div>
     <div class="gold-rule"></div>
-    <div class="two-col">
-      <div class="col" style="flex:0 0 2.1in; display:flex; flex-direction:column; gap:10px;">
-        ${stats.map(([label, value]) => bigStat(label, value, theme)).join('')}
-      </div>
-      <div class="col">
-        ${executiveSummary.narrative ? `<div class="subhead" style="margin-top:0;">Investment Overview</div><div class="narrative">${esc(executiveSummary.narrative)}</div>` : ''}
-        ${
-          highlights.length
-            ? `<div class="subhead">Investment Highlights</div>
-        <ul class="bullet-list">${highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>`
-            : ''
-        }
-      </div>
-    </div>
+    ${bodyHtml}
   `;
-  return [flowSection(inner)];
+  const pages = [flowSection(overviewInner)];
+  if (highlights.length) {
+    pages.push(flowSection(`
+      <div class="subhead" style="margin-top:0;">Investment Highlights</div>
+      <ul class="bullet-list">${highlights.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>
+    `));
+  }
+  return pages;
 }
 
 function bigStat(label, value, theme) {
