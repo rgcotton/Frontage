@@ -15,8 +15,6 @@ import LocationMapSection from '../components/sections/LocationMapSection.jsx';
 import OfferingProceduresSection from '../components/sections/OfferingProceduresSection.jsx';
 import TeamSection from '../components/sections/TeamSection.jsx';
 import BrandingSection from '../components/sections/BrandingSection.jsx';
-import ValuationSection from '../components/sections/ValuationSection.jsx';
-import RecommendationSection from '../components/sections/RecommendationSection.jsx';
 import PropertyInfoSection from '../components/sections/PropertyInfoSection.jsx';
 import DealHighlightsSection from '../components/sections/DealHighlightsSection.jsx';
 import BrokerInfoSection from '../components/sections/BrokerInfoSection.jsx';
@@ -34,8 +32,6 @@ const SECTION_COMPONENTS = {
   locationMap: LocationMapSection,
   offeringProcedures: OfferingProceduresSection,
   team: TeamSection,
-  valuation: ValuationSection,
-  recommendation: RecommendationSection,
   propertyInfo: PropertyInfoSection,
   dealHighlights: DealHighlightsSection,
   brokerInfo: BrokerInfoSection,

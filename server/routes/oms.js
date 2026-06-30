@@ -204,7 +204,6 @@ router.post('/:id/generate', async (req, res) => {
 
 const DOC_TYPE_AUTO_KINDS = {
   om: ['propertyDescription', 'executiveSummaryNarrative', 'investmentHighlights', 'marketNarrative', 'tagline'],
-  bov: ['propertyDescription', 'valuationMethodologyNarrative', 'brokerRecommendationNarrative'],
   onePager: ['propertyDescription', 'tagline', 'onePagerHighlights', 'onePagerDealSummary'],
 };
 

@@ -15,8 +15,6 @@ import * as driveTimePois from './templates/driveTimePois.js';
 import * as offeringProcedures from './templates/offeringProcedures.js';
 import * as team from './templates/team.js';
 import * as backCover from './templates/backCover.js';
-import * as valuation from './templates/valuation.js';
-import * as recommendation from './templates/recommendation.js';
 import * as onePager from './templates/onePager.js';
 
 // flow:true = sections that emit flowSection() HTML — they share printed pages.
@@ -32,14 +30,6 @@ const OM_CONTENT_SECTIONS = [
   { label: 'Drive Times & Points of Interest', mod: driveTimePois, flow: true },
   { label: 'Offering Procedures', mod: offeringProcedures, flow: true },
   { label: 'Meet the Team', mod: team, flow: true },
-];
-
-const BOV_CONTENT_SECTIONS = [
-  { label: 'Subject Property', mod: overview, flow: true },
-  { label: 'Valuation Methodology', mod: valuation, flow: true },
-  { label: 'Comparable Sales Analysis', mod: salesComps },
-  { label: 'Broker Recommendation', mod: recommendation, flow: true },
-  { label: 'Meet the Team', mod: team },
 ];
 
 function injectFooter(pageHtml, footer) {
@@ -132,8 +122,6 @@ export async function generatePdf(om, outputPath, ctxOverrides = {}) {
     console.log('[render] brokerLogoUri length:', renderCtx.brokerLogoUri?.length ?? 'null');
     console.log('[render] hasLogo:', Boolean(renderCtx.brokerLogoUri));
     bodyHtml = onePager.buildPages(om, renderCtx).join('\n');
-  } else if (docType === 'bov') {
-    bodyHtml = assembleMultiPageDocument(om, renderCtx, BOV_CONTENT_SECTIONS);
   } else {
     bodyHtml = assembleMultiPageDocument(om, renderCtx, OM_CONTENT_SECTIONS);
   }

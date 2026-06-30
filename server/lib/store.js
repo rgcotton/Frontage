@@ -187,7 +187,7 @@ export async function listOms(ownerEmail = null) {
   return oms.filter((om) => om.ownerEmail === ownerEmail).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
 
-const VALID_DOC_TYPES = ['om', 'onePager', 'bov'];
+const VALID_DOC_TYPES = ['om', 'onePager'];
 
 export async function createOm(docType = 'om', ownerEmail = null) {
   await ensureDataDir();

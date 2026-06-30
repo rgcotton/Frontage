@@ -122,36 +122,6 @@ Parking: ${fmt(overview.parking)}
 Existing Notes: ${fmt(overview.description)}`,
     };
   },
-  valuationMethodologyNarrative(om) {
-    const { cover, overview, valuation } = om;
-    return {
-      system: `You are a commercial real estate appraiser writing the valuation methodology narrative for a Broker Opinion of Value. Return 1-2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
-      user: `Write the valuation methodology narrative for this opinion of value.
-
-Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
-Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
-Year Built: ${fmt(overview.yearBuilt)}
-Square Footage: ${fmt(overview.squareFootage)}
-
-Valuation Approach: ${fmt(valuation.methodologyApproach)}
-Concluded Value: ${fmt(valuation.concludedValue)}
-Effective Date: ${fmt(valuation.valueEffectiveDate)}
-Basis of Value Note: ${fmt(valuation.valueBasisNote)}`,
-    };
-  },
-  brokerRecommendationNarrative(om) {
-    const { cover, executiveSummary, valuation, recommendation } = om;
-    return {
-      system: `You are a commercial real estate broker writing the bottom-line recommendation section of a Broker Opinion of Value. Return 1 tight paragraph of plain text only, no headings, no markdown. ${STYLE_RULES}`,
-      user: `Write the broker recommendation narrative for this property.
-
-Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)}) in ${fmt(cover.city)}, ${fmt(cover.state)}
-Concluded Value: ${fmt(valuation.concludedValue)}
-Valuation Approach: ${fmt(valuation.methodologyApproach)}
-Current Offering Price (if any): ${fmt(executiveSummary.offeringPrice)}
-Recommended Action: ${fmt(recommendation.recommendedAction)}`,
-    };
-  },
   tagline(om) {
     const { cover, overview, executiveSummary } = om;
     return {
@@ -229,8 +199,7 @@ const KIND_SECTION_MAP = {
   marketNarrative: 'market',
   salesCompAnalysis: 'salesComps',
   propertyDescription: 'overview',
-  valuationMethodologyNarrative: 'valuation',
-  brokerRecommendationNarrative: 'recommendation',
+
   tagline: 'cover',
   onePagerHighlights: 'executiveSummary',
   onePagerDealSummary: 'executiveSummary',
@@ -247,7 +216,7 @@ function readInstructions(om, extra, key) {
 }
 
 // The "cover" box (top-level Property Info instructions on the One Pager, Cover
-// Page instructions on the OM/BOV) and the "team" box (Broker Info / Meet the
+// Page instructions on the OM) and the "team" box (Broker Info / Meet the
 // Team instructions) both apply to every AI generation call for the document,
 // not just a single section -- most sections never get their own dedicated
 // instructions box, so this is the only way those two ever reach the AI.

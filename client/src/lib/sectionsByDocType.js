@@ -34,19 +34,16 @@ const KEYS_BY_DOC_TYPE = {
     'team',
   ],
   onePager: ['propertyInfo', 'dealHighlights', 'driveTimePois', 'brokerInfo'],
-  bov: ['cover', 'branding', 'overview', 'valuation', 'salesComps', 'recommendation', 'team'],
 };
 
 export const DOC_TYPE_LABELS = {
   om: 'Offering Memorandum',
   onePager: 'One Pager',
-  bov: 'Broker Opinion of Value',
 };
 
 export const DOC_TYPE_DESCRIPTIONS = {
   om: 'Full multi-page marketing package with financials, comps, maps, and offering procedures.',
   onePager: 'A single designed page with photo, key stats, highlights, and broker contact.',
-  bov: 'Valuation methodology, comparable sales analysis, and a value conclusion with recommendation.',
 };
 
 export function getSectionsForDocType(docType) {

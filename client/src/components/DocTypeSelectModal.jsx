@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { DOC_TYPE_LABELS, DOC_TYPE_DESCRIPTIONS } from '../lib/sectionsByDocType.js';
 
-const DOC_TYPES = ['om', 'onePager', 'bov'];
+const DOC_TYPES = ['om', 'onePager'];
 
 export default function DocTypeSelectModal({ documents = [], onComplete, onImport, onClose, creating }) {
   const [step, setStep] = useState('type'); // 'type' | 'source' | 'pick' | 'import'
@@ -66,7 +66,7 @@ export default function DocTypeSelectModal({ documents = [], onComplete, onImpor
               </button>
               <button type="button" className="doc-type-option doc-type-option-featured" onClick={() => setStep('import')} disabled={busy}>
                 <strong>Start from a Document ✨</strong>
-                <span>Drop in a PDF brochure, package, or BOV — or paste a link — and AI fills in what it finds.</span>
+                <span>Drop in a PDF brochure, OM, or package — or paste a link — and AI fills in what it finds.</span>
               </button>
               {documents.length > 0 && (
                 <button type="button" className="doc-type-option" onClick={() => setStep('pick')} disabled={busy}>
@@ -137,7 +137,7 @@ export default function DocTypeSelectModal({ documents = [], onComplete, onImpor
                   ) : (
                     <>
                       <strong>Drop a PDF here, or click to browse</strong>
-                      <span>Brochure, offering memorandum, broker package, BOV — any PDF with property info.</span>
+                      <span>Brochure, offering memorandum, broker package — any PDF with property info.</span>
                     </>
                   )}
                 </div>
