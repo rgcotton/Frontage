@@ -18,18 +18,38 @@ import BackCoverPage from './pages/BackCoverPage.jsx';
 export default function Flipbook({ om }) {
   const bookRef = useRef(null);
 
+  const hasOverview = Boolean(
+    om.overview?.yearBuilt || om.overview?.squareFootage || om.overview?.lotSize ||
+    om.overview?.description || (om.overview?.photos || []).length
+  );
+  const hasExecutiveSummary = Boolean(
+    om.executiveSummary?.narrative ||
+    (om.executiveSummary?.highlights || []).filter(Boolean).length ||
+    om.executiveSummary?.offeringPrice || om.executiveSummary?.capRate || om.executiveSummary?.noi
+  );
+  const hasMarket = Boolean(om.market?.narrative || om.market?.marketName);
+  const hasFinancials = Boolean(
+    (om.financials?.lineItems || []).length ||
+    om.financials?.grossIncome || om.financials?.operatingExpenses
+  );
+  const hasLocationMap = Boolean(om.cover?.lat && om.cover?.lng);
+  const hasOfferingProcedures = Boolean(
+    om.offeringProcedures?.loiInstructions || om.offeringProcedures?.tourInstructions ||
+    om.offeringProcedures?.offerDeadline || om.offeringProcedures?.dataRoomLink
+  );
+
   const pages = [
     { key: 'cover', node: <CoverPage om={om} /> },
     { key: 'toc', node: <TocPage /> },
-    { key: 'overview', node: <OverviewPage om={om} /> },
-    { key: 'executiveSummary', node: <ExecutiveSummaryPage om={om} /> },
-    { key: 'market', node: <MarketPage om={om} /> },
-    { key: 'financials', node: <FinancialsPage om={om} /> },
+    ...(hasOverview ? [{ key: 'overview', node: <OverviewPage om={om} /> }] : []),
+    ...(hasExecutiveSummary ? [{ key: 'executiveSummary', node: <ExecutiveSummaryPage om={om} /> }] : []),
+    ...(hasMarket ? [{ key: 'market', node: <MarketPage om={om} /> }] : []),
+    ...(hasFinancials ? [{ key: 'financials', node: <FinancialsPage om={om} /> }] : []),
     ...((om.salesComps || []).length ? [{ key: 'salesComps', node: <SalesCompsPage om={om} /> }] : []),
     ...((om.rentComps || []).length ? [{ key: 'rentComps', node: <RentCompsPage om={om} /> }] : []),
-    { key: 'locationMap', node: <LocationMapPage om={om} /> },
+    ...(hasLocationMap ? [{ key: 'locationMap', node: <LocationMapPage om={om} /> }] : []),
     ...((om.driveTimePois || []).length ? [{ key: 'driveTimePois', node: <DriveTimesPage om={om} /> }] : []),
-    { key: 'offeringProcedures', node: <OfferingProceduresPage om={om} /> },
+    ...(hasOfferingProcedures ? [{ key: 'offeringProcedures', node: <OfferingProceduresPage om={om} /> }] : []),
     ...(om.team || []).map((m) => ({ key: `team-${m.id}`, node: <TeamMemberPage member={m} /> })),
     { key: 'backCover', node: <BackCoverPage om={om} /> },
   ];
