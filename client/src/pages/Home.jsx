@@ -196,7 +196,7 @@ export default function Home({ user, onLogin, onLogout }) {
             Build Offering Memorandums, One Pagers, and Broker Opinions of Value — fill in the details once, then export as a polished PDF,
             PowerPoint deck, or shareable link.
           </p>
-          <button className="btn btn-gold" onClick={() => setShowDocTypeModal(true)} disabled={creating}>
+          <button className="btn btn-gold" onClick={() => user ? setShowDocTypeModal(true) : setShowSignIn(true)} disabled={creating}>
             {creating ? 'Creating…' : '+ New Document'}
           </button>
         </section>
