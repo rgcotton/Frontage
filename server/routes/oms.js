@@ -19,8 +19,9 @@ fs.mkdirSync(GENERATED_DIR, { recursive: true });
 // the X-User-Email header, or null for the signed-out workspace). Sends 404 itself
 // and returns null when missing or not owned, so callers can `if (!om) return;`.
 async function getOwnedOm(req, res) {
+  const ownerEmail = getOwnerEmail(req);
   const om = await getOm(req.params.id);
-  if (!om || om.ownerEmail !== getOwnerEmail(req)) {
+  if (!ownerEmail || !om || om.ownerEmail !== ownerEmail) {
     res.status(404).json({ error: 'Not found' });
     return null;
   }
