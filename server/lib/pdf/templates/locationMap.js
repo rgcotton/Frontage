@@ -31,5 +31,5 @@ export function buildPages(om, ctx) {
     ${streetBlock}
     ${regionalBlock}
   `;
-  return [flowSection(inner)];
+  return [flowSection(inner, true)];
 }

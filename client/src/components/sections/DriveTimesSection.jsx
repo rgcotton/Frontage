@@ -6,7 +6,7 @@ function makeId() {
   return `poi-${Date.now()}-${nextId++}`;
 }
 
-const CATEGORIES = ['Major Employer', 'Grocery Store', 'Hospital', 'Highway Access', 'School', 'Shopping Center', 'Other'];
+const CATEGORIES = ['Major Employer', 'Grocery Store', 'Hospital', 'Highway Access', 'School', 'Shopping Center', 'Airport', 'Other'];
 
 export default function DriveTimesSection({ value, onChange, omId, om, onUpdateOm }) {
   const pois = value || [];

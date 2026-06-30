@@ -111,7 +111,7 @@ export function buildPages(om, ctx) {
 
   const hasLogo = Boolean(ctx.brokerLogoUri);
   const logoBlock = hasLogo
-    ? `<div style="background:#fff; border-radius:8px; padding:10px 16px; display:inline-block;"><img src="${ctx.brokerLogoUri}" style="max-width:1.7in; max-height:0.6in; object-fit:contain; display:block;" /></div>`
+    ? `<img src="${ctx.brokerLogoUri}" style="max-width:1.7in; max-height:0.6in; object-fit:contain; display:block;" />`
     : '';
 
   const highlightsCard = highlightsHtml

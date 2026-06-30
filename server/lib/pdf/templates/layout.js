@@ -57,7 +57,7 @@ export function buildTheme(branding = {}) {
 function buildSharedCss(theme) {
   const t = theme || buildTheme();
   return `
-@page { margin: 0.38in 0.42in; size: 8.5in 11in; }
+@page { margin: 0.38in 0.42in; size: 8.5in 11in; background-color: ${t.pageBg}; }
 @page fixed-page { margin: 0; size: 8.5in 11in; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${t.pageBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
