@@ -3,17 +3,19 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import multer from 'multer';
 import omsRouter from './routes/oms.js';
 import foldersRouter from './routes/folders.js';
 import { closeBrowser } from './lib/pdf/render.js';
 
 const PORT = process.env.PORT || 4000;
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-const GENERATED_DIR = path.join(process.cwd(), 'generated');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+const GENERATED_DIR = path.join(__dirname, 'generated');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
-fs.mkdirSync(path.join(process.cwd(), 'data', 'oms'), { recursive: true });
+fs.mkdirSync(path.join(__dirname, 'data', 'oms'), { recursive: true });
 
 const app = express();
 app.use(cors());
@@ -25,6 +27,12 @@ app.use('/generated', express.static(GENERATED_DIR));
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/oms', omsRouter);
 app.use('/api/folders', foldersRouter);
+
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'client', 'dist');
+  app.use(express.static(clientDist));
+  app.get('*', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+}
 
 // Multer / upload error handler
 app.use((err, req, res, next) => {

@@ -1,8 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { nanoid } from 'nanoid';
 
-const FOLDERS_PATH = path.join(process.cwd(), 'data', 'folders.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FOLDERS_PATH = path.join(__dirname, '..', 'data', 'folders.json');
 
 async function ensureFile() {
   try {

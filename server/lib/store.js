@@ -1,9 +1,11 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { nanoid } from 'nanoid';
 import { UPLOAD_ROOT, resolveDiskPath } from './upload.js';
 
-const DATA_DIR = path.join(process.cwd(), 'data', 'oms');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = path.join(__dirname, '..', 'data', 'oms');
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });

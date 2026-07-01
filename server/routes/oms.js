@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { listOms, createOm, getOm, updateOm, deleteOm, duplicateOm, renameOm, autofillOm } from '../lib/store.js';
 import { upload, toFileRef, resolveDiskPath } from '../lib/upload.js';
 import { generatePdf } from '../lib/pdf/render.js';
@@ -12,7 +13,8 @@ import { extractFromPdfBuffer, extractFromText, fetchUrlContent, buildOmPatchFro
 import { createSignature, isValidSignatureToken } from '../lib/nda.js';
 
 const router = express.Router();
-const GENERATED_DIR = path.join(process.cwd(), 'generated');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const GENERATED_DIR = path.join(__dirname, '..', 'generated');
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
 
 // Fetches a document and confirms it belongs to the requesting owner (identified by

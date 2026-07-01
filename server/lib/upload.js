@@ -1,9 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import multer from 'multer';
 import { nanoid } from 'nanoid';
 
-const UPLOAD_ROOT = path.join(process.cwd(), 'uploads');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const UPLOAD_ROOT = path.join(__dirname, '..', 'uploads');
 
 const ALLOWED_MIME = new Set([
   // images
