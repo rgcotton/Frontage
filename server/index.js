@@ -11,11 +11,11 @@ import { closeBrowser } from './lib/pdf/render.js';
 
 const PORT = process.env.PORT || 4000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const GENERATED_DIR = path.join(__dirname, 'generated');
+const UPLOAD_DIR = path.join(__dirname, 'storage', 'uploads');
+const GENERATED_DIR = path.join(__dirname, 'storage', 'generated');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
-fs.mkdirSync(path.join(__dirname, 'data', 'oms'), { recursive: true });
+fs.mkdirSync(path.join(__dirname, 'storage', 'data', 'oms'), { recursive: true });
 
 const app = express();
 app.use(cors());

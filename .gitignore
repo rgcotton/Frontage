@@ -9,11 +9,11 @@ server/.env
 client/dist/
 
 # generated/runtime data (kept locally, not committed)
-server/data/oms/*.json
-server/data/folders.json
-server/uploads/*/
-server/generated/*
+server/storage/data/oms/*.json
+server/storage/data/folders.json
+server/storage/uploads/*/
+server/storage/generated/*
 
-!server/data/oms/.gitkeep
-!server/uploads/.gitkeep
-!server/generated/.gitkeep
+!server/storage/data/oms/.gitkeep
+!server/storage/uploads/.gitkeep
+!server/storage/generated/.gitkeep

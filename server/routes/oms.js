@@ -14,7 +14,7 @@ import { createSignature, isValidSignatureToken } from '../lib/nda.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const GENERATED_DIR = path.join(__dirname, '..', 'generated');
+const GENERATED_DIR = path.join(__dirname, '..', 'storage', 'generated');
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
 
 // Fetches a document and confirms it belongs to the requesting owner (identified by

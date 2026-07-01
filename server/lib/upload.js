@@ -5,7 +5,7 @@ import multer from 'multer';
 import { nanoid } from 'nanoid';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_ROOT = path.join(__dirname, '..', 'uploads');
+const UPLOAD_ROOT = path.join(__dirname, '..', 'storage', 'uploads');
 
 const ALLOWED_MIME = new Set([
   // images

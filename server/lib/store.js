@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import { UPLOAD_ROOT, resolveDiskPath } from './upload.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', 'data', 'oms');
+const DATA_DIR = path.join(__dirname, '..', 'storage', 'data', 'oms');
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
