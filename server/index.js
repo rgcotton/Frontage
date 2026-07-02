@@ -52,18 +52,24 @@ const server = app.listen(PORT, () => {
 // "Waiting for graceful termination...". Close it explicitly, with a hard
 // deadline so a restart/shutdown can never hang longer than this.
 let shuttingDown = false;
-function shutdown() {
+function shutdown(signal) {
   if (shuttingDown) return;
   shuttingDown = true;
-  const forceExit = setTimeout(() => process.exit(0), 8000);
+  console.log(`[shutdown] received ${signal}, starting graceful shutdown at ${new Date().toISOString()}`);
+  const forceExit = setTimeout(() => {
+    console.log(`[shutdown] closeBrowser/server.close did not finish in time, force exiting at ${new Date().toISOString()}`);
+    process.exit(0);
+  }, 8000);
   Promise.resolve(closeBrowser())
-    .catch(() => {})
+    .catch((err) => console.log('[shutdown] closeBrowser error (ignored):', err?.message))
     .then(() => {
+      console.log(`[shutdown] browser closed at ${new Date().toISOString()}, closing server`);
       server.close(() => {
+        console.log(`[shutdown] server closed cleanly at ${new Date().toISOString()}, exiting 0`);
         clearTimeout(forceExit);
         process.exit(0);
       });
     });
 }
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
