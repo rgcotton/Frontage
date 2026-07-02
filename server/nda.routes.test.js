@@ -29,7 +29,7 @@ function authedFetch(urlPath, email, options = {}) {
 
 test('share links require a signed NDA when enabled, and stay open by default', async (t) => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'nda-test-'));
-  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT) } });
+  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT), STORAGE_ROOT: cwd } });
   t.after(() => {
     if (!child.killed) child.kill('SIGKILL');
   });

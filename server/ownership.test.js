@@ -29,7 +29,7 @@ function authedFetch(urlPath, email, options = {}) {
 
 test('documents and folders are isolated per owner, including the signed-out workspace', async (t) => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'ownership-test-'));
-  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT) } });
+  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT), STORAGE_ROOT: cwd } });
   t.after(() => {
     if (!child.killed) child.kill('SIGKILL');
   });

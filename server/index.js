@@ -8,14 +8,16 @@ import multer from 'multer';
 import omsRouter from './routes/oms.js';
 import foldersRouter from './routes/folders.js';
 import { closeBrowser } from './lib/pdf/render.js';
+import { requireAccessCode } from './lib/auth.js';
+import { getStorageRoot } from './lib/storagePaths.js';
 
 const PORT = process.env.PORT || 4000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.join(__dirname, 'storage', 'uploads');
-const GENERATED_DIR = path.join(__dirname, 'storage', 'generated');
+const UPLOAD_DIR = path.join(getStorageRoot(), 'uploads');
+const GENERATED_DIR = path.join(getStorageRoot(), 'generated');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
-fs.mkdirSync(path.join(__dirname, 'storage', 'data', 'oms'), { recursive: true });
+fs.mkdirSync(path.join(getStorageRoot(), 'data', 'oms'), { recursive: true });
 
 const app = express();
 app.use(cors());
@@ -25,8 +27,8 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 app.use('/generated', express.static(GENERATED_DIR));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.use('/api/oms', omsRouter);
-app.use('/api/folders', foldersRouter);
+app.use('/api/oms', requireAccessCode, omsRouter);
+app.use('/api/folders', requireAccessCode, foldersRouter);
 
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'client', 'dist');

@@ -29,7 +29,7 @@ function authedFetch(urlPath, email, options = {}) {
 
 test('POI recalculation is ownership-gated and never errors out when addresses are blank', async (t) => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'poi-test-'));
-  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT) } });
+  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT), STORAGE_ROOT: cwd } });
   t.after(() => {
     if (!child.killed) child.kill('SIGKILL');
   });
@@ -57,7 +57,7 @@ test('POI recalculation is ownership-gated and never errors out when addresses a
 
 test('recalculation accepts the current in-memory POI list in the request body, so it never clobbers unsaved client edits with a stale persisted list', async (t) => {
   const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'poi-test-'));
-  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT + 1) } });
+  const child = spawn('node', [SERVER_ENTRY], { cwd, env: { ...process.env, PORT: String(PORT + 1), STORAGE_ROOT: cwd } });
   const base = `http://localhost:${PORT + 1}`;
   t.after(() => {
     if (!child.killed) child.kill('SIGKILL');

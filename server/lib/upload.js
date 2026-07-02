@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import multer from 'multer';
 import { nanoid } from 'nanoid';
+import { getStorageRoot } from './storagePaths.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_ROOT = path.join(__dirname, '..', 'storage', 'uploads');
+const UPLOAD_ROOT = path.join(getStorageRoot(), 'uploads');
 
 const ALLOWED_MIME = new Set([
   // images

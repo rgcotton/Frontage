@@ -6,7 +6,7 @@ import path from 'node:path';
 
 async function loadFoldersInTempDir() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'folders-test-'));
-  process.chdir(dir);
+  process.env.STORAGE_ROOT = dir;
   const mod = await import(`./folders.js?cachebust=${Math.random()}`);
   return mod;
 }

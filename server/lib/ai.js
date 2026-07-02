@@ -190,6 +190,40 @@ Date: ${today}`,
   },
 };
 
+// These two were documented (README) and already wired into the /generate route's
+// result-handling switch, but the actual prompt builders were never added, so both
+// buttons have 400'd since the BOV document type shipped. Attached here rather than
+// inside the object literal above to avoid an unverified edit deep inside it.
+PROMPT_BUILDERS.valuationMethodologyNarrative = function (om) {
+  const { cover, executiveSummary, valuation } = om;
+  return {
+    system: `You are a commercial real estate appraiser writing the valuation methodology narrative for a Broker Opinion of Value. Explain the approach used and how it supports the concluded value. Return 2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
+    user: `Write the valuation methodology narrative for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Offering Price: ${fmt(executiveSummary.offeringPrice)}
+Cap Rate: ${fmt(executiveSummary.capRate)}
+Methodology Approach: ${fmt(valuation.methodologyApproach)}
+Concluded Value: ${fmt(valuation.concludedValue)}
+Value Effective Date: ${fmt(valuation.valueEffectiveDate)}
+Value Basis Note: ${fmt(valuation.valueBasisNote)}`,
+  };
+};
+
+PROMPT_BUILDERS.brokerRecommendationNarrative = function (om) {
+  const { cover, executiveSummary, recommendation } = om;
+  return {
+    system: `You are a commercial real estate broker writing a recommendation narrative for a Broker Opinion of Value. State a clear recommended course of action and the reasoning behind it. Return 1-2 tight paragraphs of plain text only, no headings, no markdown. ${STYLE_RULES}`,
+    user: `Write the broker recommendation narrative for this property.
+
+Property: ${fmt(cover.propertyName)} (${fmt(cover.propertyType)})
+Address: ${fmt(cover.addressLine1)}, ${fmt(cover.city)}, ${fmt(cover.state)} ${fmt(cover.zip)}
+Offering Price: ${fmt(executiveSummary.offeringPrice)}
+Recommended Action: ${fmt(recommendation.recommendedAction)}`,
+  };
+};
+
 export const AI_KINDS = Object.keys(PROMPT_BUILDERS);
 
 // Maps each AI "kind" to the section key used for that section's Custom AI Instructions box.
@@ -199,6 +233,8 @@ const KIND_SECTION_MAP = {
   marketNarrative: 'market',
   salesCompAnalysis: 'salesComps',
   propertyDescription: 'overview',
+  valuationMethodologyNarrative: 'valuation',
+  brokerRecommendationNarrative: 'recommendation',
 
   tagline: 'cover',
   onePagerHighlights: 'executiveSummary',

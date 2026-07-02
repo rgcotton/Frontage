@@ -9,7 +9,7 @@ import { emptyOm } from './store.js';
 // test runs in its own freshly-chdir'd temp directory before dynamically importing it.
 async function loadStoreInTempDir() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'store-test-'));
-  process.chdir(dir);
+  process.env.STORAGE_ROOT = dir;
   const mod = await import(`./store.js?cachebust=${Math.random()}`);
   return { store: mod, dir };
 }

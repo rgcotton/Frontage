@@ -9,12 +9,13 @@ import { generatePptx } from '../lib/pptxGenerator.js';
 import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
 import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer, recalculateDriveTimes } from '../lib/maps.js';
 import { getOwnerEmail } from '../lib/auth.js';
+import { getStorageRoot } from '../lib/storagePaths.js';
 import { extractFromPdfBuffer, extractFromText, fetchUrlContent, buildOmPatchFromExtraction } from '../lib/extraction.js';
 import { createSignature, isValidSignatureToken } from '../lib/nda.js';
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const GENERATED_DIR = path.join(__dirname, '..', 'storage', 'generated');
+const GENERATED_DIR = path.join(getStorageRoot(), 'generated');
 fs.mkdirSync(GENERATED_DIR, { recursive: true });
 
 // Fetches a document and confirms it belongs to the requesting owner (identified by
