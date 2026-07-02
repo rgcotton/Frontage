@@ -55,7 +55,7 @@ let shuttingDown = false;
 function shutdown() {
   if (shuttingDown) return;
   shuttingDown = true;
-  const forceExit = setTimeout(() => process.exit(1), 3000);
+  const forceExit = setTimeout(() => process.exit(0), 8000);
   Promise.resolve(closeBrowser())
     .catch(() => {})
     .then(() => {
