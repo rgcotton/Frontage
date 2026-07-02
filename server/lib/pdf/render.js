@@ -44,7 +44,7 @@ export async function getBrowser() {
     sharedBrowser = null;
   }
   if (!sharedBrowser) {
-    sharedBrowser = await puppeteer.launch({ headless: true });
+    sharedBrowser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   }
   return sharedBrowser;
 }
