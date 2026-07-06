@@ -4,8 +4,6 @@ import { toDataUri } from '../helpers/images.js';
 
 const PHOTO_H = 4.4; // in, 40% of the 11in page
 const STATS_TOP = PHOTO_H;
-const STATS_H = 1.15;
-const BOTTOM_TOP = STATS_TOP + STATS_H;
 const FOOTER_H = 0.45;
 const FOOTER_TOP = 11 - FOOTER_H;
 const LEFT_COL_W_PCT = 72;
@@ -62,7 +60,8 @@ export function buildPages(om, ctx) {
     ['Occupancy', overview.occupancyPct, () => formatPercent(overview.occupancyPct)],
   ];
   const stats = rawStats.filter(([, raw]) => Boolean(raw)).map(([label, , display]) => [label, display()]);
-  const bottomTop = stats.length ? BOTTOM_TOP : STATS_TOP;
+  const statsH = stats.length <= 2 ? 0.8 : 0.95;
+  const bottomTop = stats.length ? STATS_TOP + statsH : STATS_TOP;
 
   const photoBg = ctx.coverPhotoUri
     ? `background-image: linear-gradient(180deg, rgba(17,32,59,0.05) 0%, rgba(17,32,59,0.25) 55%, rgba(17,32,59,0.88) 100%), url('${ctx.coverPhotoUri}'); background-size: cover; background-position: center;`
@@ -115,7 +114,7 @@ export function buildPages(om, ctx) {
     : '';
 
   const highlightsCard = highlightsHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:1; padding:0.14in 0.2in; display:flex; flex-direction:column; overflow:hidden;">
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 1 auto; min-height:0; padding:0.14in 0.2in; display:flex; flex-direction:column; overflow:hidden;">
       <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:5px;">Investment Highlights</div>
       ${highlightsHtml}
     </div>`
@@ -170,19 +169,20 @@ const brokerCardInner = `
 
     ${
       stats.length
-        ? `<div style="position:absolute; left:0; right:0; top:${STATS_TOP}in; height:${STATS_H}in; background:${theme.primaryColor}; border-top:3px solid ${theme.accentColor}; display:flex; align-items:center; padding:0 0.5in;">
+        ? `<div style="position:absolute; left:0; right:0; top:${STATS_TOP}in; height:${statsH}in; background:${theme.primaryColor}; border-top:3px solid ${theme.accentColor}; display:flex; align-items:center; padding:0 0.5in;">
       ${statsCells}
     </div>`
         : ''
     }
 
     <div style="position:absolute; left:0; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; display:flex; flex-direction:row; overflow:hidden;">
-      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.1in; padding:0.25in;">
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.1in; padding:0.25in; overflow:hidden;">
         ${dealSummaryCard}
         ${highlightsCard}
+        <div style="flex:1; min-height:0;"></div>
         ${driveTimesCard}
       </div>
-      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; align-self:flex-start; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.2in; box-sizing:border-box;">
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0.2in; box-sizing:border-box;">
         ${brokerCardInner}
       </div>
     </div>
