@@ -1,9 +1,6 @@
 import express from 'express';
-import { createRequire } from 'module';
+import { ZipArchive } from 'archiver';
 import { getStorageRoot } from '../lib/storagePaths.js';
-
-const require = createRequire(import.meta.url);
-const archiver = require('archiver');
 import path from 'path';
 
 const router = express.Router();
@@ -22,7 +19,7 @@ router.get('/export-backup', (req, res) => {
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', `attachment; filename="backup-${timestamp}.zip"`);
 
-  const archive = archiver('zip', { zlib: { level: 6 } });
+  const archive = new ZipArchive({ zlib: { level: 6 } });
 
   archive.on('error', (err) => {
     console.error('[backup] archiver error:', err);
