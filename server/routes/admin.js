@@ -1,6 +1,9 @@
 import express from 'express';
-import archiver from 'archiver';
+import { createRequire } from 'module';
 import { getStorageRoot } from '../lib/storagePaths.js';
+
+const require = createRequire(import.meta.url);
+const archiver = require('archiver');
 import path from 'path';
 
 const router = express.Router();
