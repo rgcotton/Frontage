@@ -1,0 +1,59 @@
+name: Daily Backup
+
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up backups branch
+        run: |
+          if git ls-remote --exit-code origin backups; then
+            git checkout backups
+          else
+            git checkout --orphan backups
+            git rm -rf . || true
+          fi
+
+      - name: Set backup date
+        run: echo "BACKUP_DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
+
+      - name: Download backup
+        run: |
+          mkdir -p backups
+          curl -f --retry 3 \
+            -H "X-Backup-Secret: ${{ secrets.BACKUP_SECRET }}" \
+            https://frontage-production.up.railway.app/api/admin/export-backup \
+            -o backups/backup-${{ env.BACKUP_DATE }}.zip
+
+      - name: Delete backups older than 14 days
+        run: |
+          cutoff=$(date -u -d '14 days ago' +%Y-%m-%d)
+          for f in backups/backup-*.zip; do
+            [ -f "$f" ] || continue
+            filedate=$(basename "$f" .zip | sed 's/backup-//')
+            if [[ "$filedate" < "$cutoff" ]]; then
+              echo "Removing $f ($filedate < $cutoff)"
+              git rm "$f"
+            fi
+          done
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/backup-${{ env.BACKUP_DATE }}.zip
+          if git diff --cached --quiet; then
+            echo "No changes since last backup, skipping commit."
+          else
+            git commit -m "chore: backup ${{ env.BACKUP_DATE }}"
+            git push origin HEAD:backups
+          fi
