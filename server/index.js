@@ -8,7 +8,6 @@ import multer from 'multer';
 import omsRouter from './routes/oms.js';
 import foldersRouter from './routes/folders.js';
 import { closeBrowser } from './lib/pdf/render.js';
-import { requireAccessCode } from './lib/auth.js';
 import { getStorageRoot } from './lib/storagePaths.js';
 
 const PORT = process.env.PORT || 4000;
@@ -27,8 +26,8 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 app.use('/generated', express.static(GENERATED_DIR));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.use('/api/oms', requireAccessCode, omsRouter);
-app.use('/api/folders', requireAccessCode, foldersRouter);
+app.use('/api/oms', omsRouter);
+app.use('/api/folders', foldersRouter);
 
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'client', 'dist');
