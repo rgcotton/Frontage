@@ -115,7 +115,7 @@ export function buildPages(om, ctx) {
     : '';
 
   const highlightsCard = highlightsHtml
-    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:0 0 auto; padding:0.14in 0.2in; display:flex; flex-direction:column; overflow:hidden;">
+    ? `<div style="background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; flex:1; padding:0.14in 0.2in; display:flex; flex-direction:column; overflow:hidden;">
       <div style="font-size:${TYPE.section}; font-weight:700; letter-spacing:0.5px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:5px;">Investment Highlights</div>
       ${highlightsHtml}
     </div>`
@@ -182,7 +182,7 @@ const brokerCardInner = `
         ${highlightsCard}
         ${driveTimesCard}
       </div>
-      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; height:100%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.2in; box-sizing:border-box;">
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; align-self:flex-start; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0.2in; box-sizing:border-box;">
         ${brokerCardInner}
       </div>
     </div>
