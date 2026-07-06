@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import omsRouter from './routes/oms.js';
 import foldersRouter from './routes/folders.js';
+import adminRouter from './routes/admin.js';
 import { closeBrowser } from './lib/pdf/render.js';
 import { getStorageRoot } from './lib/storagePaths.js';
 
@@ -28,6 +29,7 @@ app.use('/generated', express.static(GENERATED_DIR));
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/oms', omsRouter);
 app.use('/api/folders', foldersRouter);
+app.use('/api/admin', adminRouter);
 
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'client', 'dist');
