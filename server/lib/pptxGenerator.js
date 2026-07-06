@@ -62,8 +62,9 @@ function statBoxes(slide, items, y) {
   items.forEach(([label, value], i) => {
     const x = 0.3 + i * (w + gap);
     slide.addShape('roundRect', { x, y, w, h: 0.9, fill: { color: LIGHT_GRAY }, line: { color: LIGHT_GRAY }, rectRadius: 0.05 });
-    slide.addText(label.toUpperCase(), { x: x + 0.13, y: y + 0.08, w: w - 0.26, h: 0.25, fontSize: 7.5, color: MUTED });
-    slide.addText(value || '—', { x: x + 0.13, y: y + 0.35, w: w - 0.26, h: 0.45, fontSize: 14, bold: true, color: NAVY });
+    slide.addText(label.toUpperCase(), { x: x + 0.13, y: y + 0.08, w: w - 0.26, h: 0.22, fontSize: 7.5, color: MUTED, shrinkText: true });
+    // value height uses the remaining box space; shrinkText prevents overflow into adjacent elements
+    slide.addText(value || '—', { x: x + 0.13, y: y + 0.32, w: w - 0.26, h: 0.5, fontSize: 14, bold: true, color: NAVY, shrinkText: true });
   });
 }
 
@@ -93,14 +94,27 @@ function table(slide, headers, rows, y, colWidths, opts = {}) {
   });
 }
 
-function addCard(slide, x, y, w, h, title, rows, notes) {
+// photoPath (optional): renders a cover-cropped photo at the top of the card.
+// All text boxes use shrinkText to prevent overflow into adjacent elements.
+function addCard(slide, x, y, w, h, title, rows, notes, photoPath) {
   slide.addShape('rect', { x, y, w, h, fill: { color: 'FFFFFF' }, line: { color: 'E7E9EC', width: 1 } });
-  slide.addText(title, { x: x + 0.15, y: y + 0.1, w: w - 0.3, h: 0.3, fontSize: 11, bold: true, color: NAVY });
-  const rowY = y + 0.45;
-  const rowH = (h - 0.45 - (notes ? 0.5 : 0)) / rows.length;
+
+  const COMP_PHOTO_H = 1.3;
+  let innerY = y;
+  let innerH = h;
+
+  if (photoPath) {
+    slide.addImage({ path: photoPath, x, y, w, h: COMP_PHOTO_H, sizing: { type: 'cover', w, h: COMP_PHOTO_H } });
+    innerY += COMP_PHOTO_H;
+    innerH -= COMP_PHOTO_H;
+  }
+
+  slide.addText(title, { x: x + 0.15, y: innerY + 0.1, w: w - 0.3, h: 0.3, fontSize: 11, bold: true, color: NAVY, shrinkText: true });
+  const rowY = innerY + 0.45;
+  const rowH = (innerH - 0.45 - (notes ? 0.5 : 0)) / rows.length;
   rows.forEach(([label, value], i) => {
     const ry = rowY + i * rowH;
-    slide.addText(label, { x: x + 0.15, y: ry, w: (w - 0.3) / 2, h: rowH, fontSize: 8.5, color: MUTED, valign: 'middle' });
+    slide.addText(label, { x: x + 0.15, y: ry, w: (w - 0.3) / 2, h: rowH, fontSize: 8.5, color: MUTED, valign: 'middle', shrinkText: true });
     slide.addText(value || '—', {
       x: x + 0.15 + (w - 0.3) / 2,
       y: ry,
@@ -111,10 +125,12 @@ function addCard(slide, x, y, w, h, title, rows, notes) {
       color: CHARCOAL,
       align: 'right',
       valign: 'middle',
+      shrinkText: true,
     });
   });
   if (notes) {
-    slide.addText(notes, { x: x + 0.15, y: y + h - 0.45, w: w - 0.3, h: 0.4, fontSize: 7.5, italic: true, color: MUTED, valign: 'top' });
+    // Uses the full 0.5in notes reservation minus a small top margin — shrinkText handles longer notes
+    slide.addText(notes, { x: x + 0.15, y: y + h - 0.47, w: w - 0.3, h: 0.43, fontSize: 7.5, italic: true, color: MUTED, valign: 'top', shrinkText: true });
   }
 }
 
@@ -234,8 +250,8 @@ export async function generatePptx(om, outputPath) {
     const y = 1.0 + i * 1.05;
     exec.addShape('roundRect', { x: 0.3, y, w: 2.6, h: 0.9, fill: { color: NAVY }, rectRadius: 0.06 });
     exec.addShape('rect', { x: 0.3, y, w: 0.06, h: 0.9, fill: { color: GOLD } });
-    exec.addText(label.toUpperCase(), { x: 0.5, y: y + 0.1, w: 2.3, h: 0.25, fontSize: 8, color: 'CCCCCC' });
-    exec.addText(value, { x: 0.5, y: y + 0.38, w: 2.3, h: 0.4, fontSize: 16, bold: true, color: 'FFFFFF' });
+    exec.addText(label.toUpperCase(), { x: 0.5, y: y + 0.1, w: 2.3, h: 0.25, fontSize: 8, color: 'CCCCCC', shrinkText: true });
+    exec.addText(value, { x: 0.5, y: y + 0.38, w: 2.3, h: 0.45, fontSize: 16, bold: true, color: 'FFFFFF', shrinkText: true });
   });
   exec.addText('Investment Overview', { x: 3.2, y: 1.0, w: 6.5, h: 0.3, fontSize: 12, bold: true, color: NAVY });
   exec.addText(om.executiveSummary.narrative || 'No summary provided.', {
@@ -393,18 +409,15 @@ export async function generatePptx(om, outputPath) {
     });
   }
 
-  // ---------- Slides: Sales Comps ----------
+  // ---------- Slides: Sales Comps (skipped entirely when empty) ----------
   const salesComps = om.salesComps || [];
-  if (!salesComps.length) {
-    const slide = pptx.addSlide();
-    addSectionHeader(slide, propertyName, 'Sales Comparables');
-    slide.addText('No sales comparables provided.', { x: 0.3, y: 1.0, w: 9.4, h: 0.4, fontSize: 11, color: MUTED });
-  } else {
+  if (salesComps.length) {
     chunk(salesComps, 2).forEach((rows, idx) => {
       const slide = pptx.addSlide();
       addSectionHeader(slide, propertyName, idx === 0 ? 'Sales Comparables' : 'Sales Comparables (Cont.)');
       rows.forEach((c, i) => {
         const x = 0.3 + i * 4.85;
+        const photoPath = imagePathIfDrawable(om.id, c.photo);
         addCard(
           slide,
           x,
@@ -419,19 +432,16 @@ export async function generatePptx(om, outputPath) {
             ['Cap Rate', formatPercent(c.capRate)],
             ['Square Feet', c.squareFeet ? `${formatNumber(c.squareFeet)} SF` : '—'],
           ],
-          c.notes
+          c.notes,
+          photoPath
         );
       });
     });
   }
 
-  // ---------- Slides: Rent Comps ----------
+  // ---------- Slides: Rent Comps (skipped entirely when empty) ----------
   const rentComps = om.rentComps || [];
-  if (!rentComps.length) {
-    const slide = pptx.addSlide();
-    addSectionHeader(slide, propertyName, 'Rent Comparables');
-    slide.addText('No rent comparables provided.', { x: 0.3, y: 1.0, w: 9.4, h: 0.4, fontSize: 11, color: MUTED });
-  } else {
+  if (rentComps.length) {
     chunk(rentComps, 4).forEach((rows, idx) => {
       const slide = pptx.addSlide();
       addSectionHeader(slide, propertyName, idx === 0 ? 'Rent Comparables' : 'Rent Comparables (Cont.)');
@@ -495,11 +505,7 @@ export async function generatePptx(om, outputPath) {
 
   // ---------- Slides: Meet the Team ----------
   const team = om.team || [];
-  if (!team.length) {
-    const slide = pptx.addSlide();
-    addSectionHeader(slide, propertyName, 'Meet the Team');
-    slide.addText('No team members provided.', { x: 0.3, y: 1.0, w: 9.4, h: 0.4, fontSize: 11, color: MUTED });
-  } else {
+  if (team.length) {
     team.forEach((m) => {
       const slide = pptx.addSlide();
       addSectionHeader(slide, propertyName, 'Meet the Team');
@@ -509,8 +515,8 @@ export async function generatePptx(om, outputPath) {
         slide.addImage({ path: headshot, x: 0.3, y: 1.0, w: 3.76, h: 5.7, sizing: { type: 'cover', w: 3.76, h: 5.7 } });
       }
       slide.addShape('rect', { x: 0.3, y: 1.0, w: 0.06, h: 5.7, fill: { color: GOLD } });
-      slide.addText(m.name || '—', { x: 4.3, y: 1.1, w: 5.4, h: 0.5, fontSize: 22, bold: true, color: NAVY });
-      slide.addText(m.title || '', { x: 4.3, y: 1.6, w: 5.4, h: 0.35, fontSize: 12, color: MUTED });
+      slide.addText(m.name || '—', { x: 4.3, y: 1.1, w: 5.4, h: 0.5, fontSize: 22, bold: true, color: NAVY, shrinkText: true });
+      slide.addText(m.title || '', { x: 4.3, y: 1.6, w: 5.4, h: 0.35, fontSize: 12, color: MUTED, shrinkText: true });
       slide.addText([m.phone, m.email].filter(Boolean).join('   •   '), {
         x: 4.3,
         y: 2.05,
@@ -518,6 +524,7 @@ export async function generatePptx(om, outputPath) {
         h: 0.3,
         fontSize: 10,
         color: CHARCOAL,
+        shrinkText: true,
       });
       slide.addShape('line', { x: 4.3, y: 2.4, w: 5.4, h: 0, line: { color: 'E7E9EC', width: 1 } });
       slide.addText(m.bio || 'No bio provided.', { x: 4.3, y: 2.6, w: 5.4, h: 3.8, fontSize: 10, color: CHARCOAL, valign: 'top' });
@@ -547,6 +554,7 @@ export async function generatePptx(om, outputPath) {
         bold: i === 0,
         color: i === 0 ? 'FFFFFF' : 'CCCCCC',
         align: 'center',
+        shrinkText: true,
       });
     });
   }
