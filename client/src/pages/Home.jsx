@@ -193,7 +193,7 @@ export default function Home({ user, onLogin, onLogout }) {
           </div>
           <h1>Professional CRE Documents in Minutes</h1>
           <p>
-            Build Offering Memorandums, One Pagers, and Broker Opinions of Value — fill in the details once, then export as a polished PDF,
+            Build Offering Memorandums and One Pagers — fill in the details once, then export as a polished PDF,
             PowerPoint deck, or shareable link.
           </p>
           <button className="btn btn-gold" onClick={() => user ? setShowDocTypeModal(true) : setShowSignIn(true)} disabled={creating}>
