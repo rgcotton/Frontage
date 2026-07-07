@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../../api.js';
+import PlacesAutocomplete from '../inputs/PlacesAutocomplete.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -34,11 +35,11 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
     onChange(next);
   }
 
-  async function handleRecalculate() {
+  async function handleRecalculate(poisToRecalc = pois) {
     setRecalculating(true);
     setError(null);
     try {
-      const updated = await api.recalculateDriveTimes(omId, pois);
+      const updated = await api.recalculateDriveTimes(omId, poisToRecalc);
       onUpdateOm({ driveTimePois: updated.driveTimePois });
     } catch (err) {
       setError(err.message);
@@ -99,10 +100,23 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
           </div>
           <div className="field">
             <label>Address</label>
-            <input
-              type="text"
+            <PlacesAutocomplete
+              omId={omId}
               value={p.address}
-              onChange={(e) => update(p.id, 'address', e.target.value)}
+              onChange={(val) => update(p.id, 'address', val)}
+              onPlaceSelect={(place) => {
+                const next = pois.map((poi) =>
+                  poi.id === p.id
+                    ? {
+                        ...poi,
+                        address: place.formattedAddress,
+                        name: poi.name?.trim() ? poi.name : place.name,
+                      }
+                    : poi
+                );
+                onChange(next);
+                handleRecalculate(next);
+              }}
               onBlur={handleRecalculate}
               placeholder="e.g. 123 Commerce Dr, Springfield, MO"
             />
