@@ -164,11 +164,13 @@ export async function searchPlaces(query, location = null) {
     params.set('rankby', 'distance');
   }
   const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`;
+  console.log('[searchPlaces] url=%s', url.replace(/key=[^&]+/, 'key=REDACTED'));
 
   try {
     const res = await fetch(url);
     if (!res.ok) return [];
     const data = await res.json();
+    console.log('[searchPlaces] status=%s predictions=%d', data.status, data.predictions?.length ?? 0);
     if (data.status !== 'OK' || !data.predictions?.length) return [];
 
     return data.predictions.map((prediction) => ({

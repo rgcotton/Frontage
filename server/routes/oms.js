@@ -363,6 +363,11 @@ router.get('/:id/poi/places', async (req, res) => {
       : om.cover?.lat != null && om.cover?.lng != null
         ? { lat: om.cover.lat, lng: om.cover.lng }
         : null;
+    console.log('[poi/places] omId=%s q=%s | query-params lat=%s lng=%s | cover lat=%s lng=%s | resolved location=%s',
+      req.params.id, q,
+      req.query.lat, req.query.lng,
+      om.cover?.lat, om.cover?.lng,
+      location ? `${location.lat},${location.lng}` : 'none (no bias)');
     const results = await searchPlaces(q, location);
     res.json(results);
   } catch (err) {
