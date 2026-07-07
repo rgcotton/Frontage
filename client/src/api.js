@@ -78,6 +78,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pois }),
     }),
+  searchPlaces: (omId, query) =>
+    request(`/api/oms/${omId}/poi/places?q=${encodeURIComponent(query)}`),
+  getPlaceDetails: (omId, placeId) =>
+    request(`/api/oms/${omId}/poi/places/${encodeURIComponent(placeId)}`),
   extractFromUpload: (id, file) => {
     const formData = new FormData();
     formData.append('file', file);
