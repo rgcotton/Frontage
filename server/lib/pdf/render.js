@@ -118,7 +118,7 @@ function computeOnePagerRenderParams(measurements, naturalStatsH, highlights, po
   let dtH = measurements['drive-times'] || 0;
 
   const activeCount = [dsH, hlH, dtH].filter((h) => h > 0).length;
-  const gapTotal = Math.max(0, activeCount - 1) * GAP_PX;
+  const gapTotal = activeCount * GAP_PX;
   const naturalCardTotal = dsH + hlH + dtH;
   const naturalScaleable = statsH_px + LEFT_COL_PAD_PX + gapTotal + naturalCardTotal;
 
@@ -179,7 +179,7 @@ function computeOnePagerRenderParams(measurements, naturalStatsH, highlights, po
 
   const computeScale = (hH, dH) => {
     const n = [dsH, hH, dH].filter((h) => h > 0).length;
-    const g = Math.max(0, n - 1) * GAP_PX;
+    const g = n * GAP_PX;
     return AVAILABLE_BOTTOM_PX / (statsH_px + LEFT_COL_PAD_PX + g + dsH + hH + dH);
   };
 

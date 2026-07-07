@@ -47,7 +47,13 @@
       "Bash(pip3 install *)",
       "Bash(qlmanage -t -s 800 -o /tmp/ /tmp/test-full.png)",
       "Bash(qlmanage -t -s 1400 -o /tmp/pptx-slides/ /tmp/test-rich.pptx)",
-      "Bash(osascript -e 'application \"Keynote\" exists')"
+      "Bash(osascript -e 'application \"Keynote\" exists')",
+      "Bash(git push *)",
+      "Bash(JWT_SECRET=test-secret-for-auth-tests node *)",
+      "Bash(JWT_SECRET=test-secret node *)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(curl -s -i -H \"X-User-Email: robbiecotton8@gmail.com\" https://frontage-production.up.railway.app/api/admin/users)",
+      "Bash(git commit *)"
     ]
   }
 }
