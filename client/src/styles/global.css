@@ -2046,3 +2046,127 @@ select {
   color: var(--gray-500);
 }
 
+/* ---------- Dashboard mobile ---------- */
+
+.dashboard-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--dash-text);
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 6px;
+}
+
+.dashboard-hamburger:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-sidebar-close {
+  display: none;
+}
+
+.dashboard-sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.dashboard-signin {
+  color: var(--dash-text);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dashboard-signin:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+}
+
+@media (max-width: 767px) {
+  .dashboard-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dashboard-topline {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+  }
+
+  .dashboard-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .dashboard-sidebar-backdrop.open {
+    display: block;
+  }
+
+  .dashboard-sidebar-close {
+    display: block;
+    position: absolute;
+    top: 16px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    border-radius: 4px;
+  }
+
+  .dashboard-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+  }
+
+  .dashboard-sidebar-brand {
+    padding-right: 40px;
+  }
+
+  .dashboard-main {
+    padding: 16px 16px 48px;
+    width: 100%;
+  }
+
+  .dashboard-hero {
+    padding: 24px 0 28px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 26px;
+  }
+
+  .folder-nav-item {
+    min-height: 44px;
+  }
+
+  .folder-nav-add {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .doc-card-menu-trigger {
+    width: 36px;
+    height: 36px;
+  }
+}
+

@@ -29,6 +29,7 @@ export default function Home({ user, onLogin, onLogout }) {
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [renamingOm, setRenamingOm] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   function loadAll() {
@@ -144,7 +145,19 @@ export default function Home({ user, onLogin, onLogout }) {
 
   return (
     <div className="dashboard">
-      <aside className="dashboard-sidebar">
+      <div
+        className={`dashboard-sidebar-backdrop${sidebarOpen ? ' open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <aside className={`dashboard-sidebar${sidebarOpen ? ' open' : ''}`}>
+        <button
+          type="button"
+          className="dashboard-sidebar-close"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close navigation"
+        >
+          ✕
+        </button>
         <div className="dashboard-sidebar-brand">
           <span className="dot" />
           Frontage
@@ -152,7 +165,11 @@ export default function Home({ user, onLogin, onLogout }) {
 
         <div className="dashboard-sidebar-label">Folders</div>
         <nav className="dashboard-folder-nav">
-          <button type="button" className={`folder-nav-item ${activeFolderId === null ? 'active' : ''}`} onClick={() => setActiveFolderId(null)}>
+          <button
+            type="button"
+            className={`folder-nav-item ${activeFolderId === null ? 'active' : ''}`}
+            onClick={() => { setActiveFolderId(null); setSidebarOpen(false); }}
+          >
             <span className="folder-nav-icon">📄</span> All Documents
           </button>
           {folders.map((f) => (
@@ -160,7 +177,7 @@ export default function Home({ user, onLogin, onLogout }) {
               type="button"
               key={f.id}
               className={`folder-nav-item ${activeFolderId === f.id ? 'active' : ''}`}
-              onClick={() => setActiveFolderId(f.id)}
+              onClick={() => { setActiveFolderId(f.id); setSidebarOpen(false); }}
             >
               <span className="folder-nav-icon">📁</span> {f.name}
             </button>
@@ -178,10 +195,18 @@ export default function Home({ user, onLogin, onLogout }) {
 
       <main className="dashboard-main">
         <div className="dashboard-topline">
+          <button
+            type="button"
+            className="dashboard-hamburger"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation"
+          >
+            ☰
+          </button>
           {user ? (
             <AccountMenu user={user} onLogout={handleLogout} />
           ) : (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSignIn(true)}>
+            <button type="button" className="btn btn-ghost btn-sm dashboard-signin" onClick={() => setShowSignIn(true)}>
               Sign In
             </button>
           )}

@@ -29,7 +29,25 @@
       "Bash(curl -s http://localhost:4000/api/health)",
       "Bash(curl -s -o /dev/null -w \"client status: %{http_code}\\\\n\" http://localhost:5173/)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Skill(claude-in-chrome)",
+      "Bash(python3 *)",
+      "Bash(node -e ' *)",
+      "Bash(npx --yes js-yaml /Users/robertcotton/automated-om-builder/automated-om-builder/.github/workflows/backup.yml)",
+      "Bash(npx js-yaml *)",
+      "Bash(node --test lib/pdf/templates/onePager.test.js)",
+      "Bash(sips *)",
+      "Bash(cat)",
+      "Bash(node /tmp/gen-test-cutoff.mjs)",
+      "Bash(node /tmp/gen-test-minimal.mjs)",
+      "Bash(node /tmp/gen-test-full.mjs)",
+      "Bash(node *)",
+      "Bash(brew list *)",
+      "Bash(pip3 list *)",
+      "Bash(pip3 install *)",
+      "Bash(qlmanage -t -s 800 -o /tmp/ /tmp/test-full.png)",
+      "Bash(qlmanage -t -s 1400 -o /tmp/pptx-slides/ /tmp/test-rich.pptx)",
+      "Bash(osascript -e 'application \"Keynote\" exists')"
     ]
   }
 }
