@@ -56,7 +56,7 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
         {propertyAddress ? ` (${propertyAddress})` : ''} once both addresses are present.
       </p>
 
-      <button type="button" className="btn btn-ghost btn-sm" onClick={handleRecalculate} disabled={recalculating || !pois.length}>
+      <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleRecalculate()} disabled={recalculating || !pois.length}>
         {recalculating ? 'Recalculating…' : '↻ Recalculate All Drive Times'}
       </button>
       {error && (
@@ -117,7 +117,7 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
                 onChange(next);
                 handleRecalculate(next);
               }}
-              onBlur={handleRecalculate}
+              onBlur={() => handleRecalculate()}
               placeholder="e.g. 123 Commerce Dr, Springfield, MO"
             />
           </div>
