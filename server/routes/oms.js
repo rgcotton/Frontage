@@ -7,7 +7,7 @@ import { upload, toFileRef, resolveDiskPath } from '../lib/upload.js';
 import { generatePdf } from '../lib/pdf/render.js';
 import { generatePptx } from '../lib/pptxGenerator.js';
 import { generateAiContent, analyzeLogoColors, AI_KINDS } from '../lib/ai.js';
-import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer, recalculateDriveTimes } from '../lib/maps.js';
+import { geocodeAddress, buildAddressString, fetchStreetMapBuffer, fetchRegionalMapBuffer, recalculateDriveTimes, searchPlaces, getPlaceDetails } from '../lib/maps.js';
 import { getOwnerEmail } from '../lib/auth.js';
 import { getStorageRoot } from '../lib/storagePaths.js';
 import { extractFromPdfBuffer, extractFromText, fetchUrlContent, buildOmPatchFromExtraction } from '../lib/extraction.js';
@@ -340,6 +340,35 @@ router.get('/:id/static-map.png', async (req, res) => {
   if (!buf) return res.status(404).json({ error: 'Map unavailable' });
   res.set('Content-Type', 'image/png');
   res.send(buf);
+});
+
+router.get('/:id/poi/places', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  const q = String(req.query.q || '').trim();
+  if (!q || q.length < 3) {
+    return res.json([]);
+  }
+  try {
+    const results = await searchPlaces(q);
+    res.json(results);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+router.get('/:id/poi/places/:placeId', async (req, res) => {
+  const om = await getOwnedOm(req, res);
+  if (!om) return;
+  try {
+    const result = await getPlaceDetails(req.params.placeId);
+    if (result === null) {
+      return res.status(404).json({ error: 'Place not found' });
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
 });
 
 export default router;
