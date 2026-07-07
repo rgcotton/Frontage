@@ -1,14 +1,8 @@
-import { getUser } from './lib/user.js';
-
-// Lightweight identity, not real authentication: every request tells the server who's
-// asking (or omits the header entirely for the signed-out workspace), and the server
-// trusts it. This is the one place that wiring lives, so swapping in real sessions
-// later only means changing this function.
+// Session identity comes from an httpOnly cookie set by POST /api/auth/login.
+// The browser sends it automatically on every same-origin request — no manual
+// header needed, and no client-side JS can read or forge the token.
 async function request(path, options = {}) {
-  const user = getUser();
-  const headers = { ...(options.headers || {}) };
-  if (user?.email) headers['X-User-Email'] = user.email;
-  const res = await fetch(path, { ...options, headers });
+  const res = await fetch(path, { ...options, credentials: 'include' });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Request failed: ${res.status}`);
@@ -96,6 +90,14 @@ export const api = {
       body: JSON.stringify({ url }),
     }),
   analyzeLogo: (id) => request(`/api/oms/${id}/ai/analyze-logo`, { method: 'POST' }),
+  login: (email) =>
+    request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }),
+  logout: () => request('/api/auth/logout', { method: 'POST' }),
+  listUsers: () => request('/api/admin/users'),
   listFolders: () => request('/api/folders'),
   createFolder: (name) =>
     request('/api/folders', {

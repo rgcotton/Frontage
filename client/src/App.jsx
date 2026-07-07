@@ -3,6 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Editor from './pages/Editor.jsx';
 import SharePage from './pages/SharePage.jsx';
+import AdminUsers from './pages/AdminUsers.jsx';
 import { getUser } from './lib/user.js';
 
 function TopBar() {
@@ -34,6 +35,7 @@ function App() {
           }
         />
         <Route path="/share/:id" element={<SharePage />} />
+        <Route path="/admin/users" element={<AdminUsers user={user} />} />
       </Routes>
     </div>
   );

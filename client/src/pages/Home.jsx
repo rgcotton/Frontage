@@ -134,6 +134,7 @@ export default function Home({ user, onLogin, onLogout }) {
   const visibleOms = oms.filter((om) => (activeFolderId === null ? true : om.folderId === activeFolderId));
 
   function handleLogout() {
+    api.logout().catch(() => {});
     clearUser();
     onLogout();
   }

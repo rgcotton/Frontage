@@ -1,20 +1,37 @@
-import { test } from 'node:test';
+import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { getOwnerEmail } from './auth.js';
+import jwt from 'jsonwebtoken';
+import { signSession, getOwnerEmail } from './auth.js';
 
-function fakeReq(headerValue) {
-  return { get: (name) => (name.toLowerCase() === 'x-user-email' ? headerValue : undefined) };
-}
-
-test('returns the trimmed, lowercased email when the header is present', () => {
-  assert.equal(getOwnerEmail(fakeReq('  Jane@Example.com  ')), 'jane@example.com');
+before(() => {
+  process.env.JWT_SECRET = 'test-secret-for-auth-tests';
 });
 
-test('returns null when the header is missing', () => {
+function fakeReq(cookieValue) {
+  return { cookies: cookieValue !== undefined ? { frontage_session: cookieValue } : {} };
+}
+
+test('returns the email from a valid signed cookie', () => {
+  const token = signSession('Jane@Example.com');
+  assert.equal(getOwnerEmail(fakeReq(token)), 'jane@example.com');
+});
+
+test('lowercases the email stored in the token', () => {
+  const token = signSession('BOB@EXAMPLE.COM');
+  assert.equal(getOwnerEmail(fakeReq(token)), 'bob@example.com');
+});
+
+test('returns null when no cookie is present', () => {
   assert.equal(getOwnerEmail(fakeReq(undefined)), null);
 });
 
-test('returns null when the header is empty or whitespace-only', () => {
-  assert.equal(getOwnerEmail(fakeReq('   ')), null);
-  assert.equal(getOwnerEmail(fakeReq('')), null);
+test('returns null for a tampered token', () => {
+  const token = signSession('jane@example.com');
+  const tampered = token.slice(0, -4) + 'XXXX';
+  assert.equal(getOwnerEmail(fakeReq(tampered)), null);
+});
+
+test('returns null for a token signed with the wrong secret', () => {
+  const bad = jwt.sign({ email: 'jane@example.com' }, 'wrong-secret');
+  assert.equal(getOwnerEmail(fakeReq(bad)), null);
 });

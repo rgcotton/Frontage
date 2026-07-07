@@ -1,9 +1,26 @@
 import express from 'express';
 import { ZipArchive } from 'archiver';
 import { getStorageRoot } from '../lib/storagePaths.js';
+import { getOwnerEmail } from '../lib/auth.js';
+import { listUsers } from '../lib/loginLog.js';
 import path from 'path';
 
+const ADMIN_EMAIL = 'robbiecotton8@gmail.com';
+
+function requireAdmin(req, res) {
+  if (getOwnerEmail(req) !== ADMIN_EMAIL) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return false;
+  }
+  return true;
+}
+
 const router = express.Router();
+
+router.get('/users', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  res.json(await listUsers());
+});
 
 router.get('/export-backup', (req, res) => {
   const secret = process.env.BACKUP_SECRET;

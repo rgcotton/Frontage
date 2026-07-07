@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const ADMIN_EMAIL = 'robbiecotton8@gmail.com';
 
 export default function AccountMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -19,6 +23,17 @@ export default function AccountMenu({ user, onLogout }) {
       </button>
       {open && (
         <div className="account-menu-dropdown">
+          {user.email === ADMIN_EMAIL && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                navigate('/admin/users');
+              }}
+            >
+              Admin
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

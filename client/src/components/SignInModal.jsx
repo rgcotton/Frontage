@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { saveUser } from '../lib/user.js';
+import { api } from '../api.js';
 
 export default function SignInModal({ onComplete, onClose }) {
   const [email, setEmail] = useState('');
-  const canSubmit = email.trim();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const canSubmit = email.trim() && !loading;
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!canSubmit) return;
-    const trimmedEmail = email.trim();
-    const user = saveUser({ name: trimmedEmail, email: trimmedEmail });
-    onComplete(user);
+    setLoading(true);
+    setError(null);
+    try {
+      const { email: verified } = await api.login(email.trim());
+      const user = saveUser({ name: verified, email: verified });
+      onComplete(user);
+    } catch (err) {
+      setError(err.message || 'Sign in failed. Please try again.');
+      setLoading(false);
+    }
   }
 
   return (
@@ -21,14 +31,22 @@ export default function SignInModal({ onComplete, onClose }) {
         <form onSubmit={handleSubmit}>
           <div className="field" style={{ marginTop: 16 }}>
             <label>Email Address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@brokerage.com" autoFocus />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jane@brokerage.com"
+              autoFocus
+              disabled={loading}
+            />
           </div>
+          {error && <p style={{ color: 'var(--danger)', fontSize: 13, margin: '4px 0 0' }}>{error}</p>}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={onClose} disabled={loading}>
               Cancel
             </button>
             <button type="submit" className="btn btn-gold btn-sm" disabled={!canSubmit}>
-              Sign In
+              {loading ? 'Signing in…' : 'Sign In'}
             </button>
           </div>
         </form>

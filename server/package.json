@@ -12,9 +12,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",
     "archiver": "^8.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.1",
     "nanoid": "^5.0.9",
     "pptxgenjs": "^3.12.0",
