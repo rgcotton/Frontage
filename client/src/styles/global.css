@@ -2087,10 +2087,15 @@ select {
 }
 
 @media (max-width: 767px) {
+  /* Hamburger: full 44×44px tap target */
   .dashboard-hamburger {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 20px;
   }
 
   .dashboard-topline {
@@ -2098,47 +2103,109 @@ select {
     align-items: center;
   }
 
+  /* Drawer: fixed 280px, deceleration slide, strong shadow for z-depth */
   .dashboard-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
+    width: 280px;
     z-index: 50;
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    transition: transform 0.28s cubic-bezier(0.25, 0, 0, 1);
     overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 6px 0 32px rgba(0, 0, 0, 0.5);
+    padding: 0;
+    gap: 0;
   }
 
   .dashboard-sidebar.open {
     transform: translateX(0);
   }
 
+  /* Backdrop: darker dim to clearly separate drawer from page */
   .dashboard-sidebar-backdrop.open {
     display: block;
+    background: rgba(0, 0, 0, 0.62);
   }
 
+  /* Close button: 44×44px tap target, centered glyph */
   .dashboard-sidebar-close {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    top: 16px;
-    right: 12px;
+    top: 8px;
+    right: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.5);
     font-size: 18px;
     cursor: pointer;
-    padding: 4px 8px;
+    border-radius: 8px;
     line-height: 1;
-    border-radius: 4px;
   }
 
+  .dashboard-sidebar-close:active,
   .dashboard-sidebar-close:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--white);
   }
 
+  /* Brand: right padding clears the close button; bottom border separates from nav */
   .dashboard-sidebar-brand {
-    padding-right: 40px;
+    padding: 28px 60px 24px 20px;
+    margin-bottom: 0;
+    font-size: 17px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* "Folders" section label: generous top gap */
+  .dashboard-sidebar-label {
+    padding: 20px 20px 8px;
+    margin-bottom: 0;
+    font-size: 11.5px;
+  }
+
+  /* Nav list: horizontal inset */
+  .dashboard-folder-nav {
+    padding: 0 12px;
+    gap: 2px;
+  }
+
+  /* Nav items: 50px touch target, 15px readable text, rounded, press feedback */
+  .folder-nav-item {
+    min-height: 50px;
+    font-size: 15px;
+    padding: 0 12px;
+    border-radius: 8px;
+    gap: 12px;
+  }
+
+  .folder-nav-item:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* "+ New Folder": top rule separates it from the list; solid not dashed */
+  .folder-nav-add {
+    display: flex;
+    align-items: center;
+    min-height: 50px;
+    margin: 12px 12px 0;
+    padding: 0 12px;
+    font-size: 14px;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+  }
+
+  .folder-nav-delete {
+    padding: 12px 24px;
+    font-size: 13px;
   }
 
   .dashboard-main {
@@ -2152,16 +2219,6 @@ select {
 
   .dashboard-hero h1 {
     font-size: 26px;
-  }
-
-  .folder-nav-item {
-    min-height: 44px;
-  }
-
-  .folder-nav-add {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
   }
 
   .doc-card-menu-trigger {
