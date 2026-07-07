@@ -151,14 +151,19 @@ export async function recalculateDriveTimes(originAddress, pois) {
 // Search for places using Google Places Autocomplete API.
 // Returns an empty array if the API key is not set, if the API responds with
 // zero predictions, if the status is not OK, or if any error occurs.
-// Never throws.
-export async function searchPlaces(query) {
+// Never throws. location = { lat, lng } enables proximity ranking.
+export async function searchPlaces(query, location = null) {
   const apiKey = getApiKey();
   if (!apiKey) return [];
 
   if (!query || !query.trim()) return [];
 
-  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query.trim())}&key=${apiKey}`;
+  const params = new URLSearchParams({ input: query.trim(), key: apiKey });
+  if (location?.lat != null && location?.lng != null) {
+    params.set('location', `${location.lat},${location.lng}`);
+    params.set('rankby', 'distance');
+  }
+  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`;
 
   try {
     const res = await fetch(url);
@@ -186,7 +191,7 @@ export async function getPlaceDetails(placeId) {
 
   if (!placeId || !placeId.trim()) return null;
 
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId.trim())}&fields=name,formatted_address,geometry&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId.trim())}&fields=name,formatted_address,geometry,types&key=${apiKey}`;
 
   try {
     const res = await fetch(url);
@@ -200,6 +205,7 @@ export async function getPlaceDetails(placeId) {
       formattedAddress: result.formatted_address || null,
       lat: result.geometry?.location?.lat ?? null,
       lng: result.geometry?.location?.lng ?? null,
+      types: result.types || [],
     };
   } catch {
     return null;

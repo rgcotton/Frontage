@@ -9,6 +9,20 @@ function makeId() {
 
 const CATEGORIES = ['Major Employer', 'Grocery Store', 'Hospital', 'Highway Access', 'School', 'Shopping Center', 'Airport', 'Other'];
 
+const TYPE_TO_CATEGORY = [
+  [['airport'], 'Airport'],
+  [['hospital', 'health', 'doctor', 'pharmacy'], 'Hospital'],
+  [['grocery_or_supermarket', 'supermarket'], 'Grocery Store'],
+  [['school', 'university', 'primary_school', 'secondary_school'], 'School'],
+  [['shopping_mall', 'department_store', 'clothing_store', 'home_goods_store', 'furniture_store', 'electronics_store', 'book_store'], 'Shopping Center'],
+];
+function inferCategory(types = []) {
+  for (const [googleTypes, cat] of TYPE_TO_CATEGORY) {
+    if (types.some((t) => googleTypes.includes(t))) return cat;
+  }
+  return 'Other';
+}
+
 export default function DriveTimesSection({ value, onChange, omId, om, onUpdateOm }) {
   const pois = value || [];
   const [recalculating, setRecalculating] = useState(false);
@@ -84,7 +98,27 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
           <div className="field-row">
             <div className="field">
               <label>Name</label>
-              <input type="text" value={p.name} onChange={(e) => update(p.id, 'name', e.target.value)} placeholder="e.g. Walmart Supercenter" />
+              <PlacesAutocomplete
+                omId={omId}
+                value={p.name}
+                onChange={(val) => update(p.id, 'name', val)}
+                onPlaceSelect={(place) => {
+                  const next = pois.map((poi) =>
+                    poi.id === p.id
+                      ? {
+                          ...poi,
+                          name: place.name || poi.name,
+                          address: place.formattedAddress || poi.address,
+                          category: poi.category ? poi.category : inferCategory(place.types),
+                        }
+                      : poi
+                  );
+                  onChange(next);
+                  handleRecalculate(next);
+                }}
+                onBlur={() => handleRecalculate()}
+                placeholder="e.g. Walmart Supercenter"
+              />
             </div>
             <div className="field">
               <label>Category</label>
@@ -100,23 +134,10 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
           </div>
           <div className="field">
             <label>Address</label>
-            <PlacesAutocomplete
-              omId={omId}
+            <input
+              type="text"
               value={p.address}
-              onChange={(val) => update(p.id, 'address', val)}
-              onPlaceSelect={(place) => {
-                const next = pois.map((poi) =>
-                  poi.id === p.id
-                    ? {
-                        ...poi,
-                        address: place.formattedAddress,
-                        name: poi.name?.trim() ? poi.name : place.name,
-                      }
-                    : poi
-                );
-                onChange(next);
-                handleRecalculate(next);
-              }}
+              onChange={(e) => update(p.id, 'address', e.target.value)}
               onBlur={() => handleRecalculate()}
               placeholder="e.g. 123 Commerce Dr, Springfield, MO"
             />

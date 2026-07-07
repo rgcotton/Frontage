@@ -353,7 +353,10 @@ router.get('/:id/poi/places', async (req, res) => {
     return res.json([]);
   }
   try {
-    const results = await searchPlaces(q);
+    const location = om.cover?.lat != null && om.cover?.lng != null
+      ? { lat: om.cover.lat, lng: om.cover.lng }
+      : null;
+    const results = await searchPlaces(q, location);
     res.json(results);
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message });
