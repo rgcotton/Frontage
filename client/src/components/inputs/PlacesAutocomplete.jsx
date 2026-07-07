@@ -9,6 +9,9 @@ export default function PlacesAutocomplete({ value, onChange, onPlaceSelect, omI
   const wrapperRef = useRef(null);
   const timerRef = useRef(null);
 
+  // Clear debounce timer on unmount to avoid state updates on an unmounted component
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+
   // Click-outside: clear suggestions when user clicks away
   useEffect(() => {
     function handleMouseDown(e) {
@@ -26,6 +29,8 @@ export default function PlacesAutocomplete({ value, onChange, onPlaceSelect, omI
     onChange(text);
 
     clearTimeout(timerRef.current);
+
+    if (keyMissing) return;
 
     if (text.length < 3) {
       setSuggestions([]);

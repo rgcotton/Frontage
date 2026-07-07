@@ -345,6 +345,9 @@ router.get('/:id/static-map.png', async (req, res) => {
 router.get('/:id/poi/places', async (req, res) => {
   const om = await getOwnedOm(req, res);
   if (!om) return;
+  if (!process.env.GOOGLE_MAPS_API_KEY) {
+    return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY is not configured. Add it to server/.env and restart the server.' });
+  }
   const q = String(req.query.q || '').trim();
   if (!q || q.length < 3) {
     return res.json([]);
