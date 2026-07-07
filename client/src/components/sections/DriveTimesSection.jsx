@@ -11,10 +11,11 @@ const CATEGORIES = ['Major Employer', 'Grocery Store', 'Hospital', 'Highway Acce
 
 const TYPE_TO_CATEGORY = [
   [['airport'], 'Airport'],
-  [['hospital', 'health', 'doctor', 'pharmacy'], 'Hospital'],
-  [['grocery_or_supermarket', 'supermarket'], 'Grocery Store'],
+  [['hospital', 'health', 'doctor', 'pharmacy', 'medical_clinic'], 'Hospital'],
+  [['grocery_or_supermarket', 'supermarket', 'convenience_store'], 'Grocery Store'],
   [['school', 'university', 'primary_school', 'secondary_school'], 'School'],
-  [['shopping_mall', 'department_store', 'clothing_store', 'home_goods_store', 'furniture_store', 'electronics_store', 'book_store'], 'Shopping Center'],
+  [['shopping_mall', 'department_store', 'clothing_store', 'home_goods_store',
+    'furniture_store', 'electronics_store', 'book_store'], 'Shopping Center'],
 ];
 function inferCategory(types = []) {
   for (const [googleTypes, cat] of TYPE_TO_CATEGORY) {
@@ -117,13 +118,17 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
                 location={location}
                 onChange={(val) => update(p.id, 'name', val)}
                 onPlaceSelect={(place) => {
+                  const inferredCat = inferCategory(place.types);
                   const next = pois.map((poi) =>
                     poi.id === p.id
                       ? {
                           ...poi,
                           name: place.name || poi.name,
                           address: place.formattedAddress || poi.address,
-                          category: poi.category ? poi.category : inferCategory(place.types),
+                          // Use inferred category when it's a specific match; otherwise
+                          // fall back to the existing category so a manually-set value
+                          // isn't silently cleared by a vague place type.
+                          category: inferredCat !== 'Other' ? inferredCat : (poi.category || 'Other'),
                         }
                       : poi
                   );

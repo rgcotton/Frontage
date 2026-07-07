@@ -161,7 +161,7 @@ export async function searchPlaces(query, location = null) {
   const params = new URLSearchParams({ input: query.trim(), key: apiKey });
   if (location?.lat != null && location?.lng != null) {
     params.set('location', `${location.lat},${location.lng}`);
-    params.set('rankby', 'distance');
+    params.set('radius', '80000'); // ~50 miles; biases autocomplete toward property, doesn't restrict
   }
   const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`;
   console.log('[searchPlaces] url=%s', url.replace(/key=[^&]+/, 'key=REDACTED'));
@@ -202,6 +202,7 @@ export async function getPlaceDetails(placeId) {
     if (data.status !== 'OK' || !data.result) return null;
 
     const result = data.result;
+    console.log('[getPlaceDetails] placeId=%s types=%s', placeId, JSON.stringify(result.types));
     return {
       name: result.name || null,
       formattedAddress: result.formatted_address || null,
