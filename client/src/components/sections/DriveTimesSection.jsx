@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../api.js';
 import PlacesAutocomplete from '../inputs/PlacesAutocomplete.jsx';
 
@@ -28,6 +28,19 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
   const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState(null);
   const propertyAddress = [om?.cover?.addressLine1, om?.cover?.city, om?.cover?.state].filter(Boolean).join(', ');
+  const location = { lat: om?.cover?.lat ?? null, lng: om?.cover?.lng ?? null };
+
+  // Silently geocode the property address on first open if lat/lng are missing,
+  // so location-biased POI search works without requiring a separate manual step.
+  useEffect(() => {
+    if (om?.cover?.lat != null && om?.cover?.lng != null) return;
+    if (!propertyAddress) return;
+    api.geocodeAddress(omId).then((result) => {
+      if (result?.lat != null && result?.lng != null) {
+        onUpdateOm({ cover: { ...om.cover, lat: result.lat, lng: result.lng } });
+      }
+    }).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function update(id, field, val) {
     onChange(pois.map((p) => (p.id === id ? { ...p, [field]: val } : p)));
@@ -101,6 +114,7 @@ export default function DriveTimesSection({ value, onChange, omId, om, onUpdateO
               <PlacesAutocomplete
                 omId={omId}
                 value={p.name}
+                location={location}
                 onChange={(val) => update(p.id, 'name', val)}
                 onPlaceSelect={(place) => {
                   const next = pois.map((poi) =>

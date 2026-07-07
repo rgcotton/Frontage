@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../../api.js';
 
-export default function PlacesAutocomplete({ value, onChange, onPlaceSelect, omId, placeholder, onBlur }) {
+export default function PlacesAutocomplete({ value, onChange, onPlaceSelect, omId, placeholder, onBlur, location }) {
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [keyMissing, setKeyMissing] = useState(false);
@@ -40,7 +40,7 @@ export default function PlacesAutocomplete({ value, onChange, onPlaceSelect, omI
 
     timerRef.current = setTimeout(async () => {
       try {
-        const results = await api.searchPlaces(omId, text);
+        const results = await api.searchPlaces(omId, text, location);
         setSuggestions(results || []);
         setActiveIndex(-1);
       } catch (err) {

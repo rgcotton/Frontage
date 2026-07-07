@@ -353,9 +353,16 @@ router.get('/:id/poi/places', async (req, res) => {
     return res.json([]);
   }
   try {
-    const location = om.cover?.lat != null && om.cover?.lng != null
-      ? { lat: om.cover.lat, lng: om.cover.lng }
-      : null;
+    // Prefer lat/lng from query params (client React state, always freshest) over
+    // persisted om.cover values, which may lag behind an auto-geocode that hasn't
+    // finished saving yet.
+    const qLat = parseFloat(req.query.lat);
+    const qLng = parseFloat(req.query.lng);
+    const location = !isNaN(qLat) && !isNaN(qLng)
+      ? { lat: qLat, lng: qLng }
+      : om.cover?.lat != null && om.cover?.lng != null
+        ? { lat: om.cover.lat, lng: om.cover.lng }
+        : null;
     const results = await searchPlaces(q, location);
     res.json(results);
   } catch (err) {

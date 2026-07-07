@@ -78,8 +78,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pois }),
     }),
-  searchPlaces: (omId, query) =>
-    request(`/api/oms/${omId}/poi/places?q=${encodeURIComponent(query)}`),
+  searchPlaces: (omId, query, location) => {
+    const params = new URLSearchParams({ q: query });
+    if (location?.lat != null && location?.lng != null) {
+      params.set('lat', location.lat);
+      params.set('lng', location.lng);
+    }
+    return request(`/api/oms/${omId}/poi/places?${params.toString()}`);
+  },
   getPlaceDetails: (omId, placeId) =>
     request(`/api/oms/${omId}/poi/places/${encodeURIComponent(placeId)}`),
   extractFromUpload: (id, file) => {
