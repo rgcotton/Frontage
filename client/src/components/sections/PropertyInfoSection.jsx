@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import FileUpload from '../FileUpload.jsx';
 import FilePreview from '../FilePreview.jsx';
 import AiGenerateButton from '../AiGenerateButton.jsx';
@@ -5,12 +6,16 @@ import CustomAiInstructions from '../CustomAiInstructions.jsx';
 import AutofilledTag from '../AutofilledTag.jsx';
 import { clearAutofilled, markAutofilled } from '../../lib/autofill.js';
 import { YearInput, SquareFeetInput, PercentInput } from '../inputs/FormattedInputs.jsx';
+import { api } from '../../api.js';
 
 const PROPERTY_TYPES = ['Office', 'Retail', 'Industrial', 'Multifamily', 'Land', 'Mixed-Use', 'Hospitality', 'Other'];
 
 export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
   const cover = om.cover || {};
   const overview = om.overview || {};
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState(null);
+  const [geocodeResult, setGeocodeResult] = useState(null);
 
   function setCover(field, val) {
     onUpdateOm({ cover: { ...om.cover, [field]: val } });
@@ -20,6 +25,36 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
   function setOverview(field, val) {
     onUpdateOm({ overview: { ...om.overview, [field]: val } });
     clearAutofilled(om, onUpdateOm, `overview.${field}`);
+  }
+
+  async function handleValidateAddress() {
+    setGeocoding(true);
+    setGeocodeError(null);
+    setGeocodeResult(null);
+    try {
+      const result = await api.geocodeAddress(omId);
+      setGeocodeResult(result);
+    } catch (err) {
+      setGeocodeError(err.message);
+    } finally {
+      setGeocoding(false);
+    }
+  }
+
+  function applyGeocodeResult() {
+    onUpdateOm({
+      cover: {
+        ...om.cover,
+        formattedAddress: geocodeResult.formattedAddress,
+        lat: geocodeResult.lat,
+        lng: geocodeResult.lng,
+        addressLine1: geocodeResult.addressLine1 || cover.addressLine1,
+        city: geocodeResult.city || cover.city,
+        state: geocodeResult.state || cover.state,
+        zip: geocodeResult.zip || cover.zip,
+      },
+    });
+    setGeocodeResult(null);
   }
 
   return (
@@ -106,6 +141,37 @@ export default function PropertyInfoSection({ omId, om, onUpdateOm }) {
           </div>
           <input type="text" value={cover.zip} onChange={(e) => setCover('zip', e.target.value)} />
         </div>
+      </div>
+
+      <div className="field">
+        <button type="button" className="btn btn-ghost btn-sm" onClick={handleValidateAddress} disabled={geocoding}>
+          {geocoding ? 'Validating…' : '📍 Validate & Format Address'}
+        </button>
+        {geocodeError && (
+          <p className="field-hint" style={{ color: 'var(--danger)' }}>
+            {geocodeError}
+          </p>
+        )}
+        {geocodeResult && (
+          <div className="geocode-banner">
+            <div className="geocode-banner-text">
+              <strong>Suggested:</strong> {geocodeResult.formattedAddress}
+            </div>
+            <div className="geocode-banner-actions">
+              <button type="button" className="btn btn-primary btn-sm" onClick={applyGeocodeResult}>
+                Apply
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGeocodeResult(null)}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+        {cover.formattedAddress && (
+          <p className="field-hint" style={{ marginTop: 8 }}>
+            Validated: {cover.formattedAddress}
+          </p>
+        )}
       </div>
 
       <hr className="divider" />
