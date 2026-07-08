@@ -124,7 +124,6 @@ table.pdf-table tr.total-row td { font-weight: 700; color: ${primary}; border-to
      */
     coverPage(om, ctx, t) {
       const cover = (om && om.cover) || {};
-      const executiveSummary = (om && om.executiveSummary) || {};
 
       const primary = (t && t.primaryColor) || '#1C1C1C';
       const accent = (t && t.accentColor) || '#8B4513';
@@ -171,7 +170,6 @@ ${brokerageName ? `<div style="position:absolute; right:0.6in; bottom:0.45in; co
       const titleSize = (t && t.titleSize) || '22px';
       const headingWeight = (t && t.headingWeight) || 700;
       return `
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap');
 .pdf-footer {
   position: absolute;
   left: 0.6in;
