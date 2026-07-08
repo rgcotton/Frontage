@@ -1,8 +1,8 @@
 import { pageShell, headerBar, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
-export function buildPages(om, entries) {
-  const theme = resolveTheme(om.branding);
+export function buildPages(om, entries, ctx = {}) {
+  const theme = ctx.theme || resolveTheme(om.branding);
 
   const rows = entries
     .map(

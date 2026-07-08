@@ -127,8 +127,6 @@ function buildSharedCss(theme) {
   const t = (theme && theme.tokens) ? theme.tokens : (theme || buildTheme());
   // Ensure we have font properties, falling back to legacy defaults
   const fontFamily = t.fontFamily || `'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif`;
-  const titleSize = t.titleSize || '21px';
-  const headingWeight = t.headingWeight || 700;
   return `
 ${buildFontFaceCss()}
 @page { margin: 0.38in 0.42in; size: 8.5in 11in; background-color: ${t.pageBg}; }
@@ -209,6 +207,7 @@ table.pdf-table tr {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+/* Theme component overrides — do NOT re-specify structural print rules (break-inside, page-break-inside) already defined above */
 ${theme && theme.components ? theme.components.tableCss(t) : legacyTableCss(t)}
 ${theme && theme.components ? theme.components.compCardCss(t) : legacyCompCardCss(t)}
 ${theme && theme.components ? theme.components.pageChromeCss(t) : legacyPageChromeCss(t)}

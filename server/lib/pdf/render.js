@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { buildDocument, buildTheme, footerHtml, resolveTheme } from './templates/layout.js';
+import { buildDocument, footerHtml, resolveTheme } from './templates/layout.js';
 import { toDataUri } from './helpers/images.js';
 import { fetchStreetMapDataUri, fetchRegionalMapDataUri } from '../maps.js';
 import * as cover from './templates/cover.js';
