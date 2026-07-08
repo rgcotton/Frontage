@@ -1,7 +1,8 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover } = om;
   const pois = om.driveTimePois || [];
   if (!pois.length) return [];
@@ -18,7 +19,7 @@ export function buildPages(om, ctx) {
     .join('');
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Drive Times & Points of Interest')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Drive Times & Points of Interest', theme.tokens, false) : headerBar(cover.propertyName, 'Drive Times & Points of Interest')}
     <div class="section-title">Drive Times &amp; Points of Interest</div>
     <div class="gold-rule"></div>
     <table class="pdf-table">

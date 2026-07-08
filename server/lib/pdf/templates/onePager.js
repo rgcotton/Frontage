@@ -1,4 +1,4 @@
-import { pageShell, buildTheme, buildDocument } from './layout.js';
+import { pageShell, resolveTheme, buildDocument } from './layout.js';
 import { esc, formatCurrency, formatPercent, formatNumber } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
@@ -110,7 +110,7 @@ export function buildPages(om, ctx, params = {}) {
   const s = scaleFactor;
   const T = makeType(s);
 
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, overview, executiveSummary, team } = om;
   const addressLine = [cover.formattedAddress || cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip]
     .filter(Boolean)
@@ -240,7 +240,7 @@ export function buildPages(om, ctx, params = {}) {
 // Renders the left-column cards in a plain flow layout (no page constraints) so
 // Puppeteer can measure their natural scroll heights before the real render.
 export function buildMeasurementHtml(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, executiveSummary, team } = om;
   const T = makeType(1);
   const s = 1;

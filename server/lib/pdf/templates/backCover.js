@@ -1,8 +1,8 @@
-import { pageShell, buildTheme } from './layout.js';
+import { pageShell, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, team } = om;
   const primary = (team || [])[0];
   const logoBlock = ctx.brokerLogoUri

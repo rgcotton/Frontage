@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { buildDocument, buildTheme, footerHtml } from './templates/layout.js';
+import { buildDocument, buildTheme, footerHtml, resolveTheme } from './templates/layout.js';
 import { toDataUri } from './helpers/images.js';
 import { fetchStreetMapDataUri, fetchRegionalMapDataUri } from '../maps.js';
 import * as cover from './templates/cover.js';
@@ -215,7 +215,7 @@ function computeOnePagerRenderParams(measurements, naturalStatsH, highlights, po
 // ─── Main PDF export ──────────────────────────────────────────────────────────
 
 export async function generatePdf(om, outputPath, ctxOverrides = {}) {
-  const theme = buildTheme(om.branding);
+  const theme = resolveTheme(om.branding);
   const [streetMapUri, regionalMapUri] = await Promise.all([
     fetchStreetMapDataUri(om.cover),
     fetchRegionalMapDataUri(om.cover),

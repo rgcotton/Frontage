@@ -1,4 +1,4 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, formatNumber, formatPercent, formatCurrency, filterStats } from '../helpers/format.js';
 
 function statGrid(rawRows, cols, valueFontSize) {
@@ -10,6 +10,7 @@ function statGrid(rawRows, cols, valueFontSize) {
 }
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { market, cover } = om;
   const demoHtml = statGrid(
     [
@@ -34,7 +35,7 @@ export function buildPages(om, ctx) {
   if (!demoHtml && !trendsHtml && !market.narrative && !market.marketName) return [];
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Market Overview')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Market Overview', theme.tokens, false) : headerBar(cover.propertyName, 'Market Overview')}
     <div class="section-title">Market Overview</div>
     ${market.marketName ? `<div class="section-subtitle">${esc(market.marketName)}</div>` : ''}
     <div class="gold-rule"></div>

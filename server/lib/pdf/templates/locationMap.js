@@ -1,4 +1,4 @@
-import { flowSection, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 function mapBlock(uri, height, cardBorder) {
@@ -7,7 +7,7 @@ function mapBlock(uri, height, cardBorder) {
 }
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover } = om;
 
   if (!ctx.streetMapUri && !ctx.regionalMapUri) return [];
@@ -24,7 +24,7 @@ export function buildPages(om, ctx) {
     : '';
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Location & Amenities')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Location & Amenities', theme.tokens, false) : headerBar(cover.propertyName, 'Location & Amenities')}
     <div class="section-title">Location &amp; Amenities</div>
     ${addressLine ? `<div class="section-subtitle">${esc(addressLine)}</div>` : ''}
     <div class="gold-rule"></div>

@@ -1,9 +1,9 @@
-import { flowSection, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const team = om.team || [];
   const cover = om.cover;
   if (!team.length) return [];
@@ -39,7 +39,7 @@ export function buildPages(om, ctx) {
     .join('');
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Meet the Team')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Meet the Team', theme.tokens, false) : headerBar(cover.propertyName, 'Meet the Team')}
     <div class="section-title">Meet the Team</div>
     <div class="gold-rule"></div>
     ${cards}

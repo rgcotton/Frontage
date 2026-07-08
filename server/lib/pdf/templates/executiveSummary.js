@@ -1,8 +1,8 @@
-import { flowSection, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, formatCurrency, formatPercent, filterStats } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { executiveSummary, cover } = om;
   const stats = filterStats([
     ['Offering Price', executiveSummary.offeringPrice, formatCurrency],
@@ -27,7 +27,7 @@ export function buildPages(om, ctx) {
     : narrativeHtml;
 
   const overviewInner = `
-    ${headerBar(cover.propertyName, 'Executive Summary')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Executive Summary', theme.tokens, false) : headerBar(cover.propertyName, 'Executive Summary')}
     <div class="section-title">Executive Summary</div>
     <div class="gold-rule"></div>
     ${bodyHtml}

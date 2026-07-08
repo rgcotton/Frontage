@@ -1,5 +1,6 @@
 import { esc } from '../helpers/format.js';
 import { buildFontFaceCss } from '../fonts/manifest.js';
+import { resolveTheme } from '../themes/index.js';
 
 export const NAVY = '#1A2B4C';
 export const NAVY_DARK = '#11203B';
@@ -45,55 +46,16 @@ const FONT_PRESETS = {
 };
 
 export function buildTheme(branding = {}) {
-  const bg = BACKGROUND_PRESETS[branding.background] || BACKGROUND_PRESETS.white;
-  const font = FONT_PRESETS[branding.font] || FONT_PRESETS.modern;
-  return {
-    primaryColor: branding.primaryColor || NAVY,
-    accentColor: branding.accentColor || GOLD,
-    ...bg,
-    ...font,
-  };
+  // Backward-compat alias: returns the resolved theme's tokens merged with the theme object
+  // so legacy callers that expect a flat token object still work.
+  const resolved = resolveTheme(branding);
+  return { ...resolved, ...resolved.tokens };
 }
 
-function buildSharedCss(theme) {
-  const t = theme || buildTheme();
+// ── Legacy CSS functions (used as fallbacks when theme has no components) ──────
+
+function legacyPageChromeCss(t) {
   return `
-${buildFontFaceCss()}
-@page { margin: 0.38in 0.42in; size: 8.5in 11in; background-color: ${t.pageBg}; }
-@page fixed-page { margin: 0; size: 8.5in 11in; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${t.pageBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pdf-page {
-  page: fixed-page;
-  width: 8.5in;
-  height: 11in;
-  position: relative;
-  overflow: hidden;
-  page-break-after: always;
-  background: ${t.pageBg};
-}
-.pdf-page:last-child { page-break-after: auto; }
-.pdf-page-content {
-  position: absolute;
-  inset: 0;
-  padding: 0.38in 0.42in 0.38in;
-  display: flex;
-  flex-direction: column;
-}
-.pdf-footer {
-  position: absolute;
-  left: 0.6in;
-  right: 0.6in;
-  bottom: 0.22in;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 8px;
-  color: ${t.mutedColor};
-  border-top: 1px solid ${t.cardBorder};
-  padding-top: 4px;
-  letter-spacing: 0.2px;
-}
 .pdf-header-bar {
   display: flex;
   justify-content: space-between;
@@ -125,6 +87,11 @@ html, body { font-family: ${t.fontFamily}; color: ${t.textColor}; background: ${
 .stat-box { background: ${t.statBoxBg}; border-radius: 6px; padding: 9px 11px; }
 .stat-box .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.4px; color: ${t.mutedColor}; margin-bottom: 4px; }
 .stat-box .value { font-size: 17px; font-weight: 700; color: ${t.primaryColor}; line-height: 1.2; }
+.subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 6px; margin-top: 11px; }`;
+}
+
+function legacyTableCss(t) {
+  return `
 table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
 table.pdf-table th {
   background: ${t.primaryColor};
@@ -138,7 +105,11 @@ table.pdf-table th {
 }
 table.pdf-table td { padding: 4px 6px; border-bottom: 1px solid ${t.cardBorder}; color: ${t.textColor}; }
 table.pdf-table tr:nth-child(even) td { background: ${t.tableStripe}; }
-table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; border-top: 2px solid ${t.primaryColor}; background: ${t.totalRowBg}; }
+table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; border-top: 2px solid ${t.primaryColor}; background: ${t.totalRowBg}; }`;
+}
+
+function legacyCompCardCss(t) {
+  return `
 .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .comp-card { border: 1px solid ${t.cardBorder}; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
 .comp-card .photo { width: 100%; height: 0.8in; object-fit: cover; background: ${t.statBoxBg}; display: block; }
@@ -148,14 +119,59 @@ table.pdf-table tr.total-row td { font-weight: 700; color: ${t.primaryColor}; bo
 .comp-card .field-row { display: flex; justify-content: space-between; font-size: 9.5px; padding: 2px 0; border-bottom: 1px dashed ${t.cardBorder}; }
 .comp-card .field-row .l { color: ${t.mutedColor}; }
 .comp-card .field-row .v { font-weight: 600; color: ${t.textColor}; text-align: right; }
-.comp-card .notes { font-size: 9px; color: ${t.mutedColor}; margin-top: 6px; font-style: italic; }
+.comp-card .notes { font-size: 9px; color: ${t.mutedColor}; margin-top: 6px; font-style: italic; }`;
+}
+
+function buildSharedCss(theme) {
+  // Accept both full resolved theme objects and legacy flat token objects
+  const t = (theme && theme.tokens) ? theme.tokens : (theme || buildTheme());
+  // Ensure we have font properties, falling back to legacy defaults
+  const fontFamily = t.fontFamily || `'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  const titleSize = t.titleSize || '21px';
+  const headingWeight = t.headingWeight || 700;
+  return `
+${buildFontFaceCss()}
+@page { margin: 0.38in 0.42in; size: 8.5in 11in; background-color: ${t.pageBg}; }
+@page fixed-page { margin: 0; size: 8.5in 11in; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: ${fontFamily}; color: ${t.textColor}; background: ${t.pageBg}; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pdf-page {
+  page: fixed-page;
+  width: 8.5in;
+  height: 11in;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  background: ${t.pageBg};
+}
+.pdf-page:last-child { page-break-after: auto; }
+.pdf-page-content {
+  position: absolute;
+  inset: 0;
+  padding: 0.38in 0.42in 0.38in;
+  display: flex;
+  flex-direction: column;
+}
+.pdf-footer {
+  position: absolute;
+  left: 0.6in;
+  right: 0.6in;
+  bottom: 0.22in;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 8px;
+  color: ${t.mutedColor};
+  border-top: 1px solid ${t.cardBorder};
+  padding-top: 4px;
+  letter-spacing: 0.2px;
+}
 .two-col { display: flex; gap: 17px; flex: 1; min-height: 0; break-inside: avoid; page-break-inside: avoid; }
 .two-col .col { flex: 1; min-width: 0; }
 .bullet-list { list-style: none; break-inside: avoid; page-break-inside: avoid; }
 .bullet-list li { position: relative; padding-left: 16px; font-size: 10.5px; line-height: 1.5; margin-bottom: 6px; color: ${t.textColor}; }
 .bullet-list li::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: ${t.accentColor}; }
 .narrative { font-size: 10.5px; line-height: 1.6; color: ${t.textColor}; white-space: pre-wrap; }
-.subhead { font-size: 12px; font-weight: ${t.headingWeight}; color: ${t.primaryColor}; margin-bottom: 6px; margin-top: 11px; }
 .pdf-link { color: inherit; text-decoration: underline; text-decoration-color: currentColor; }
 .pdf-flow-body {
   width: 100%;
@@ -193,6 +209,9 @@ table.pdf-table tr {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+${theme && theme.components ? theme.components.tableCss(t) : legacyTableCss(t)}
+${theme && theme.components ? theme.components.compCardCss(t) : legacyCompCardCss(t)}
+${theme && theme.components ? theme.components.pageChromeCss(t) : legacyPageChromeCss(t)}
 `;
 }
 
@@ -231,3 +250,6 @@ ${bodyHtml}
 </body>
 </html>`;
 }
+
+// Re-export for section templates to import from one place
+export { resolveTheme } from '../themes/index.js';

@@ -1,8 +1,9 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, formatNumber, formatPercent, filterStats } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { overview, cover } = om;
   const isMultifamily = cover.propertyType === 'Multifamily';
 
@@ -33,7 +34,7 @@ export function buildPages(om, ctx) {
     : '';
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Property Overview')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Property Overview', theme.tokens, false) : headerBar(cover.propertyName, 'Property Overview')}
     <div class="section-title">Property Overview</div>
     <div class="gold-rule"></div>
     ${photoGridHtml}

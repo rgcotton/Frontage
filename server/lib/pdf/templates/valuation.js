@@ -1,8 +1,8 @@
-import { flowSection, headerBar, buildTheme } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, formatCurrency, formatMonthYear, filterStats } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { valuation: v, cover } = om;
   const stats = filterStats([
     ['Approach', v.methodologyApproach, String],
@@ -13,7 +13,7 @@ export function buildPages(om, ctx) {
   if (!stats.length && !v.methodologyNarrative && !v.valueBasisNote) return [];
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Valuation')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Valuation', theme.tokens, false) : headerBar(cover.propertyName, 'Valuation')}
     <div class="section-title">Valuation Methodology &amp; Conclusion</div>
     <div class="gold-rule"></div>
     ${

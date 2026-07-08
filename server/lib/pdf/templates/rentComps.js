@@ -1,4 +1,4 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, escOrDash, formatNumber } from '../helpers/format.js';
 import { googleMapsSearchUrl } from '../../maps.js';
 
@@ -19,6 +19,7 @@ function fieldRows(rows) {
 }
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const comps = om.rentComps || [];
   const cover = om.cover;
   if (!comps.length) return [];
@@ -41,7 +42,7 @@ export function buildPages(om, ctx) {
     .join('');
 
   const inner = `
-    ${headerBar(cover.propertyName, 'Rent Comparables')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Rent Comparables', theme.tokens, false) : headerBar(cover.propertyName, 'Rent Comparables')}
     <div class="section-title">Rent Comparables</div>
     <div class="gold-rule"></div>
     <div class="card-grid">${cards}</div>

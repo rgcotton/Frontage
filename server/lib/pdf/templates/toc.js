@@ -1,8 +1,8 @@
-import { pageShell, headerBar, buildTheme } from './layout.js';
+import { pageShell, headerBar, resolveTheme } from './layout.js';
 import { esc } from '../helpers/format.js';
 
 export function buildPages(om, entries) {
-  const theme = buildTheme(om.branding);
+  const theme = resolveTheme(om.branding);
 
   const rows = entries
     .map(
@@ -15,7 +15,7 @@ export function buildPages(om, entries) {
     .join('');
 
   const inner = `
-    ${headerBar(om.cover.propertyName, 'Table of Contents')}
+    ${theme.components?.headerBar ? theme.components.headerBar(om.cover.propertyName, 'Table of Contents', theme.tokens, false) : headerBar(om.cover.propertyName, 'Table of Contents')}
     <div class="section-title">Document Contents</div>
     <div class="gold-rule"></div>
     <div style="margin-top:8px;">${rows}</div>

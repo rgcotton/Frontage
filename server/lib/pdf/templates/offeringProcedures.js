@@ -1,11 +1,12 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { esc, formatMonthYear, normalizeUrl } from '../helpers/format.js';
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { offeringProcedures: p, cover } = om;
   if (!p.offerDeadline && !p.loiInstructions && !p.tourInstructions && !p.dataRoomInstructions && !p.dataRoomLink) return [];
   const inner = `
-    ${headerBar(cover.propertyName, 'Offering Procedures')}
+    ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Offering Procedures', theme.tokens, false) : headerBar(cover.propertyName, 'Offering Procedures')}
     <div class="section-title">Offering Procedures</div>
     <div class="gold-rule"></div>
     ${

@@ -1,9 +1,9 @@
-import { pageShell, buildTheme } from './layout.js';
+import { pageShell, resolveTheme } from './layout.js';
 import { esc, formatCurrency, formatPercent, formatNumber, filterStats } from '../helpers/format.js';
 import { googleMapsSearchUrl, buildAddressString } from '../../maps.js';
 
 export function buildPages(om, ctx) {
-  const theme = ctx.theme || buildTheme(om.branding);
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, executiveSummary, overview } = om;
   const addressLine = [
     cover.formattedAddress || cover.addressLine1,

@@ -2,17 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emptyOm } from '../../store.js';
 import { buildPages } from './offeringProcedures.js';
+import { resolveTheme } from './layout.js';
+const defaultCtx = { theme: resolveTheme({}) };
 
 test('fully blank offering procedures returns no pages', () => {
   const om = emptyOm('test-id');
-  assert.strictEqual(buildPages(om, {}).length, 0, 'should return [] when all offering procedures fields are blank');
+  assert.strictEqual(buildPages(om, defaultCtx).length, 0, 'should return [] when all offering procedures fields are blank');
 });
 
 test('blank offering procedures fields render no fallback copy', () => {
   const om = emptyOm('test-id');
   om.offeringProcedures.dataRoomLink = 'https://example.com/dataroom';
   // offerDeadline, loiInstructions, tourInstructions, dataRoomInstructions left blank
-  const html = buildPages(om, {}).join('\n');
+  const html = buildPages(om, defaultCtx).join('\n');
   assert.ok(!html.includes('To be determined'), 'should not render a fallback for a blank offer deadline');
   assert.ok(!html.includes('Contact the brokerage team listed'), 'should not render fallback LOI instructions');
   assert.ok(!html.includes('Contact the brokerage team to arrange'), 'should not render fallback tour instructions');

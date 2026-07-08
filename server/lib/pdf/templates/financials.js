@@ -1,4 +1,4 @@
-import { flowSection, headerBar } from './layout.js';
+import { flowSection, headerBar, resolveTheme } from './layout.js';
 import { formatCurrency, formatPercent, escOrDash, filterStats } from '../helpers/format.js';
 
 function numeric(value) {
@@ -6,6 +6,7 @@ function numeric(value) {
 }
 
 export function buildPages(om, ctx) {
+  const theme = ctx.theme || resolveTheme(om.branding);
   const { financials, executiveSummary, cover } = om;
   const pages = [];
 
@@ -34,7 +35,7 @@ export function buildPages(om, ctx) {
       ? `<tr class="total-row"><td>Total</td><td>${formatCurrency(totalIncome)}</td><td>${formatCurrency(totalExpense)}</td></tr>`
       : '';
     const inner = `
-      ${headerBar(cover.propertyName, 'Financials')}
+      ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Financials', theme.tokens, false) : headerBar(cover.propertyName, 'Financials')}
       <div class="section-title">Financial Summary</div>
       <div class="gold-rule"></div>
       ${summaryStats}
@@ -63,7 +64,7 @@ export function buildPages(om, ctx) {
       .join('');
     const totalRow = `<tr class="total-row"><td colspan="5">Total</td><td>${formatCurrency(totalMonthly)}</td><td>${formatCurrency(totalAnnual)}</td><td></td></tr>`;
     const inner = `
-      ${headerBar(cover.propertyName, 'Rent Roll')}
+      ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Rent Roll', theme.tokens, false) : headerBar(cover.propertyName, 'Rent Roll')}
       <div class="section-title">Rent Roll</div>
       <div class="gold-rule"></div>
       <table class="pdf-table">
@@ -108,7 +109,7 @@ export function buildPages(om, ctx) {
         </table>`
       : '';
     const inner = `
-      ${headerBar(cover.propertyName, 'Pro Forma')}
+      ${theme.components?.headerBar ? theme.components.headerBar(cover.propertyName, 'Pro Forma', theme.tokens, false) : headerBar(cover.propertyName, 'Pro Forma')}
       <div class="section-title">Pro Forma</div>
       <div class="gold-rule"></div>
       ${assumptionsBlock}
