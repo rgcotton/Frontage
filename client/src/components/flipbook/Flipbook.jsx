@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import PageWrapper from './PageWrapper.jsx';
 import CoverPage from './pages/CoverPage.jsx';
@@ -14,9 +14,15 @@ import DriveTimesPage from './pages/DriveTimesPage.jsx';
 import OfferingProceduresPage from './pages/OfferingProceduresPage.jsx';
 import TeamMemberPage from './pages/TeamMemberPage.jsx';
 import BackCoverPage from './pages/BackCoverPage.jsx';
+import { getNavVisibility } from '../../lib/flipbookNav.js';
 
 export default function Flipbook({ om }) {
   const bookRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [om.id]);
 
   const hasOverview = Boolean(
     om.overview?.yearBuilt || om.overview?.squareFootage || om.overview?.lotSize ||
@@ -54,6 +60,8 @@ export default function Flipbook({ om }) {
     { key: 'backCover', node: <BackCoverPage om={om} /> },
   ];
 
+  const { showPrev, showNext } = getNavVisibility(currentPage, pages.length);
+
   function prev() {
     bookRef.current?.pageFlip()?.flipPrev();
   }
@@ -77,19 +85,26 @@ export default function Flipbook({ om }) {
         useMouseEvents
         className="flipbook"
         ref={bookRef}
+        onFlip={(e) => setCurrentPage(e.data)}
       >
         {pages.map(({ key, node }) => (
           <PageWrapper key={key}>{node}</PageWrapper>
         ))}
       </HTMLFlipBook>
-      <div className="flipbook-nav">
-        <button type="button" className="flipbook-nav-btn" onClick={prev} aria-label="Previous page">
-          ←
-        </button>
-        <button type="button" className="flipbook-nav-btn" onClick={next} aria-label="Next page">
-          →
-        </button>
-      </div>
+      {(showPrev || showNext) && (
+        <div className="flipbook-nav">
+          {showPrev && (
+            <button type="button" className="flipbook-nav-btn" onClick={prev} aria-label="Previous page">
+              ←
+            </button>
+          )}
+          {showNext && (
+            <button type="button" className="flipbook-nav-btn" onClick={next} aria-label="Next page">
+              →
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
