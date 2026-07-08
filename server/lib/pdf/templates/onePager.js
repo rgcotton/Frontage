@@ -175,9 +175,12 @@ export function buildPages(om, ctx, params = {}) {
   const cardPad = `${si(0.14, s)} ${si(0.2, s)}`;
   const cardBase = (key) => `background:${theme.statBoxBg}; border:1px solid ${theme.cardBorder}; border-top:3px solid ${theme.accentColor}; border-radius:8px; padding:${cardPad}; display:flex; flex-direction:column;`;
 
+  const cardHeadingFont = theme.headingFont || "'Inter', sans-serif";
+  const cardBodyFont = theme.bodyFont || "'Inter', sans-serif";
+
   const highlightsCard = highlightsInner
     ? `<div style="${cardBase('highlights')} ${cardFlexStyle('highlights', 'flex:0 1 auto; min-height:0;')} justify-content:${cardJustifyStyle('highlights')}; overflow:hidden;">
-        <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:${sp(5, s)};">Investment Highlights</div>
+        <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:${sp(5, s)}; font-family:${cardHeadingFont};">Investment Highlights</div>
         ${highlightsInner}
       </div>`
     : '';
@@ -186,8 +189,8 @@ export function buildPages(om, ctx, params = {}) {
   const driveTimesCard = poisInner
     ? `<div style="${cardBase('drive-times')} ${cardFlexStyle('drive-times', 'flex:0 0 auto;')} justify-content:${cardJustifyStyle('drive-times')};">
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:${sp(4, s)};">
-          <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase;">Drive Times</div>
-          <div style="font-size:${T.micro}; color:${theme.mutedColor}; text-transform:uppercase; letter-spacing:${+(0.4*s).toFixed(2)}px;">From Property</div>
+          <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase; font-family:${cardHeadingFont};">Drive Times</div>
+          <div style="font-size:${T.micro}; color:${theme.mutedColor}; text-transform:uppercase; letter-spacing:${+(0.4*s).toFixed(2)}px; font-family:${cardBodyFont};">From Property</div>
         </div>
         ${poisInner}
       </div>`
@@ -195,20 +198,23 @@ export function buildPages(om, ctx, params = {}) {
 
   const dealSummaryCard = cover.onePagerDealSummary
     ? `<div style="${cardBase('deal-summary')} ${cardFlexStyle('deal-summary', 'flex:0 0 auto;')} justify-content:flex-start;">
-        <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:${sp(5, s)};">Deal Summary</div>
-        <div style="font-size:${T.base}; color:${theme.textColor}; line-height:1.45;">${esc(cover.onePagerDealSummary)}</div>
+        <div style="font-size:${T.section}; font-weight:700; letter-spacing:${+(0.5*s).toFixed(2)}px; color:${theme.primaryColor}; text-transform:uppercase; margin-bottom:${sp(5, s)}; font-family:${cardHeadingFont};">Deal Summary</div>
+        <div style="font-size:${T.base}; color:${theme.textColor}; line-height:1.45; font-family:${cardBodyFont};">${esc(cover.onePagerDealSummary)}</div>
       </div>`
     : '';
 
   const brokerInner = buildBrokerInner(primary, headshotUri, hasLogo, logoBlock, theme, T, s);
 
+  const headingFont = theme.headingFont || "'Inter', sans-serif";
+  const bodyFont = theme.bodyFont || "'Inter', sans-serif";
+
   const inner = `
     <div style="position:absolute; left:0; right:0; top:0; height:${PHOTO_H}in; ${photoBg}"></div>
     <div style="position:absolute; left:0.55in; right:0.55in; bottom:${11 - PHOTO_H + 0.35}in;">
-      ${cover.propertyType ? `<div style="font-size:${T.small}; font-weight:700; letter-spacing:1.4px; color:${theme.accentColor}; text-transform:uppercase; margin-bottom:${sp(8, s)};">${esc(cover.propertyType)}</div>` : ''}
-      <div style="font-size:${T.display}; font-weight:700; color:#fff; line-height:1.1;">${esc(cover.propertyName) || 'Untitled Property'}</div>
-      ${cover.tagline ? `<div style="font-size:${T.label}; font-weight:600; font-style:italic; color:${theme.accentColor}; margin-top:${sp(8, s)};">${esc(cover.tagline)}</div>` : ''}
-      <div style="font-size:${T.label}; color:rgba(255,255,255,0.88); margin-top:${sp(6, s)};">${esc(addressLine)}</div>
+      ${cover.propertyType ? `<div style="font-size:${T.small}; font-weight:700; letter-spacing:1.4px; color:${theme.accentColor}; text-transform:uppercase; margin-bottom:${sp(8, s)}; font-family:${bodyFont};">${esc(cover.propertyType)}</div>` : ''}
+      <div style="font-size:${T.display}; font-weight:700; color:#fff; line-height:1.1; font-family:${headingFont};">${esc(cover.propertyName) || 'Untitled Property'}</div>
+      ${cover.tagline ? `<div style="font-size:${T.label}; font-weight:600; font-style:italic; color:${theme.accentColor}; margin-top:${sp(8, s)}; font-family:${headingFont};">${esc(cover.tagline)}</div>` : ''}
+      <div style="font-size:${T.label}; color:rgba(255,255,255,0.88); margin-top:${sp(6, s)}; font-family:${bodyFont};">${esc(addressLine)}</div>
     </div>
 
     ${stats.length
@@ -218,18 +224,18 @@ export function buildPages(om, ctx, params = {}) {
       : ''}
 
     <div style="position:absolute; left:0; right:0; top:${bottomTop}in; bottom:${FOOTER_H}in; display:flex; flex-direction:row; overflow:hidden;">
-      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:${si(0.1, s)}; padding:${si(0.25, s)}; overflow:hidden;">
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:${si(0.1, s)}; padding:${si(0.25, s)}; overflow:hidden; font-family:${bodyFont};">
         ${dealSummaryCard}
         ${highlightsCard}
         <div style="flex:1; min-height:0;"></div>
         ${driveTimesCard}
       </div>
-      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:${si(0.2, s)}; box-sizing:border-box;">
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:${si(0.2, s)}; box-sizing:border-box; font-family:${bodyFont};">
         ${brokerInner}
       </div>
     </div>
 
-    <div style="position:absolute; left:0; right:0; top:${FOOTER_TOP}in; height:${FOOTER_H}in; background:${theme.accentColor}; display:flex; align-items:center; justify-content:space-between; padding:0 0.5in;">
+    <div style="position:absolute; left:0; right:0; top:${FOOTER_TOP}in; height:${FOOTER_H}in; background:${theme.accentColor}; display:flex; align-items:center; justify-content:space-between; padding:0 0.5in; font-family:${bodyFont};">
       <div style="font-size:${T.label}; font-weight:700; color:#fff;">${brokerageName}</div>
       <div style="font-size:${T.small}; color:rgba(255,255,255,0.9);">${brokerageWebsite}</div>
     </div>

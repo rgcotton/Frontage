@@ -4,19 +4,33 @@ import { esc } from '../helpers/format.js';
 export function buildPages(om, ctx) {
   const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, team } = om;
-  const primary = (team || [])[0];
+  const primaryContact = (team || [])[0];
   const logoBlock = ctx.brokerLogoUri
     ? `<img src="${ctx.brokerLogoUri}" style="max-width:2.6in; max-height:1.1in; object-fit:contain;" />`
     : `<div style="font-size:20px; font-weight:700; color:#fff; letter-spacing:1px;">${esc(cover.propertyName) || 'Brokerage'}</div>`;
 
-  const contactLines = primary
-    ? [primary.name, primary.title, [primary.phone, primary.email].filter(Boolean).join('  •  ')].filter(Boolean)
+  const contactLines = primaryContact
+    ? [primaryContact.name, primaryContact.title, [primaryContact.phone, primaryContact.email].filter(Boolean).join('  •  ')].filter(Boolean)
     : [];
 
+  // Use the theme's primaryColor as the gradient start so every theme's back
+  // cover matches its brand colour rather than always showing hardcoded navy.
+  const primaryColor = theme.primaryColor || '#1A2B4C';
+  const accent = theme.accentColor || '#C9A227';
+
+  // Darken the gradient end slightly: for dark primaries we stay very dark;
+  // for lighter primaries we blend toward a mid-dark tone.
+  const gradientEnd = theme.tokens?.pageBg === '#FFFFFF' ? '#1a1a2e' : '#0c1830';
+
+  const coverBg = ctx.coverPhotoUri
+    ? `background-image: linear-gradient(160deg, ${primaryColor}ee 0%, ${gradientEnd} 100%), url('${ctx.coverPhotoUri}'); background-size: cover; background-position: center;`
+    : `background: linear-gradient(160deg, ${primaryColor} 0%, ${gradientEnd} 100%);`;
+
   const inner = `
-    <div style="position:absolute; inset:0; background:linear-gradient(160deg, ${theme.primaryColor} 0%, #0c1830 100%); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:22px; padding:1.8in 1in 0.5in; text-align:center;">
+    <div style="position:absolute; inset:0; ${coverBg}"></div>
+    <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:22px; padding:1.8in 1in 0.5in; text-align:center;">
       ${logoBlock}
-      <div style="width:48px; height:2px; background:${theme.accentColor};"></div>
+      <div style="width:48px; height:2px; background:${accent};"></div>
       ${
         contactLines.length
           ? `<div style="color:#fff;">

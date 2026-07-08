@@ -66,7 +66,7 @@ function assembleMultiPageDocument(om, renderCtx, contentSections) {
     activeSections.push({ ...section, pages });
   }
   const tocEntries = activeSections.map((s, i) => ({ label: s.label, number: i + 1 }));
-  const tocPages = toc.buildPages(om, tocEntries);
+  const tocPages = toc.buildPages(om, tocEntries, renderCtx);
   const backCoverPages = backCover.buildPages(om, renderCtx);
   const parts = [...coverPages, ...tocPages];
   let flowBuffer = [];

@@ -226,7 +226,7 @@ ${statStripHtml}
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }
-.section-title { font-size: ${titleSize}; font-weight: ${headingWeight}; color: ${primary}; margin-bottom: 4px; }
+.section-title { font-size: ${titleSize}; font-weight: ${headingWeight}; color: ${primary}; margin-bottom: 4px; font-family: ${t && t.headingFont ? t.headingFont : "'Libre Franklin', sans-serif"}; }
 .section-subtitle { font-size: 12px; color: ${muted}; margin-bottom: 10px; }
 .gold-rule { width: 54px; height: 3px; background: ${accent}; margin-bottom: 11px; flex-shrink: 0; }
 .stat-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 8px; }
