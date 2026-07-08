@@ -44,6 +44,7 @@ export function emptyOm(id, docType = 'om', ownerEmail = null) {
       accentColor: '#C9A84C',
       background: 'white',
       font: 'modern',
+      template: 'institutional',
     },
     overview: {
       yearBuilt: '',
