@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Renders one sample OM through all 4 themes × 3 docTypes = 12 PDFs.
+ * Renders one sample OM through all 4 themes × 2 docTypes = 8 PDFs.
+ * (BOV docType was removed from the product; do not add it back here.)
  * Output: server/generated/samples/<template>-<docType>.pdf
  *
  * Usage: node server/scripts/render-samples.js
@@ -18,7 +19,7 @@ const __dirname = dirname(__filename);
 const OUTPUT_DIR = resolve(__dirname, '../generated/samples');
 
 const THEMES = ['institutional', 'editorial', 'bold', 'minimal'];
-const DOC_TYPES = ['om', 'onePager', 'bov'];
+const DOC_TYPES = ['om', 'onePager'];
 
 const SAMPLE_OM = {
   id: 'sample-render-001',
@@ -39,8 +40,8 @@ const SAMPLE_OM = {
     onePagerHighlights: '96% occupied\n48-unit complex\nStrong rent growth',
   },
   branding: {
-    primaryColor: '#1B2A4A',
-    accentColor: '#C9A84C',
+    // NOTE: no primaryColor/accentColor on purpose — brand overrides repaint
+    // every theme, which hides the themes' native palettes in samples.
     background: 'white',
     font: 'modern',
     template: 'institutional', // overridden per loop
