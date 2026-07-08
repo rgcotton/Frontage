@@ -163,14 +163,14 @@ export default function Editor() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28 }}>
           <button
             className="btn btn-ghost"
-            disabled={activeIndex === 0}
+            style={{ visibility: activeIndex === 0 ? 'hidden' : 'visible' }}
             onClick={() => setActiveSection(sections[activeIndex - 1].key)}
           >
             ← Previous
           </button>
           <button
             className="btn btn-primary"
-            disabled={activeIndex === sections.length - 1}
+            style={{ visibility: activeIndex === sections.length - 1 ? 'hidden' : 'visible' }}
             onClick={() => setActiveSection(sections[activeIndex + 1].key)}
           >
             Next →
