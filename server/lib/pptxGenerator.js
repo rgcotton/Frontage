@@ -134,10 +134,101 @@ function addCard(slide, x, y, w, h, title, rows, notes, photoPath) {
   }
 }
 
+function buildOnePagerSlides(pptx, om) {
+  const cover = om.cover || {};
+  const exec = om.executiveSummary || {};
+  const overview = om.overview || {};
+  const team = om.team || [];
+  const primary = team[0];
+  const propertyName = cover.propertyName || 'Untitled Property';
+
+  const addressLine = [
+    cover.formattedAddress || cover.addressLine1,
+    [cover.city, cover.state].filter(Boolean).join(', '),
+    cover.zip,
+  ]
+    .filter(Boolean)
+    .join('  •  ');
+
+  const slide = pptx.addSlide();
+  slide.background = { color: NAVY };
+
+  const coverPhoto = imagePathIfDrawable(om.id, cover.coverPhoto);
+  if (coverPhoto) {
+    slide.addImage({ path: coverPhoto, x: 0, y: 0, w: 10, h: 4.0, sizing: { type: 'cover', w: 10, h: 4.0 } });
+    slide.addShape('rect', { x: 0, y: 0, w: 10, h: 4.0, fill: { color: NAVY, transparency: 55 } });
+  }
+
+  if (cover.propertyType) {
+    slide.addText(cover.propertyType.toUpperCase(), { x: 0.4, y: 0.25, w: 9.2, h: 0.3, fontSize: 10, bold: true, color: GOLD });
+  }
+  slide.addText(propertyName, { x: 0.4, y: 0.55, w: 9.2, h: 0.9, fontSize: 28, bold: true, color: 'FFFFFF' });
+  if (addressLine) {
+    slide.addText(addressLine, { x: 0.4, y: 1.5, w: 9.2, h: 0.35, fontSize: 11, color: 'DDDDDD' });
+  }
+  if (cover.tagline) {
+    slide.addText(cover.tagline, { x: 0.4, y: 1.85, w: 9.2, h: 0.3, fontSize: 11, italic: true, color: GOLD });
+  }
+
+  const rawStats = [
+    ['Price', exec.offeringPrice, formatCurrency(exec.offeringPrice)],
+    ['Cap Rate', exec.capRate, formatPercent(exec.capRate)],
+    ['NOI', exec.noi, formatCurrency(exec.noi)],
+    ['Sq Ft', overview.squareFootage, overview.squareFootage ? `${formatNumber(overview.squareFootage)} SF` : null],
+    ['Occupancy', overview.occupancyPct, formatPercent(overview.occupancyPct)],
+  ].filter(([, raw]) => Boolean(raw));
+
+  if (rawStats.length) {
+    slide.addShape('rect', { x: 0, y: 4.0, w: 10, h: 0.85, fill: { color: NAVY } });
+    statBoxes(slide, rawStats.map(([label, , display]) => [label, display]), 4.05);
+  }
+
+  const allHighlights = cover.onePagerHighlights
+    ? cover.onePagerHighlights.split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 4)
+    : (exec.highlights || []).filter(Boolean).slice(0, 4);
+
+  const bottomY = rawStats.length ? 5.0 : 4.2;
+  if (allHighlights.length) {
+    slide.addText('Investment Highlights', { x: 0.4, y: bottomY, w: 6.5, h: 0.3, fontSize: 11, bold: true, color: GOLD });
+    slide.addText(
+      allHighlights.map((h) => ({
+        text: h,
+        options: { bullet: { code: '2022', color: GOLD }, breakLine: true, fontSize: 9, color: 'FFFFFF' },
+      })),
+      { x: 0.4, y: bottomY + 0.35, w: 6.5, h: 1.5, valign: 'top' }
+    );
+  }
+
+  const contactY = bottomY;
+  if (primary?.name) {
+    slide.addText(primary.name, { x: 7.1, y: contactY, w: 2.6, h: 0.35, fontSize: 11, bold: true, color: 'FFFFFF', align: 'right' });
+  }
+  if (primary?.title) {
+    slide.addText(primary.title, { x: 7.1, y: contactY + 0.35, w: 2.6, h: 0.28, fontSize: 9, color: GOLD, align: 'right' });
+  }
+  const contactLines = [primary?.phone, primary?.email].filter(Boolean).join('\n');
+  if (contactLines) {
+    slide.addText(contactLines, { x: 7.1, y: contactY + 0.65, w: 2.6, h: 0.5, fontSize: 8, color: 'CCCCCC', align: 'right' });
+  }
+  if (cover.brokerageName) {
+    slide.addShape('rect', { x: 0, y: 7.2, w: 10, h: 0.3, fill: { color: GOLD } });
+    slide.addText(cover.brokerageName, { x: 0.4, y: 7.22, w: 5, h: 0.26, fontSize: 10, bold: true, color: NAVY });
+    if (cover.brokerageWebsite) {
+      slide.addText(cover.brokerageWebsite, { x: 5.6, y: 7.22, w: 4, h: 0.26, fontSize: 9, color: NAVY, align: 'right' });
+    }
+  }
+}
+
 export async function generatePptx(om, outputPath) {
   const pptx = new PptxGenJS();
   pptx.defineLayout({ name: 'OM', width: 10, height: 7.5 });
   pptx.layout = 'OM';
+
+  if ((om.docType || 'om') === 'onePager') {
+    buildOnePagerSlides(pptx, om);
+    await pptx.writeFile({ fileName: outputPath });
+    return outputPath;
+  }
 
   const propertyName = om.cover.propertyName;
 

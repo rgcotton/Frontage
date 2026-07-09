@@ -1697,6 +1697,142 @@ select {
   font-weight: 700;
 }
 
+/* ── One-Pager Flipbook View ───────────────────────────────────── */
+.fp-onepager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--white);
+  overflow: hidden;
+}
+.fp-onepager-hero {
+  flex: 0 0 38%;
+  background: var(--navy);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.fp-onepager-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17,32,59,0.15) 0%, rgba(17,32,59,0.82) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px 16px;
+}
+.fp-onepager-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin: 4px 0 2px;
+}
+.fp-onepager-address {
+  font-size: 10px;
+  color: rgba(255,255,255,0.85);
+  margin-top: 2px;
+}
+.fp-onepager-tagline {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--gold);
+  margin-top: 3px;
+}
+.fp-onepager-stats {
+  display: flex;
+  background: var(--navy);
+  border-top: 2px solid var(--gold);
+  padding: 6px 12px;
+}
+.fp-onepager-stat {
+  flex: 1;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.25);
+  padding: 0 8px;
+}
+.fp-onepager-stat:last-child { border-right: none; }
+.fp-onepager-stat .l {
+  display: block;
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 2px;
+}
+.fp-onepager-stat .v {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.fp-onepager-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.fp-onepager-left {
+  flex: 1;
+  padding: 10px 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fp-onepager-card {
+  background: var(--gray-50, #F9FAFB);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.fp-onepager-poi {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--charcoal);
+}
+.fp-onepager-poi:last-child { border-bottom: none; }
+.fp-onepager-poi-time {
+  font-weight: 700;
+  color: var(--gold);
+}
+.fp-onepager-right {
+  flex: 0 0 28%;
+  background: var(--navy);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.fp-onepager-broker-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.fp-onepager-broker-title {
+  font-size: 9px;
+  color: var(--gold);
+  font-weight: 600;
+}
+.fp-onepager-broker-contact {
+  font-size: 9px;
+  color: rgba(255,255,255,0.8);
+}
+.fp-onepager-brokerage {
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
 .fp-team-layout {
   display: flex;
   height: 100%;

@@ -14,6 +14,7 @@ import DriveTimesPage from './pages/DriveTimesPage.jsx';
 import OfferingProceduresPage from './pages/OfferingProceduresPage.jsx';
 import TeamMemberPage from './pages/TeamMemberPage.jsx';
 import BackCoverPage from './pages/BackCoverPage.jsx';
+import OnePagerPage from './pages/OnePagerPage.jsx';
 import { getNavVisibility } from '../../lib/flipbookNav.js';
 
 export default function Flipbook({ om }) {
@@ -23,6 +24,33 @@ export default function Flipbook({ om }) {
   useEffect(() => {
     setCurrentPage(0);
   }, [om.id]);
+
+  if ((om.docType || 'om') === 'onePager') {
+    return (
+      <div className="flipbook-shell">
+        <HTMLFlipBook
+          width={520}
+          height={693}
+          size="stretch"
+          minWidth={300}
+          maxWidth={1000}
+          minHeight={400}
+          maxHeight={1400}
+          showCover={false}
+          maxShadowOpacity={0.3}
+          mobileScrollSupport
+          useMouseEvents
+          className="flipbook"
+          ref={bookRef}
+          onFlip={(e) => setCurrentPage(e.data)}
+        >
+          <PageWrapper key="onePager">
+            <OnePagerPage om={om} />
+          </PageWrapper>
+        </HTMLFlipBook>
+      </div>
+    );
+  }
 
   const hasOverview = Boolean(
     om.overview?.yearBuilt || om.overview?.squareFootage || om.overview?.lotSize ||
