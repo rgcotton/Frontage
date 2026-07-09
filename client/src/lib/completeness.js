@@ -6,6 +6,7 @@ export function computeCompleteness(om) {
   return {
     cover: Boolean(om.cover.propertyName && om.cover.addressLine1),
     branding: true,
+    design: true,
     overview: Boolean(om.overview.description),
     executiveSummary: Boolean(om.executiveSummary.narrative && om.executiveSummary.offeringPrice),
     market: Boolean(om.market.narrative),
