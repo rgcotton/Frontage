@@ -16,6 +16,7 @@ export const ALL_SECTION_LABELS = {
   propertyInfo: 'Property Info',
   dealHighlights: 'Deal Highlights',
   brokerInfo: 'Broker Info',
+  design: 'Design',
 };
 
 const KEYS_BY_DOC_TYPE = {
@@ -33,7 +34,7 @@ const KEYS_BY_DOC_TYPE = {
     'offeringProcedures',
     'team',
   ],
-  onePager: ['propertyInfo', 'dealHighlights', 'driveTimePois', 'brokerInfo'],
+  onePager: ['propertyInfo', 'dealHighlights', 'driveTimePois', 'brokerInfo', 'design'],
 };
 
 export const DOC_TYPE_LABELS = {

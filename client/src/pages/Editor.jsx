@@ -19,6 +19,7 @@ import PropertyInfoSection from '../components/sections/PropertyInfoSection.jsx'
 import DealHighlightsSection from '../components/sections/DealHighlightsSection.jsx';
 import BrokerInfoSection from '../components/sections/BrokerInfoSection.jsx';
 import DriveTimesSection from '../components/sections/DriveTimesSection.jsx';
+import DesignSection from '../components/sections/DesignSection.jsx';
 
 const SECTION_COMPONENTS = {
   cover: CoverSection,
@@ -36,6 +37,7 @@ const SECTION_COMPONENTS = {
   dealHighlights: DealHighlightsSection,
   brokerInfo: BrokerInfoSection,
   driveTimePois: DriveTimesSection,
+  design: DesignSection,
 };
 
 export default function Editor() {

@@ -96,7 +96,6 @@ function assembleMultiPageDocument(om, renderCtx, contentSections) {
 // ─── One Pager two-pass layout ───────────────────────────────────────────────
 
 const PX = onePager.PX_PER_IN; // 96
-const AVAILABLE_BOTTOM_PX = (11 - 0.45 - 4.4) * PX; // (FOOTER_TOP - STATS_TOP) * 96 = 590.4px
 const LEFT_COL_PAD_PX = 2 * 0.25 * PX;               // top + bottom column padding = 48px
 const GAP_PX = 0.1 * PX;                              // gap between cards = 9.6px
 const CARD_OVERHEAD_PX = 2 * 0.14 * PX + 22;          // card top+bottom padding + header ≈ 48.9px
@@ -113,7 +112,7 @@ async function measureOnePagerCards(page, html) {
   });
 }
 
-function computeOnePagerRenderParams(measurements, naturalStatsH, highlights, pois) {
+function computeOnePagerRenderParams(measurements, naturalStatsH, highlights, pois, AVAILABLE_BOTTOM_PX) {
   const statsH_px = naturalStatsH * PX;
   let dsH = measurements['deal-summary'] || 0;
   let hlH = measurements['highlights'] || 0;
@@ -259,7 +258,9 @@ export async function generatePdf(om, outputPath, ctxOverrides = {}) {
         : (om.executiveSummary?.highlights || []).filter(Boolean).slice(0, 4);
       const pois = (om.driveTimePois || []).slice(0, 4);
 
-      const renderParams = computeOnePagerRenderParams(measurements, naturalStatsH, highlights, pois);
+      const photoHEff = (om.branding?.onePagerLayout === 'compact-hero') ? 3 : 4.4;
+      const availableBottomPx = (11 - 0.45 - photoHEff) * PX;
+      const renderParams = computeOnePagerRenderParams(measurements, naturalStatsH, highlights, pois, availableBottomPx);
 
       // Pass 2: render final PDF with computed params
       await page.setViewport({ width: 816, height: 1056, deviceScaleFactor: 2 });

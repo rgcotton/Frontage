@@ -83,3 +83,58 @@ test('with no drive-time POIs at all, the layout renders exactly as before (high
   assert.ok(html.includes('Investment Highlights'));
   assert.ok(!html.includes('Drive Times'), 'the Drive Times card should not render at all when there are no POIs');
 });
+
+test('onePager with no onePagerFont set uses theme headingFont or Inter fallback', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Test Property';
+  // onePagerFont not set — must use theme defaults (institutional theme has Libre Franklin)
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(html.includes('Libre Franklin') || html.includes("'Inter'"), 'must use theme font when onePagerFont is not set');
+});
+
+test('onePager with no onePagerLayout set renders with default 4.4in photo height', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Test Property';
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(html.includes('4.4in'), 'default layout must use 4.4in photo height');
+});
+
+test('onePager with compact-hero layout renders with 3in photo height', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Test Property';
+  om.branding.onePagerLayout = 'compact-hero';
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(!html.includes('4.4in'), 'compact-hero must not use 4.4in photo height');
+  assert.ok(html.includes('height:3in'), 'compact-hero must use 3in photo height');
+});
+
+test('onePager with statStyle filled renders individual stat boxes', () => {
+  const om = emptyOm('test-id');
+  om.executiveSummary.offeringPrice = '5000000';
+  om.branding.statStyle = 'filled';
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(html.includes('border-radius:6px'), 'filled stat style must render individual rounded boxes');
+});
+
+test('onePager with elegant-serif font preset uses Georgia for headings', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Test Property';
+  om.branding.onePagerFont = 'elegant-serif';
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(html.includes('Georgia'), 'elegant-serif preset must use Georgia font');
+});
+
+test('onePager with geometric-sans font preset uses Trebuchet MS', () => {
+  const om = emptyOm('test-id');
+  om.cover.propertyName = 'Test Property';
+  om.branding.onePagerFont = 'geometric-sans';
+  const html = buildPages(om, defaultCtx).join('\n');
+  assert.ok(html.includes('Trebuchet MS'), 'geometric-sans preset must use Trebuchet MS');
+});
+
+test('emptyOm branding defaults include onePagerFont null, onePagerLayout default, statStyle minimal', () => {
+  const om = emptyOm('test-id', 'onePager');
+  assert.strictEqual(om.branding.onePagerFont, null);
+  assert.strictEqual(om.branding.onePagerLayout, 'default');
+  assert.strictEqual(om.branding.statStyle, 'minimal');
+});

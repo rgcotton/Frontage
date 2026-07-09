@@ -39,10 +39,40 @@ const BACKGROUND_PRESETS = {
   },
 };
 
-const FONT_PRESETS = {
-  modern: { fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", headingWeight: 700, titleSize: '21px' },
-  classic: { fontFamily: "Georgia, 'Times New Roman', Times, serif", headingWeight: 700, titleSize: '21px' },
-  bold: { fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", headingWeight: 800, titleSize: '24px' },
+export const FONT_PRESETS = {
+  modern: {
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    headingFont: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    bodyFont: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    headingWeight: 700,
+    titleSize: '21px',
+  },
+  classic: {
+    fontFamily: "Georgia, 'Times New Roman', Times, serif",
+    headingFont: "Georgia, 'Times New Roman', Times, serif",
+    bodyFont: "Georgia, 'Times New Roman', Times, serif",
+    headingWeight: 700,
+    titleSize: '21px',
+  },
+  bold: {
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    headingFont: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    bodyFont: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    headingWeight: 800,
+    titleSize: '24px',
+  },
+  'elegant-serif': {
+    headingFont: "Georgia, 'Times New Roman', serif",
+    bodyFont: "'Palatino Linotype', Palatino, Georgia, serif",
+    headingWeight: 700,
+    titleSize: '21px',
+  },
+  'geometric-sans': {
+    headingFont: "'Trebuchet MS', Helvetica, Arial, sans-serif",
+    bodyFont: "'Trebuchet MS', Arial, Helvetica, sans-serif",
+    headingWeight: 700,
+    titleSize: '21px',
+  },
 };
 
 export function buildTheme(branding = {}) {

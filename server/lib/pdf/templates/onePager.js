@@ -1,4 +1,4 @@
-import { pageShell, resolveTheme, buildDocument } from './layout.js';
+import { pageShell, resolveTheme, buildDocument, FONT_PRESETS } from './layout.js';
 import { esc, formatCurrency, formatPercent, formatNumber } from '../helpers/format.js';
 import { toDataUri } from '../helpers/images.js';
 
@@ -125,6 +125,16 @@ export function buildPages(om, ctx, params = {}) {
   const T = makeType(s);
 
   const theme = ctx.theme || resolveTheme(om.branding);
+
+  // Design section overrides — all default to existing behavior when not set
+  const fontPreset = FONT_PRESETS[om.branding?.onePagerFont] || null;
+  const effectiveHeadingFont = fontPreset?.headingFont || theme.headingFont || "'Inter', sans-serif";
+  const effectiveBodyFont = fontPreset?.bodyFont || theme.bodyFont || "'Inter', sans-serif";
+  const onePagerLayout = om.branding?.onePagerLayout || 'default';
+  const PHOTO_H_EFF = onePagerLayout === 'compact-hero' ? 3 : PHOTO_H;
+  const STATS_TOP_EFF = PHOTO_H_EFF;
+  const statStyle = om.branding?.statStyle || 'minimal';
+
   const { cover, overview, executiveSummary, team } = om;
   const addressLine = cover.formattedAddress
     ? cover.formattedAddress
@@ -151,21 +161,25 @@ export function buildPages(om, ctx, params = {}) {
   const stats = rawStats.filter(([, raw]) => Boolean(raw)).map(([label, , display]) => [label, display()]);
   const naturalStatsH = stats.length <= 2 ? 0.8 : 0.95;
   const statsH = statsHOverride !== null ? statsHOverride : naturalStatsH;
-  const bottomTop = stats.length ? STATS_TOP + statsH : STATS_TOP;
+  const bottomTop = stats.length ? STATS_TOP_EFF + statsH : STATS_TOP_EFF;
 
   const photoBg = ctx.coverPhotoUri
     ? `background-image: linear-gradient(180deg, rgba(17,32,59,0.05) 0%, rgba(17,32,59,0.25) 55%, rgba(17,32,59,0.88) 100%), url('${ctx.coverPhotoUri}'); background-size: cover; background-position: center;`
     : `background: linear-gradient(135deg, ${theme.primaryColor} 0%, #0c1830 100%);`;
 
-  const statsCells = stats
-    .map(
-      ([label, value], i) => `
-      <div style="flex:1; padding:0 ${sp(14, s)}; ${i > 0 ? `border-left:1.5px solid rgba(255,255,255,0.3);` : ''} text-align:center;">
-        <div style="font-size:${T.micro}; text-transform:uppercase; letter-spacing:${+(0.6*s).toFixed(2)}px; color:rgba(255,255,255,0.62); margin-bottom:${sp(7, s)};">${esc(label)}</div>
-        <div style="font-size:${T.stat}; font-weight:700; color:#fff; line-height:1;">${esc(value)}</div>
-      </div>`
-    )
-    .join('');
+  const statsCells = statStyle === 'filled'
+    ? stats.map(([label, value]) => `
+        <div style="flex:1; padding:0 ${sp(6, s)}; text-align:center;">
+          <div style="background:${theme.accentColor}; border-radius:${sp(6, s)}; padding:${sp(6, s)} ${sp(4, s)};">
+            <div style="font-size:${T.micro}; text-transform:uppercase; letter-spacing:${+(0.6*s).toFixed(2)}px; color:rgba(255,255,255,0.72); margin-bottom:${sp(5, s)};">${esc(label)}</div>
+            <div style="font-size:${T.stat}; font-weight:700; color:#fff; line-height:1;">${esc(value)}</div>
+          </div>
+        </div>`).join('')
+    : stats.map(([label, value], i) => `
+        <div style="flex:1; padding:0 ${sp(14, s)}; ${i > 0 ? `border-left:1.5px solid rgba(255,255,255,0.3);` : ''} text-align:center;">
+          <div style="font-size:${T.micro}; text-transform:uppercase; letter-spacing:${+(0.6*s).toFixed(2)}px; color:rgba(255,255,255,0.62); margin-bottom:${sp(7, s)};">${esc(label)}</div>
+          <div style="font-size:${T.stat}; font-weight:700; color:#fff; line-height:1;">${esc(value)}</div>
+        </div>`).join('');
 
   const highlightsInner = highlights.length ? buildHighlightsInner(highlights, theme, T, s) : '';
   const poisInner = pois.length ? buildPoisInner(pois, theme, T, s) : '';
@@ -219,12 +233,12 @@ export function buildPages(om, ctx, params = {}) {
 
   const brokerInner = buildBrokerInner(primary, headshotUri, hasLogo, logoBlock, theme, T, s);
 
-  const headingFont = theme.headingFont || "'Inter', sans-serif";
-  const bodyFont = theme.bodyFont || "'Inter', sans-serif";
+  const headingFont = effectiveHeadingFont;
+  const bodyFont = effectiveBodyFont;
 
   const inner = `
-    <div style="position:absolute; left:0; right:0; top:0; height:${PHOTO_H}in; ${photoBg}"></div>
-    <div style="position:absolute; left:0.55in; right:0.55in; bottom:${11 - PHOTO_H + 0.35}in;">
+    <div style="position:absolute; left:0; right:0; top:0; height:${PHOTO_H_EFF}in; ${photoBg}"></div>
+    <div style="position:absolute; left:0.55in; right:0.55in; bottom:${11 - PHOTO_H_EFF + 0.35}in;">
       ${cover.propertyType ? `<div style="font-size:${T.small}; font-weight:700; letter-spacing:1.4px; color:${theme.accentColor}; text-transform:uppercase; margin-bottom:${sp(8, s)}; font-family:${bodyFont};">${esc(cover.propertyType)}</div>` : ''}
       <div style="font-size:${T.display}; font-weight:700; color:#fff; line-height:1.1; font-family:${headingFont};">${esc(cover.propertyName) || 'Untitled Property'}</div>
       ${cover.tagline ? `<div style="font-size:${T.label}; font-weight:600; font-style:italic; color:${theme.accentColor}; margin-top:${sp(8, s)}; font-family:${headingFont};">${esc(cover.tagline)}</div>` : ''}
@@ -232,7 +246,7 @@ export function buildPages(om, ctx, params = {}) {
     </div>
 
     ${stats.length
-      ? `<div style="position:absolute; left:0; right:0; top:${STATS_TOP}in; height:${statsH}in; background:${theme.primaryColor}; border-top:3px solid ${theme.accentColor}; display:flex; align-items:center; padding:0 ${si(0.5, s)};">
+      ? `<div style="position:absolute; left:0; right:0; top:${STATS_TOP_EFF}in; height:${statsH}in; background:${theme.primaryColor}; border-top:3px solid ${theme.accentColor}; display:flex; align-items:center; padding:0 ${si(0.5, s)};">
           ${statsCells}
         </div>`
       : ''}
