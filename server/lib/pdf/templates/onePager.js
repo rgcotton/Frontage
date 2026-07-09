@@ -67,28 +67,42 @@ function buildPoisInner(pois, theme, T, s) {
 }
 
 function buildBrokerInner(primary, headshotUri, hasLogo, logoBlock, theme, T, s) {
-  const avatarSize = sp(48, s);
+  const avatarPx = Math.round(1.1 * 96 * s); // ~1.1 in diameter
   const avatarEl = (() => {
     if (headshotUri) {
-      return `<img src="${headshotUri}" style="width:${avatarSize}; height:${avatarSize}; border-radius:50%; object-fit:cover; border:2px solid ${theme.accentColor};" />`;
+      return `<img src="${headshotUri}" style="width:${avatarPx}px; height:${avatarPx}px; border-radius:50%; object-fit:cover; border:3px solid ${theme.accentColor};" />`;
     }
     const initials = primary?.name
       ? primary.name.trim().split(/\s+/).map((w) => w[0].toUpperCase()).slice(0, 2).join('')
       : '';
     if (!initials) return '';
-    return `<div style="width:${avatarSize}; height:${avatarSize}; border-radius:50%; background:${theme.primaryColor}; border:2px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:${sp(16, s)}; font-weight:700; color:#fff; letter-spacing:${sp(1, s)};">${initials}</div>`;
+    return `<div style="width:${avatarPx}px; height:${avatarPx}px; border-radius:50%; background:rgba(255,255,255,0.08); border:3px solid ${theme.accentColor}; display:flex; align-items:center; justify-content:center; font-size:${Math.round(34*s)}px; font-weight:700; color:#fff; letter-spacing:2px;">${initials}</div>`;
   })();
-  return `
+
+  // Top: headshot + name + title + contact
+  const topBlock = `<div style="display:flex; flex-direction:column; align-items:center; gap:${sp(5, s)};">
     ${avatarEl}
-    ${primary?.name ? `<div style="font-size:${T.base}; font-weight:700; color:#fff; margin-top:${sp(8, s)};">${esc(primary.name)}</div>` : ''}
-    ${primary?.title ? `<div style="font-size:${T.small}; color:${theme.accentColor}; margin-top:${sp(2, s)}; font-weight:600;">${esc(primary.title)}</div>` : ''}
-    <div style="width:${sp(28, s)}; height:1px; background:rgba(255,255,255,0.25); margin:${sp(8, s)} 0;"></div>
-    <div style="font-size:${T.micro}; color:#fff; line-height:1.6;">
+    ${primary?.name ? `<div style="font-size:${T.section}; font-weight:700; color:#fff; margin-top:${sp(8, s)}; line-height:1.2;">${esc(primary.name)}</div>` : ''}
+    ${primary?.title ? `<div style="font-size:${T.base}; color:${theme.accentColor}; font-weight:600; line-height:1.2;">${esc(primary.title)}</div>` : ''}
+    <div style="width:${sp(30, s)}; height:1px; background:rgba(255,255,255,0.2); margin:${sp(4, s)} 0;"></div>
+    <div style="font-size:${T.small}; color:rgba(255,255,255,0.85); line-height:1.75;">
       ${primary?.phone ? `<div>${esc(primary.phone)}</div>` : ''}
       ${primary?.email ? `<div>${esc(primary.email)}</div>` : ''}
     </div>
-    ${hasLogo ? `<div style="margin-top:${si(0.15, s)};">${logoBlock}</div>` : ''}
-  `;
+  </div>`;
+
+  // Center: brokerage logo (larger treatment)
+  const centerBlock = hasLogo
+    ? `<div style="display:flex; justify-content:center; align-items:center;">${logoBlock}</div>`
+    : `<div></div>`;
+
+  // Bottom: CTA with thin accent rule
+  const ctaBlock = `<div style="display:flex; flex-direction:column; align-items:center; gap:${sp(7, s)}; width:100%;">
+    <div style="width:100%; height:1px; background:${theme.accentColor}; opacity:0.55;"></div>
+    <div style="font-size:${T.micro}; color:rgba(255,255,255,0.65); text-transform:uppercase; letter-spacing:${+(0.8*s).toFixed(2)}px; line-height:1.55; text-align:center;">Contact broker for the<br>full offering memorandum</div>
+  </div>`;
+
+  return `${topBlock}${centerBlock}${ctaBlock}`;
 }
 
 // params shape:
@@ -112,9 +126,9 @@ export function buildPages(om, ctx, params = {}) {
 
   const theme = ctx.theme || resolveTheme(om.branding);
   const { cover, overview, executiveSummary, team } = om;
-  const addressLine = [cover.formattedAddress || cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip]
-    .filter(Boolean)
-    .join(', ');
+  const addressLine = cover.formattedAddress
+    ? cover.formattedAddress
+    : [cover.addressLine1, [cover.city, cover.state].filter(Boolean).join(', '), cover.zip].filter(Boolean).join(', ');
 
   const allHighlights = cover.onePagerHighlights
     ? cover.onePagerHighlights.split('\n').map((x) => x.trim()).filter(Boolean).slice(0, MAX_HIGHLIGHTS)
@@ -158,9 +172,9 @@ export function buildPages(om, ctx, params = {}) {
 
   const brokerageNameRaw = cover.brokerageName || primary?.name;
   const brokerageName = brokerageNameRaw ? esc(brokerageNameRaw) : '';
-  const brokerageWebsite = esc(cover.brokerageWebsite || cover.tagline || '');
+  const brokerageWebsite = esc(cover.brokerageWebsite || '');
   const hasLogo = Boolean(ctx.brokerLogoUri);
-  const logoBlock = hasLogo ? `<img src="${ctx.brokerLogoUri}" style="max-width:1.7in; max-height:0.6in; object-fit:contain; display:block;" />` : '';
+  const logoBlock = hasLogo ? `<img src="${ctx.brokerLogoUri}" style="max-width:1.8in; max-height:0.85in; object-fit:contain; display:block;" />` : '';
 
   // Card flex styles: use explicit basis when provided (extra-space mode),
   // otherwise size to content (natural or scale-down mode).
@@ -230,7 +244,7 @@ export function buildPages(om, ctx, params = {}) {
         <div style="flex:1; min-height:0;"></div>
         ${driveTimesCard}
       </div>
-      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:${si(0.2, s)}; box-sizing:border-box; font-family:${bodyFont};">
+      <div style="flex:0 0 ${100 - LEFT_COL_W_PCT}%; background:${theme.primaryColor}; display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; padding:${si(0.22, s)}; box-sizing:border-box; font-family:${bodyFont};">
         ${brokerInner}
       </div>
     </div>
