@@ -16,6 +16,7 @@ import * as offeringProcedures from './templates/offeringProcedures.js';
 import * as team from './templates/team.js';
 import * as backCover from './templates/backCover.js';
 import * as onePager from './templates/onePager.js';
+import * as disclaimer from './templates/disclaimer.js';
 
 // flow:true = sections that emit flowSection() HTML — they share printed pages.
 // flow omitted = sections that emit pageShell() HTML — each gets its own forced page.
@@ -67,8 +68,9 @@ function assembleMultiPageDocument(om, renderCtx, contentSections) {
   }
   const tocEntries = activeSections.map((s, i) => ({ label: s.label, number: i + 1 }));
   const tocPages = toc.buildPages(om, tocEntries, renderCtx);
+  const disclaimerPages = disclaimer.buildPages(om, renderCtx);
   const backCoverPages = backCover.buildPages(om, renderCtx);
-  const parts = [...coverPages, ...tocPages];
+  const parts = [...coverPages, ...disclaimerPages, ...tocPages];
   let flowBuffer = [];
   const flushFlow = () => {
     if (flowBuffer.length) {
