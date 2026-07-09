@@ -26,7 +26,10 @@ const STAT_STYLE_OPTIONS = [
   { value: 'filled', label: 'Filled Boxes', desc: 'Each stat in its own accent-color box' },
 ];
 
-export default function DesignSection({ value, onChange, omId, om }) {
+export default function DesignSection({ value: valueProp, onChange, omId, om }) {
+  // value is om.branding — guard against undefined for documents loaded before
+  // the SECTION_DATA_KEY mapping was in place or missing branding fields.
+  const value = valueProp ?? {};
   const [analyzing, setAnalyzing] = useState(false);
   const [suggestion, setSuggestion] = useState(null);
   const [error, setError] = useState(null);

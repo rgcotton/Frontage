@@ -77,6 +77,28 @@ test('create-then-read round-trips ownerEmail and backfills current branding def
   assert.equal(read.branding.statStyle, 'minimal');
 });
 
+test('getOm backfills onePagerFont/onePagerLayout/statStyle for a one-pager saved before the Design section existed', async () => {
+  const { store, dir } = await loadStoreInTempDir();
+  // Simulate a document saved before ff51c31: branding exists but lacks the new Design fields.
+  const legacy = {
+    id: 'legacy-design',
+    docType: 'onePager',
+    ownerEmail: 'owner@test.com',
+    cover: { propertyName: 'Old One Pager' },
+    branding: { primaryColor: '#123456', accentColor: '#654321', font: 'modern', template: 'institutional' },
+  };
+  await fs.mkdir(path.join(dir, 'data', 'oms'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'data', 'oms', 'legacy-design.json'), JSON.stringify(legacy));
+  const loaded = await store.getOm('legacy-design');
+  // Existing fields must be preserved.
+  assert.equal(loaded.branding.primaryColor, '#123456');
+  assert.equal(loaded.branding.template, 'institutional');
+  // New Design-section fields must be backfilled so DesignSection never receives undefined.
+  assert.equal(loaded.branding.onePagerFont, null);
+  assert.equal(loaded.branding.onePagerLayout, 'default');
+  assert.equal(loaded.branding.statStyle, 'minimal');
+});
+
 test('getOm backfills sharing/ndaSignatures/driveTimePois for a record saved before this feature existed', async () => {
   const { store, dir } = await loadStoreInTempDir();
   const legacy = { id: 'legacy1', docType: 'om', cover: { propertyName: 'Old Doc' } };

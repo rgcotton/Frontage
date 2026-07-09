@@ -40,6 +40,13 @@ const SECTION_COMPONENTS = {
   design: DesignSection,
 };
 
+// Some sections share an OM data field with another section (e.g. Design reads and
+// writes om.branding, same as Branding). Map section key → OM field key here so the
+// editor passes the right value/onChange rather than om['design'] (which is undefined).
+const SECTION_DATA_KEY = {
+  design: 'branding',
+};
+
 export default function Editor() {
   const { id } = useParams();
   const location = useLocation();
@@ -113,6 +120,7 @@ export default function Editor() {
   const sections = getSectionsForDocType(om.docType || 'om');
   const ActiveComponent = SECTION_COMPONENTS[activeSection];
   const activeIndex = sections.findIndex((s) => s.key === activeSection);
+  const dataKey = SECTION_DATA_KEY[activeSection] ?? activeSection;
 
   return (
     <div className="editor-layout">
@@ -153,8 +161,8 @@ export default function Editor() {
 
         <div className="section-fade" key={activeSection}>
           <ActiveComponent
-            value={om[activeSection]}
-            onChange={(val) => updateSection(activeSection, val)}
+            value={om[dataKey]}
+            onChange={(val) => updateSection(dataKey, val)}
             omId={om.id}
             om={om}
             onNavigateToSection={setActiveSection}
