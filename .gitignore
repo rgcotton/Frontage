@@ -11,6 +11,7 @@ client/dist/
 # generated/runtime data (kept locally, not committed)
 server/storage/data/oms/*.json
 server/storage/data/folders.json
+server/storage/data/logins.json
 server/storage/uploads/*/
 server/storage/generated/*
 
