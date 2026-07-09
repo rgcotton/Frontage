@@ -48,14 +48,19 @@ test('documents and folders are isolated per owner, including the signed-out wor
 
   const janeOm = await (await authedFetch('/api/oms', janeCookie, { method: 'POST', body: JSON.stringify({ docType: 'om' }) })).json();
   await authedFetch('/api/oms', bobCookie, { method: 'POST', body: JSON.stringify({ docType: 'om' }) });
-  await authedFetch('/api/oms', null, { method: 'POST', body: JSON.stringify({ docType: 'om' }) });
+
+  // Unauthenticated create must be rejected — prevents orphan docs with null ownerEmail.
+  const unauthCreate = await authedFetch('/api/oms', null, { method: 'POST', body: JSON.stringify({ docType: 'om' }) });
+  assert.equal(unauthCreate.status, 401, 'creating a document without a session must return 401');
 
   const janeList = await (await authedFetch('/api/oms', janeCookie)).json();
   const bobList = await (await authedFetch('/api/oms', bobCookie)).json();
-  const signedOutList = await (await authedFetch('/api/oms', null)).json();
   assert.equal(janeList.length, 1, 'jane should only see her own document');
   assert.equal(bobList.length, 1, 'bob should only see his own document');
-  assert.equal(signedOutList.length, 0, 'the signed-out workspace should see no documents');
+
+  // Unauthenticated list must be rejected — 401 lets the client detect an expired session.
+  const unauthList = await authedFetch('/api/oms', null);
+  assert.equal(unauthList.status, 401, 'listing documents without a session must return 401');
 
   const bobGetsJanesDoc = await authedFetch(`/api/oms/${janeOm.id}`, bobCookie);
   assert.equal(bobGetsJanesDoc.status, 404, "bob must not be able to fetch jane's document by id");

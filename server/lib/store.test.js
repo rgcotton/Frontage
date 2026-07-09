@@ -61,6 +61,22 @@ test('emptyOm defaults sharing, ndaSignatures, and driveTimePois to a safe empty
   assert.deepEqual(om.driveTimePois, []);
 });
 
+test('create-then-read round-trips ownerEmail and backfills current branding defaults', async () => {
+  const { store } = await loadStoreInTempDir();
+  const email = 'owner@test.com';
+  const created = await store.createOm('om', email);
+  assert.equal(created.ownerEmail, email);
+
+  const read = await store.getOm(created.id);
+  assert.equal(read.ownerEmail, email);
+  assert.equal(read.id, created.id);
+  assert.equal(read.docType, 'om');
+  // Regression: new branding fields added in ff51c31 must survive the create→read roundtrip
+  assert.equal(read.branding.onePagerFont, null);
+  assert.equal(read.branding.onePagerLayout, 'default');
+  assert.equal(read.branding.statStyle, 'minimal');
+});
+
 test('getOm backfills sharing/ndaSignatures/driveTimePois for a record saved before this feature existed', async () => {
   const { store, dir } = await loadStoreInTempDir();
   const legacy = { id: 'legacy1', docType: 'om', cover: { propertyName: 'Old Doc' } };

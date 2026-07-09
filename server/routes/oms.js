@@ -32,11 +32,15 @@ async function getOwnedOm(req, res) {
 }
 
 router.get('/', async (req, res) => {
-  res.json(await listOms(getOwnerEmail(req)));
+  const ownerEmail = getOwnerEmail(req);
+  if (!ownerEmail) return res.status(401).json({ error: 'Sign in required' });
+  res.json(await listOms(ownerEmail));
 });
 
 router.post('/', async (req, res) => {
-  const om = await createOm(req.body?.docType, getOwnerEmail(req));
+  const ownerEmail = getOwnerEmail(req);
+  if (!ownerEmail) return res.status(401).json({ error: 'Sign in required' });
+  const om = await createOm(req.body?.docType, ownerEmail);
   res.status(201).json(om);
 });
 

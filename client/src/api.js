@@ -3,6 +3,12 @@
 // header needed, and no client-side JS can read or forge the token.
 async function request(path, options = {}) {
   const res = await fetch(path, { ...options, credentials: 'include' });
+  if (res.status === 401) {
+    // Cookie expired or was never set — clear stale localStorage and re-prompt login.
+    localStorage.removeItem('frontage_user');
+    window.location.href = '/';
+    throw new Error('Session expired. Please sign in again.');
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Request failed: ${res.status}`);
